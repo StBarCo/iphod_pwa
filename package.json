@@ -1,0 +1,48 @@
+{
+  "repository": {},
+  "license": "MIT",
+  "scripts": {
+    "deploy": "webpack --mode production",
+    "watch": "webpack --mode development --watch",
+    "elm": "src",
+    "test": "elm-test",
+    "start": "npm run dev",
+    "dev": "webpack-dev-server --hot --colors --port 3000",
+    "build": "webpack",
+    "prod": "webpack -p"
+  },
+  "dependencies": {
+    "autoprefixer": "^6.4.0",
+    "bootstrap": "4.3.1",
+    "markdown": "^0.5.0",
+    "moment": "^2.19.0",
+    "node-sass": "^4.5.3",
+    "popper.js": "^1.14.7",
+    "pouchdb": "^7.0.0",
+    "pouchdb-browser": "^7.0.0",
+    "request-promise": "4.2.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "babel-loader": "^8.0.4",
+    "copy-webpack-plugin": "^4.5.0",
+    "css-loader": "^0.28.10",
+    "elm": "^0.19.0-bugfix2",
+    "elm-hot-webpack-loader": "^1.0.2",
+    "elm-test": "^0.19.0-beta10",
+    "elm-verify-examples": "^3.0.1",
+    "elm-webpack-loader": "^5.0.0",
+    "jquery": "^3.3.1",
+    "mini-css-extract-plugin": "^0.4.0",
+    "optimize-css-assets-webpack-plugin": "^4.0.0",
+    "postcss-loader": "^3.0.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.14",
+    "webpack-merge": "^4.1.4"
+  }
+}
