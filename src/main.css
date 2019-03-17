@@ -37,16 +37,49 @@ body, form, ul, table {
   margin-left: 10px;
   margin-right: 10px;
   font-family:  Arial, Helvetica, sans-serif;
+  font-size: 80%;
+}
+main {
+  font-size: 1rem;
 }
 
+@media screen and ( max-width: 1024px) {
+  main { font-size: 1.8rem; }
+}
+
+@media screen and (max-width: 800px) {
+  main { font-size: 1.6rem; }
+}
+
+@media screen and ( max-width: 768px) {
+  main { font-size: 1.3rem; }
+}
+
+@media screen and (max-width: 500px) {
+  main { font-size: 0.9rem; }
+}
+
+@media screen and (max-width: 320px) {
+  main { font-size: 0.9rem; }
+}
+
+
 .default {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .alternative {
   display: none;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
-button {    
+.btn {
+  margin-right: 0.7rem;
+}
+
+/* button {    
   box-shadow: -2px 3px 8px #888888;
   border-radius: 5px;
   border: solid 2px darkred;
@@ -55,70 +88,100 @@ button {
   text-align: center;
   margin: 0 1rem;
 }
+*/
 
 .lesson_today {
   display: none;
 }
 
+/*
 .button_default {
   opacity: 1.0;
 }
 .button_alternative {
   opacity: 0.5;
 }
+*/
+
+button p {
+  margin: 0;
+  padding: 0;
+}
 
 p.ref {
   font-style: italic;
-  font-size: 80%;
+  font-size: 0.9rem;
 }
 
 p.referenceText button{
-  margin: 0.5em 0 0.5em 2em;
+  margin: 0.5rem 0 0.5rem 2rem;
 }
 
 #ReferenceReading {
-  margin: 1em 0 1em 2em;
+  margin: 1rem 0 1rem 2rem;
 }
 
-p { margin: 0; }
+p { 
+  margin: 0;
+  padding: 0;
+}
 
-.title {
-  font-size: 3em;
+.rubric {
+  color: darkred;
+  font-style: italic;
+  margin-top: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.title p {
+  font-size: 2rem;
   font-weight: bold;
+  text-align: center;
 }
 
-.indent {
-  margin-left: 2em;
-}
+.section p { font-size: 1.5rem; }
+
+.line p { margin-bottom: 0; }
+
+.indent { margin-left: 2rem; }
+
+.indent p { margin-bottom: 0; }
+
+.indent p { margin: 0; padding: 0; }
 
 .section {
-  font-size: 2em;
+  font-size: 2rem;
   font-weight: bold;
 }
 
 span.ref {
-  font-size: 80%;
+  font-size: 1rem;
   font-style: italic;
-  margin-left: 2em;
+  margin-left: 2rem;
+  margin-bottom: 0;
 }
 p.psalm_name {
-  font-size: 1.3em;
+  font-size: 1.3rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
 }
 p.psalm_name span {
-  padding-left: 3em;
+  padding-left: 3rem;
   font-style: italic;
 }
 p.psalm1 sup{
   color: darkred;
-  padding-right: 1em;
+  padding-right: 1rem;
 }
+p.psalm1 { margin-bottom: 0; }
 p.psalm2 {
-  margin-left: 2em;
+  margin-left: 2rem;
+  margin-bottom: 0;
 }
 
 div.versical {
   column-count: 2;
-  column-gap: 2em;
+  column-gap: 2rem;
 }
 
 div.versical span.versical {
@@ -129,7 +192,7 @@ div.versical span {
   font-style: normal;
 /*
   position: relative;
-  left: 2em;
+  left: 2rem;
 */
 }
 
@@ -147,8 +210,8 @@ a.plain {
 
 #m-elm-container {
   position: relative;
-  top: -3em;
-  margin-left: 2em;
+  top: -3rem;
+  margin-left: 2rem;
   width: 92%;
 }
 
@@ -171,25 +234,25 @@ a.plain {
 .width100p { widows: 100%; }
 .backgroundWhite { background-color: white; }
 .hideable { display: none; }
-.marginLeft2em { margin-left: 2em; }
+.marginLeft2rem { margin-left: 2rem; }
 .versionSelected { background-color: lightgreen; }
 .versionNotSelected { background-color: white; }
-.relativeTop1em {
+.relativeTop1rem {
   position: relative;
-  top: 0em;
+  top: 0rem;
 }
 .buttonStyle {
   position: relative;
   float: left;
   padding: 2px 2px;
-  font-size: 0.8em;
+  font-size: 0.8rem;
   display: inline-block;
 }
 .aboutButtonStyle {
   position: relative;
   float: right;
   padding: 2px 2px;
-  font-size: 0.8em;
+  font-size: 0.8rem;
   display: inline-block;
 }
 .navigationButtonStyle {
@@ -197,7 +260,7 @@ a.plain {
   color: darkblue;
 }
 .collectStyle {
-  font-size: 1em;
+  font-size: 1rem;
   background-color: white;
   margin: 0;
   padding: 0;
@@ -205,21 +268,21 @@ a.plain {
   display: inline-block;
 }
 .MPEPtitleStyle {
-  font-size: 0.9em;
+  font-size: 0.9rem;
   color: blue;
-  height: 3em;
+  height: 3rem;
   caption-side: top;
   text-align: center;
 }
 .MPEPtextSytle {
-  font-size: 1em;
+  font-size: 1rem;
   margin: 0;
   padding: 0;
   list-style-type: none;
   display: inline-block;
 }
 .MPEPcollectStyle {
-  font-size: 1em;
+  font-size: 1rem;
   background-color: white;
   margin: 0;
   padding: 0;
@@ -227,14 +290,14 @@ a.plain {
   display: inline-block;
 }
 .SundayTitleStyle {
-  font-size: 0.9em;
+  font-size: 0.9rem;
   color: blue;
-  height: 3em;  
+  height: 3rem;  
   caption-side: top;
   text-align: center;
 }
 .SundayTextSytle {
-  font-size: 1em;
+  font-size: 1rem;
   margin: 0;
   padding: 0;
   background-color: white;
@@ -242,7 +305,7 @@ a.plain {
   display: inline-block;
 }
 .SundayCollectStyle {
-  font-size: 1em;
+  font-size: 1rem;
   background-color: white;
   margin: 0;
   padding: 0;
@@ -267,7 +330,7 @@ ul#font-sizer-id li {
 
 ul#font-sizer-id button {
   color: honeydew;
-  width: 1.5em;
+  width: 1.5rem;
   padding: 0;
 }
 
@@ -282,13 +345,13 @@ div.login {
 div.login ul{
   position: absolute;
   float: right;
-  top: -6em;
+  top: -6rem;
   right: 2%;
-  height: 1em;
-  font-size: 1em;
+  height: 1rem;
+  font-size: 1rem;
 }
 div.login ul li {
-  padding: 1em;
+  padding: 1rem;
 }
 
 /* jquery-ui */
@@ -300,7 +363,7 @@ div.login ul li {
 }
 
 .ui-menu .ui-menu-item .ui-menu { width: 150px;}
-.ui-widget { font-size: 0.8em; }
+.ui-widget { font-size: 0.8rem; }
 
 .ui-menu .ui-icon { 
   margin: 0;
@@ -312,7 +375,7 @@ div.login ul li {
 
 .help-block, .alert-danger {
   color: darkred;
-  margin-left: 2em;
+  margin-left: 2rem;
 }
 
 /* Phoenix flash messages */
@@ -339,10 +402,10 @@ form.link, form.button {
 .offices { /* dropdown */
   position: relative;
   display: inline-block;
-  padding-bottom: 1em;
+  padding-bottom: 1rem;
 }
 .offices-button{ /* dropbtn */
-  padding: 0.5em;
+  padding: 0.5rem;
   border: none;
   cursor: pointer;
   background-color: white;
@@ -352,10 +415,10 @@ form.link, form.button {
 .offices-options { /* dropdown-content */
   position: absolute;
   display: none;
-  top: 2em;
+  top: 2rem;
   z-index: 9;
-  padding-left: 0em;
-  min-width: 12em;
+  padding-left: 0rem;
+  min-width: 12rem;
   background-color: lightgrey;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   cursor: pointer;
@@ -368,7 +431,7 @@ li.offices-item {
 
 .offices-options li{ /* dropdown-content a */
   color: black;
-  padding: 0.2em 1em;
+  padding: 0.2rem 1rem;
   text-decoration: none;
   display: block;
 }
@@ -399,7 +462,7 @@ li.offices-item {
 
   #header-elm-container{
     position: relative;
-    top: -2em;
+    top: -2rem;
     text-align: center;
   }
    {
@@ -409,14 +472,14 @@ li.offices-item {
   #header-options {
     position: relative;@media screen and (max-width: 500px)
     margin-bottom: 0;
-    padding-bottom: 0.5em;
+    padding-bottom: 0.5rem;
 
     list-style-type: none;
   }
   
   li.option-item {
     display: inline;
-    margin-right: 0.5em;
+    margin-right: 0.5rem;
   }
 
   li.option-item button {
@@ -454,8 +517,8 @@ li.offices-item {
   #header {
     background-size: 17%;
     background-repeat: no-repeat;
-    background-position: 0em 0em;
-    margin-bottom: 0.1em;
+    background-position: 0rem 0rem;
+    margin-bottom: 0.1rem;
     line-height: 50px;
   }
     
@@ -463,17 +526,17 @@ li.offices-item {
     position: relative;
     background-image: url("/images/leg.jpg");
     background-repeat: no-repeat;
-    background-position: 0em 1em;
-    margin-left: 1em;
+    background-position: 0rem 1rem;
+    margin-left: 1rem;
     display: block;
-    height:4.5em;
+    height:4.5rem;
     text-indent: 100%;
-    margin-top: 1em;
+    margin-top: 1rem;
   }
 
   .home_link span {
     position: absolute;
-    left: -999em;
+    left: -999rem;
   }
   @media screen and (max-width: 500px) { 
     .home_link { background-image: none; }
@@ -500,13 +563,13 @@ li.offices-item {
   .current_date {
     color: darkblue;
     font-weight: bold;
-    font-size: 0.9em;
+    font-size: 0.9rem;
     text-align: center;
-    width: 17em;
+    width: 17rem;
   }
   
   #menu2 {
-    margin-top: -0.9em;
+    margin-top: -0.9rem;
   }
   
   button.delete {
@@ -525,7 +588,7 @@ li.offices-item {
   
   button {
     outline: none;
-    font-size: 0.8em;
+    font-size: 0.8rem;
     cursor: pointer;
   }
   button.quick-options {
@@ -538,20 +601,20 @@ li.offices-item {
   }
   .collect-button {
     position: relative;
-    top: -1em;
+    top: -1rem;
   }
   
   .collect_hide{
     display: none;
     position: relative;
-    margin-left: 0em;
+    margin-left: 0rem;
   }
   
   .collect_instruction {
-    font-size: 0.8em;
+    font-size: 0.8rem;
     font-style: italic;
     color: red;
-    margin-bottom: 1em;
+    margin-bottom: 1rem;
   }
   
   .collect_title {
@@ -559,19 +622,19 @@ li.offices-item {
   }
   
   .collect_text {
-    padding: 0 2em;
+    padding: 0 2rem;
   }
   
   .proper_title {
-    margin-top: 0em;
+    margin-top: 0rem;
     color: darkred;
     font-variant: small-caps;
     font-weight: bold;
   }
   
   .proper_text {
-    padding: 0 1em;
-    margin-top: -1em;
+    padding: 0 1rem;
+    margin-top: -1rem;
   }
 
   .period { display: hide; }
@@ -595,7 +658,7 @@ li.offices-item {
   .req {
       color: black;
       display: inline-block;
-      padding-right: 1em;
+      padding-right: 1rem;
       cursor: pointer;
       list-style-type: none;
   }
@@ -603,7 +666,7 @@ li.offices-item {
   .opt {
       color: grey;
       display: inline-block;
-      padding-right: 1em;
+      padding-right: 1rem;
       cursor: pointer;
       list-style-type: none;
   }
@@ -612,7 +675,7 @@ li.offices-item {
   .alt {
       color: darkblue;
       display: inline-block;
-      padding-right: 1em;
+      padding-right: 1rem;
       cursor: pointer;
       list-style-type: none;
   }
@@ -620,30 +683,30 @@ li.offices-item {
   .altOpt {
       color: indego;
       display: inline-block;
-      padding-right: 1em;
+      padding-right: 1rem;
       cursor: pointer;
       list-style-type: none;
   }
   
   
   .translationButton {
-    font-size: 0.8em;
-    margin-right: 1em;
+    font-size: 0.8rem;
+    margin-right: 1rem;
   }
   
   .config {
-    height: 2em;
-    padding-left: 1em;
+    height: 2rem;
+    padding-left: 1rem;
     padding-top: 5px;
     padding-bottom: 5px;
     font-family: 'Open Sans', Helvetica, sans-serif;
-    font-size: 0.8em;
+    font-size: 0.8rem;
     font-weight: 700;
     color: black;
   }
   
   .radio_button {
-    padding-left: 1em;
+    padding-left: 1rem;
   }
   input[type=radio].radio_button {
     position:absolute; 
@@ -664,7 +727,7 @@ li.offices-item {
     line-height: 20px;
     background-repeat: no-repeat;
     background-position: 0 0;
-    font-size: 0.8em;
+    font-size: 0.8rem;
     vertical-align: middle;
     cursor: pointer;
     padding-bottom: 8px;
@@ -686,28 +749,28 @@ li.offices-item {
   
   .pdescription {
     width: 40%;
-    padding: 0 0.5em;
-    font-size: 0.9em;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
   }
   .pform {
     width: 20%;
-    padding: 0 0.5em;
-    font-size: 0.9em;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
   }
   .pformat {
     width: 5%;
-    padding: 0 0.5em;
-    font-size: 0.9em;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
   }
   .pname {
     width: 25%;
-    padding: 0 0.5em;
-    font-size: 0.9em;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
   }
   .pdownload {
     width: 5%;
-    padding: 0 0.5em;
-    font-size: 0.9em;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
     color: #333333;
     background-color: #EEEEEE;
     padding: 2px 6px 2px 6px;
@@ -721,10 +784,10 @@ li.offices-item {
     text-decoration: none;
   }
   .versions {
-    font-size: 0.8em;
+    font-size: 0.8rem;
     text-align: left;
     width: 98%;
-    margin-left: 1em;
+    margin-left: 1rem;
   }
   .ver_abbr { width: 5%; }
   .ver_name { width: 65%; }
@@ -737,7 +800,7 @@ li.offices-item {
   }
   
   .day_of_month button {
-    font-size: 1em;
+    font-size: 1rem;
     font-weight: bold;
     vertical-align: center;
     margin: 2px;
@@ -754,7 +817,7 @@ li.offices-item {
     display: inline;
   }
   #calendar_month { 
-    width: 42em; 
+    width: 42rem; 
     height: 35rem;
     margin-left: 2rem;
   }
@@ -762,17 +825,17 @@ li.offices-item {
 @media screen and (max-width: 800px){ 
   #calendar_month { 
     width: 98%; 
-    font-size: 0.8em;
+    font-size: 0.8rem;
   } 
   #m-options1 {
     position: relative;
-    top: -5em;
+    top: -5rem;
   }
 
 }
 @media screen and (max-width: 600px) {
   #calendar_month {
-    font-size: 0.85em;
+    font-size: 0.85rem;
   }
 }
 
@@ -811,7 +874,7 @@ li.offices-item {
 
   #calendar_month th.mpep_link {
     text-decoration: none;
-    font-size: 1em;
+    font-size: 1rem;
     border: none;
   }
 
@@ -822,16 +885,16 @@ li.offices-item {
   
   #calendar_month th.season_link{
     text-decoration: none;
-    font-size: 1em;
+    font-size: 1rem;
     border-style: none;
   }
   main div #calendar_month{
-    margin-left: 2em;
+    margin-left: 2rem;
     width: 90%;
   }
 
   table.readings_table caption {
-    margin-bottom: 1em;
+    margin-bottom: 1rem;
   }
 
   div.td_link {
@@ -841,7 +904,7 @@ li.offices-item {
   .td-top, .td-bottom { position: relative; }
   .td-top { 
     top: 0;
-    min-height: 5em;
+    min-height: 5rem;
   }
   .td-bottom { 
     /* display: none; */
@@ -870,12 +933,12 @@ li.offices-item {
   }
   
   table.reading_table th {
-    font-size: 1.5em;
+    font-size: 1.5rem;
     text-align: center;
   }
   
   td.reading_table_td {
-    font-size: 1.5em;
+    font-size: 1.5rem;
     position: relative;
     vertical-align: top;
   }
@@ -957,15 +1020,15 @@ li.offices-item {
     overflow: hidden;
     background-color: white;
     box-shadow: -3px 3px 5px #888888;
-    margin-left: 0.3em;
+    margin-left: 0.3rem;
   }
 
   .whowhen {
     position: relative;
-    top: -1.2em;
-    font-size: 0.8em;
+    top: -1.2rem;
+    font-size: 0.8rem;
     color: blue;
-    margin-left: 1em;
+    margin-left: 1rem;
   }
 
   div#chat-container {
@@ -982,7 +1045,7 @@ li.offices-item {
   }
 
   #chat-container input {
-    margin-left: 0.3em;
+    margin-left: 0.3rem;
   }
 
   #chat-window-toggle {
@@ -991,14 +1054,14 @@ li.offices-item {
 
   ul.chat_list {
     list-style: none;
-    padding-left: 0.5em;
+    padding-left: 0.5rem;
   }
   ul.chat_list li {
-    margin-top: 0em;
-    margin-bottom: -1.5em;
-    line-height: 1em;
+    margin-top: 0rem;
+    margin-bottom: -1.5rem;
+    line-height: 1rem;
     font-family: serif;
-    font-size: 0.9em;
+    font-size: 0.9rem;
   }
 
   li.reading {
@@ -1009,12 +1072,12 @@ li.offices-item {
     position: relative;
     display: inline;
     background-color: lightgrey;
-    top: 5em;
-    margin-left: 0em;
+    top: 5rem;
+    margin-left: 0rem;
   }
 
   #reading-container {
-    margin-left:  2em;
+    margin-left:  2rem;
   }
   
   .reading-group{
@@ -1032,7 +1095,7 @@ li.offices-item {
   }
   
   .reading_list {
-    font-size: 1.5em;
+    font-size: 1.5rem;
   }
   
   .modal_header {
@@ -1046,47 +1109,47 @@ li.offices-item {
   .email {
       position: absolute;
       z-index: 999;
-      height: 15em;
-      width: 35em;
-      margin-top: 0.5em;
+      height: 15rem;
+      width: 35rem;
+      margin-top: 0.5rem;
       border: 2px solid darkblue;
-      border-radius: 0.5em;
+      border-radius: 0.5rem;
       background-color: linen;
   }
   
   .email-addr {
-      width: 20em;
-      margin-left: 1em;
-      margin-top: 1em;
-      padding-left: 1em;
+      width: 20rem;
+      margin-left: 1rem;
+      margin-top: 1rem;
+      padding-left: 1rem;
   }
    
   .email-subject {
       width: 90%;
-      margin-left: 1em;
-      padding-left: 1em;
+      margin-left: 1rem;
+      padding-left: 1rem;
   } 
   
   .email-msg-addr {
       width: 90%;
-      height: 5em;
-      margin-left: 1em;
-      padding-left: 1em;
+      height: 5rem;
+      margin-left: 1rem;
+      padding-left: 1rem;
   }
   
   .email-button {
       float: left;
-      margin-left: 1em;
+      margin-left: 1rem;
       padding: 2px 2px;
-      font-size: 0.8em;
+      font-size: 0.8rem;
       display: inline-block;
   }
 
   .user-username, 
   .user-password {
     width: 90%;
-    margin-left: 1em;
-    padding-left: 1em;
+    margin-left: 1rem;
+    padding-left: 1rem;
   }
   
   .modalDialog, 
@@ -1125,7 +1188,7 @@ li.offices-item {
   .humorModalDialog > div, 
   .loginModalDialog > div,
   .registerModalDialog > div {
-    width: 25em;
+    width: 25rem;
     height: auto;
     position: relative;
     margin: 10% auto;
@@ -1144,7 +1207,7 @@ li.offices-item {
     padding: 5px 20px 80px 20px;
   }
     > div {
-    width: 33.2em;
+    width: 33.2rem;
     height: auto;
     position: relative;
     margin: 10% auto;
@@ -1214,11 +1277,11 @@ li.offices-item {
   }
   
   #refl-edit ul{
-    margin-left: -2.5em;
+    margin-left: -2.5rem;
   }
   #refl-edit li {
     text-decoration: none;
-    margin-left: 0em;
+    margin-left: 0rem;
   }
   
   #refl-edit li button {
@@ -1227,44 +1290,44 @@ li.offices-item {
 
   .reflection-type {
     position: absolute;
-    top: 1em;
-    left: 8em;
+    top: 1rem;
+    left: 8rem;
   }
   
   #refl-edit textarea {
     position: absolute;
     margin: 0;
-    top: 5em; 
-    left: 12em; 
+    top: 5rem; 
+    left: 12rem; 
     min-height: 200px;
     max-height: 200px;
     width: 75%;
   }
   
   #preview {
-    margin-top: 2.8em;
+    margin-top: 2.8rem;
   }
 
   h3.reflection-preview {
     position: relative;
-    left: 10.2em;
-    top: 3em;
+    left: 10.2rem;
+    top: 3rem;
   }
   .reflection-preview-published {
     font-weight: normal;
-    font-size: 0.7em;
+    font-size: 0.7rem;
   }
   
   #md-text {
     position: absolute;
-    margin-top: 4em;
-    left: 12em;
-    padding: 0.5em;
+    margin-top: 4rem;
+    left: 12rem;
+    padding: 0.5rem;
     border: 1px solid black;
     width: 74%;
   }
   #md-text p{
-    text-indent: 4em;
+    text-indent: 4rem;
   }
   
   #md-text code {
@@ -1272,13 +1335,13 @@ li.offices-item {
   }
 
   #resources-container {
-    min-width: 35em;
+    min-width: 35rem;
     max-width: 80%;
   }
 
   table.resources { 
     width: 100%;
-    font-size: 0.8em;
+    font-size: 0.8rem;
   }
   th.resource_name { 
     position: relative;
@@ -1297,7 +1360,7 @@ li.offices-item {
   }
   th.resource_info { 
     position: relative;
-    font-style: 0.8em;
+    font-style: 0.8rem;
   }
   th.resource_get { 
     position: relative;
@@ -1328,7 +1391,7 @@ li.offices-item {
   }
 
   blockquote p{
-    margin: -1em;
+    margin: -1rem;
   }
 
 /*  

@@ -21,6 +21,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Navbar as Navbar
+import Bootstrap.Button as Button
 import Regex
 
 
@@ -446,17 +447,21 @@ buttonBuilder list superClass buttons =
         True -> buttons |> List.reverse            
         False ->
             let
-                cls = subList1 |> getAt 0 |> Maybe.withDefault "" |> makeId "button_"
+                cls = subList1 |> getAt 0 |> Maybe.withDefault "" |> makeId ""
                 label = subList1 |> getAt 2 |> Maybe.withDefault ""
                 -- altDivId = label |> makeId ""
                 buttonId = label |> makeId (superClass ++ "Button_")
         
             in
-            ( button  [ id buttonId
+            ( Button.button 
+                [ Button.primary
+                , Button.attrs
+                    [ id buttonId
                     , class cls
                     , onClick (AltButton superClass buttonId)
-                    ]                    
-                    [ Markdown.toHtml [] label ] :: buttons
+                    ]
+                ]
+                [ Markdown.toHtml [] label ] :: buttons
             ) |> buttonBuilder subList2 superClass
 
 
@@ -551,8 +556,8 @@ versical model =
     { model
     | page = 
         [ Grid.simpleRow
-            [ Grid.col [ Col.xs2, Col.sm2, Col.md1, Col.lg1] [ em [] [ text speaker ] ]
-            , Grid.col [ Col.xs8, Col.sm8, Col.md4, Col.lg4] [ text says ]
+            [ Grid.col [ Col.xs3, Col.sm3, Col.md2, Col.lg2] [ em [] [ text speaker ] ]
+            , Grid.col [ Col.xs8, Col.sm8, Col.md10, Col.lg6] [ text says ]
             ]
         ] |> List.append model.page 
     , raw = model.raw |> List.drop 3
@@ -632,7 +637,7 @@ subListTuple list splitHere =
 view : Model -> Document Msg
 view model =
     let
-        page = if model.showCalendar
+        showInfo = if model.showCalendar
             then
                 [ div [ id "calendar" ] (calendar model.calendar) 
                 , div [ id "daily_readings_list" ] (daily_readings_list model
@@ -640,6 +645,19 @@ view model =
                 ]
             else
                 [ div [ id "service"] model.page ]
+
+        page = 
+            [ main_ [ attribute "role" "main", class "container-fluid"]
+              [ div []
+                [ div [ class "row" ]
+                  [ div [ class "col-xs-12" ]
+                      [ input [ id "csrf_token", hidden True, name "csrf-token", value ""] [] ]
+                  ]
+                -- , div [ class "col-xs-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-12 offset-lg-0"] showInfo
+                , div [ class "col-12 col-xs-12 col-sm-12 col-md-12 offset-lg-12 col-xl-12"] showInfo
+                ]
+              ]
+            ]
 
     in
             
