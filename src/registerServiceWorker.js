@@ -29,7 +29,7 @@ export default function register() {
       return;
     }
 
-    window.addEventListener('load', () => {
+    window.addEventListener('load', function() {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
       if (!isLocalhost) {
@@ -46,10 +46,10 @@ export default function register() {
 function registerValidSW(swUrl) {
   navigator.serviceWorker
     .register(swUrl)
-    .then(registration => {
-      registration.onupdatefound = () => {
+    .then(function(registration) {
+      registration.onupdatefound = function() {
         const installingWorker = registration.installing;
-        installingWorker.onstatechange = () => {
+        installingWorker.onstatechange = function() {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
               // At this point, the old content will have been purged and
@@ -67,7 +67,7 @@ function registerValidSW(swUrl) {
         };
       };
     })
-    .catch(error => {
+    .catch(function(error) {
       console.error('Error during service worker registration:', error);
     });
 }
@@ -75,15 +75,15 @@ function registerValidSW(swUrl) {
 function checkValidServiceWorker(swUrl) {
   // Check if the service worker can be found. If it can't reload the page.
   fetch(swUrl)
-    .then(response => {
+    .then(function(response) {
       // Ensure service worker exists, and that we really are getting a JS file.
       if (
         response.status === 404 ||
         response.headers.get('content-type').indexOf('javascript') === -1
       ) {
         // No service worker found. Probably a different app. Reload the page.
-        navigator.serviceWorker.ready.then(registration => {
-          registration.unregister().then(() => {
+        navigator.serviceWorker.ready.then(function(registration) {
+          registration.unregister().then(function() {
             window.location.reload();
           });
         });
@@ -92,7 +92,7 @@ function checkValidServiceWorker(swUrl) {
         registerValidSW(swUrl);
       }
     })
-    .catch(() => {
+    .catch(function() {
       console.log(
         'No internet connection found. App is running in offline mode.'
       );
@@ -101,7 +101,7 @@ function checkValidServiceWorker(swUrl) {
 
 export function unregister() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(registration => {
+    navigator.serviceWorker.ready.then(function(registration) {
       registration.unregister();
     });
   }

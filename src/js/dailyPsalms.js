@@ -64,8 +64,8 @@ var dailyPsalms = [ undefined // 0th day of month
 ]
 
 function stringified(n) {
-  return  { mp: dailyPsalms[n].mp.map( p => innerStringify(p) )
-          , ep: dailyPsalms[n].ep.map( p => innerStringify(p) )
+  return  { mp: dailyPsalms[n].mp.map( function(p) { innerStringify(p) } )
+          , ep: dailyPsalms[n].ep.map( function(p) { innerStringify(p) } )
           }
 }
 

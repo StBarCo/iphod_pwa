@@ -2,11 +2,6 @@ port module Main exposing (..)
 
 -- where
 
--- import Debug
-
-
--- import StartApp
-
 import Browser exposing (Document)
 import Html exposing (..)
 import Html
@@ -231,6 +226,7 @@ type Msg
     | AltButton String String
     | RequestReference String String
     | TodaysLessons String CalendarDay
+    | ChangeMonth String Int Int
 --    | RequestLessons
 --    | UpdatePsalms String
 --    | UpdateLesson1 String
@@ -340,11 +336,11 @@ update msg model =
             (model, Cmd.batch [requestReference [readingId, ref], Cmd.none] )  
 
         TodaysLessons office day ->
-            let
-                _ =
-                    Debug.log "ToDaysLessons: " (office, day)
-            in
             (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
+
+        ChangeMonth whichMonth month year ->
+            (model, Cmd.none)
+                    
                     
 
 
@@ -639,7 +635,7 @@ view model =
     let
         showInfo = if model.showCalendar
             then
-                [ div [ id "calendar" ] (calendar model.calendar) 
+                [ div [ id "calendar span12" ] (calendar model.calendar) 
                 , div [ id "daily_readings_list" ] (daily_readings_list model
                     )
                 ]
@@ -688,7 +684,6 @@ daily_readings_list model =
             |> List.filter (\c -> c.show == True)
             |> getAt 0
             |> Maybe.withDefault initCalendarDay
-        _ = Debug.log "THIS DAY: " d
     in
     if d.show then buildDayList d else []       
 
@@ -789,13 +784,57 @@ lessonToText label refs =
 buildMonth : List CalendarDay -> List (Html Msg)
 buildMonth days =
     let
-        week sevenDays = buildWeek sevenDays
+        -- week sevenDays = buildWeek sevenDays
+        -- days[7] will always be in the current month
+        inThisMonth = days |> getAt 7 |> Maybe.withDefault initCalendarDay
+        thisMonth = inThisMonth.month
             
     in
-    [ table [ id "calendar_month" ]
-        (List.map week (days |> groupsOf 7) )
+    [ table [ id "calendar_month table-condensed table-bordered table-striper" ]
+        [ calendarHeader1 thisMonth inThisMonth.year
+        , calendarHeader2
+        , calendarBody days
+        ]
     ]    
 
+
+calendarHeader1 : Int -> Int -> Html Msg
+calendarHeader1 thisMonth year =
+    thead []
+    [ tr []
+        [ th [colspan 7]   
+          [ Button.button 
+            [ Button.primary, Button.attrs [ onClick (ChangeMonth "prev" thisMonth year) ] ]
+              [ i [class "icon-chevron-left" ] [] ]
+          , Button.button 
+            [ Button.primary, Button.attrs [ onClick (ChangeMonth "this" thisMonth year) ] ]
+              [ text (intToMonth thisMonth ++ " " ++ String.fromInt year) ]
+          , Button.button
+            [ Button.primary, Button.attrs [ onClick (ChangeMonth "next" thisMonth year) ] ]
+              [ i [class "icon-chevron-right" ] [] ]
+        ] 
+      ]
+    ]
+
+calendarHeader2 : Html Msg
+calendarHeader2 =
+    tr []
+    [ th [] [ text "Su" ]
+    , th [] [ text "Mo" ]
+    , th [] [ text "Tu" ]
+    , th [] [ text "We" ]
+    , th [] [ text "Th" ]
+    , th [] [ text "Fr" ]
+    , th [] [ text "Sa" ]
+    ]
+
+calendarBody : List CalendarDay -> Html Msg
+calendarBody days =
+    let
+        weeks thisWeek = buildWeek thisWeek
+            
+    in
+    tbody [] ( List.map weeks ( days |> groupsOf 7 ) )
             
 buildWeek : List CalendarDay -> Html Msg
 buildWeek days =
@@ -803,7 +842,7 @@ buildWeek days =
         buildDay day =
             td [ class ("calendar_day day_" ++ day.color), onClick (DayClick day) ]
             [ p [] [ text (day.dayOfMonth |> String.fromInt) ]
-            , p [] [ text day.pTitle ]
+            -- , p [] [ text day.pTitle ]
             ]
                 
     in
@@ -812,30 +851,12 @@ buildWeek days =
    
 intToDay : Int -> String
 intToDay n =
-    case n of
-    0 -> "Sunday"     
-    1 -> "Monday"     
-    2 -> "Tueday"     
-    3 -> "Wednesday"     
-    4 -> "Thursday"     
-    5 -> "Friday"     
-    6 -> "Saturday"     
-    _ -> "Invalid Day: " ++ (String.fromInt n)
+    [ "Sunday", "Monday", "Tueday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    |> getAt n |> Maybe.withDefault ("Invalid Day: " ++ String.fromInt n)
 
 intToMonth : Int -> String
 intToMonth n =
-    case n of
-        1 -> "January"
-        2 -> "February"
-        3 -> "March"
-        4 -> "April"
-        5 -> "May"
-        6 -> "June"
-        7 -> "July"
-        8 -> "August"
-        9 -> "September"
-        10 -> "October"
-        11 -> "November"
-        12 -> "December"
-        _ -> "Invalid Month: " ++ (String.fromInt n)
+    [ "January", "February", "March", "April", "May", "June", "July", "September", "October", "November", "December"]
+    |> getAt n 
+    |> Maybe.withDefault ("Invalid Month: " ++ String.fromInt n)
 
