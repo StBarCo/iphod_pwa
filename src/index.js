@@ -21,7 +21,7 @@ var LitYear = require( "./js/lityear.js" ).LitYear;
 var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
-// import Pouchdb from 'pouchdb';
+import Pouchdb from 'pouchdb';
 var pdb = Pouchdb;
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')

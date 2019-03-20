@@ -22,7 +22,8 @@
     "popper.js": "^1.14.7",
     "pouchdb": "^7.0.0",
     "pouchdb-browser": "^7.0.0",
-    "request-promise": "4.2.4"
+    "request-promise": "4.2.4",
+    "server": "^1.0.18"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
@@ -31,7 +32,7 @@
     "babel-loader": "^8.0.4",
     "copy-webpack-plugin": "^4.5.0",
     "css-loader": "^0.28.10",
-    "elm": "^0.19.0-bugfix2",
+    "elm": "^0.19.0-bugfix6",
     "elm-hot-webpack-loader": "^1.0.2",
     "elm-test": "^0.19.0-beta10",
     "elm-verify-examples": "^3.0.1",
