@@ -62,7 +62,6 @@ sync();
 function get_service(named) {
   // we might want to add offices other than acna
   var dbName = "acna_" + named;
-  console.log("GET SERVICE: ", dbName)
   service.get(dbName).then(  function(resp) {
     var now = moment()
       , day = [ "Sunday", "Monday", "Tuesday"
@@ -72,7 +71,6 @@ function get_service(named) {
       , season = LitYear.toSeason(now)
       , serviceHeader = [day, season.week.toString(), season.year, season.season, named]
     ;
-    console.log("TODAY: ", now)
     app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
   }).catch( function(err) {
     console.log("GET SERVICE ERROR: ", err);
@@ -135,10 +133,8 @@ function getOfficeLessons(office, day) {
   .then(  function(resp) {
     putCalendarLessons(office + "1_today", resp[office + "1"] );
     putCalendarLessons(office + "2_today", resp[office + "2"] );
-    console.log("GET OFFICE LESSONS", resp)
   })
   .catch(  function(err) {
-    console.log("GET OFFICE LESSONS ERROR: ", err)
   })
 }
 
@@ -362,10 +358,10 @@ function insertLesson(lesson, office) {
             $thisLesson.append(
                 "<div id='" + newId + "' class='" + klazz + "' >" 
               + BibleRef.lessonTitleFromKeys(keys[i].from, keys[i].to) 
-              + "<br></div>");
+              + "</div></br>");
             var $vss = $("#" + newId);
             r.rows.forEach(  function(row) {
-              $vss.append(row.doc.vss)
+              $thisLesson.append(row.doc.vss)
             })
           })
         })
@@ -407,7 +403,7 @@ function insertPsalms(office) {
     , mpep = (office === "morning_prayer") ? "mp" : "ep"
     , dayOfMonth = now.date()
     , psalmRefs = DailyPsalms.dailyPsalms[dayOfMonth][mpep]
-    , thesePsalms = psalmRefs.map(  function(p) { "acna" + p[0] } )
+    , thesePsalms = psalmRefs.map(  function(p) { return "acna" + p[0] } )
     , allPromises = []
     ;
     thesePsalms.forEach(  function(p) {

@@ -90,6 +90,10 @@ main {
 }
 */
 
+.lessonTitle {
+  font-size: 120%;
+}
+
 .lesson_today {
   display: none;
 }
@@ -119,6 +123,15 @@ p.referenceText button{
 
 #ReferenceReading {
   margin: 1rem 0 1rem 2rem;
+}
+
+span.vs { 
+  color: darkred; 
+  font-style: italic;
+  vertical-align: super;
+  font-size: 80%;
+  padding-left: 0.5rem;
+  padding-right: 0.3rem;
 }
 
 p { 

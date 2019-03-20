@@ -330,7 +330,7 @@ function lessonTitleFromKeys(keyFrom, keyTo) {
 }
 
 function getKeyByValue(object, value) {
-  return Object.keys(object).find(function(key) { object[key] === value });
+  return Object.keys(object).find(function(key) { return object[key] === value });
 }
 
 module.exports = 
