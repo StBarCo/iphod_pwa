@@ -268,7 +268,6 @@ function get_calendar() {
           }
         }
     }
-    console.log("CALENDAR: ", calday)
     app.ports.receivedCalendar.send( calday )
   })
   .catch(  function(err) {
