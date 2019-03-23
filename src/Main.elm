@@ -443,7 +443,7 @@ buttonBuilder list superClass buttons =
         True -> buttons |> List.reverse            
         False ->
             let
-                cls = subList1 |> getAt 0 |> Maybe.withDefault "" |> makeId ""
+                -- cls = subList1 |> getAt 0 |> Maybe.withDefault "" |> makeId ""
                 label = subList1 |> getAt 2 |> Maybe.withDefault ""
                 -- altDivId = label |> makeId ""
                 buttonId = label |> makeId (superClass ++ "Button_")
@@ -453,7 +453,7 @@ buttonBuilder list superClass buttons =
                 [ Button.primary
                 , Button.attrs
                     [ id buttonId
-                    , class cls
+                    --, class cls
                     , onClick (AltButton superClass buttonId)
                     ]
                 ]

@@ -281,10 +281,6 @@ app.ports.toggleButtons.subscribe(  function(request) {
   var section_id = section_button.replace("button", "id")
   $("#alternatives_" + div + " .alternative").hide(); // hide all the alternatives
   $("#" + section_id).show(); // show the selected alternative
-  // make all buttons unselected style
-  $("#alternatives_" + div + " .button_default").removeClass("button_default").addClass("button_alternative");
-  // make the selected button selected style
-  $("#" + section_button + ":button").removeClass("button_alternative").addClass("button_default");
 })
 
 app.ports.requestReference.subscribe(  function(request) {
@@ -353,19 +349,22 @@ function insertLesson(lesson, office) {
           resp.forEach( function(r, i) {
             var klazz = "lessonTitle " + styles[i]
               , newId = lesson + "_" + i
+              , [prefix, suffix] = styles[i] == "req" ? ["", "</br>"] : ["[ ", "]</br>"]
               ;
             $thisLesson.append(
-                "<div id='" + newId + "' class='" + klazz + "' >" 
+                "</br><div id='" + newId + "' >" 
+              + prefix
               + BibleRef.lessonTitleFromKeys(keys[i].from, keys[i].to) 
-              + "</div></br>");
+              + "</div>");
             var $vss = $("#" + newId);
             r.rows.forEach(  function(row) {
               $thisLesson.append(row.doc.vss)
             })
+            $thisLesson.append( suffix );
           })
         })
       })
-    .catch(  function(err) {
+    .catch(  function(err) { 
       console.log("FAILED GETTING MPEP REFS: ", err)
     })
 }
