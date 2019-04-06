@@ -174,6 +174,7 @@ port requestLessons : String -> Cmd msg
 port toggleButtons: List String -> Cmd msg
 port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
 port clearLessons : String -> Cmd msg
+port changeMonth : (String, Int, Int) -> Cmd msg
 
 
 -- SUBSCRIPTIONS
@@ -338,8 +339,8 @@ update msg model =
         TodaysLessons office day ->
             (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
 
-        ChangeMonth whichMonth month year ->
-            (model, Cmd.none)
+        ChangeMonth toWhichMonth month year ->
+            (model, Cmd.batch [changeMonth (toWhichMonth, month, year), Cmd.none] )
                     
                     
 
@@ -805,13 +806,13 @@ calendarHeader1 thisMonth year =
         [ th [colspan 7]   
           [ Button.button 
             [ Button.primary, Button.attrs [ onClick (ChangeMonth "prev" thisMonth year) ] ]
-              [ i [class "icon-chevron-left" ] [] ]
+              [ text "<--" ]
           , Button.button 
             [ Button.primary, Button.attrs [ onClick (ChangeMonth "this" thisMonth year) ] ]
               [ text (intToMonth thisMonth ++ " " ++ String.fromInt year) ]
           , Button.button
             [ Button.primary, Button.attrs [ onClick (ChangeMonth "next" thisMonth year) ] ]
-              [ i [class "icon-chevron-right" ] [] ]
+              [ text "-->" ]
         ] 
       ]
     ]
@@ -856,7 +857,7 @@ intToDay n =
 
 intToMonth : Int -> String
 intToMonth n =
-    [ "January", "February", "March", "April", "May", "June", "July", "September", "October", "November", "December"]
+    [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     |> getAt n 
     |> Maybe.withDefault ("Invalid Month: " ++ String.fromInt n)
 

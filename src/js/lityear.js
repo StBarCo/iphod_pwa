@@ -47,6 +47,51 @@ var rlds =
   , '12-28': 'holyInnocents'
   };
 
+/*
+var rlds =
+  { 312 : 'Epiphany'
+  , 324 : 'confessionOfStPeter'
+  , 331 : 'conversionOfStPaul'
+  , 339 : 'presentation'
+  , 361 : 'stMatthias'
+  ,  19 : 'stJoseph'
+  ,  25 : 'annunciation'
+  ,  56 : 'stMark'
+  ,  62 : 'stsPhilipAndJames'
+  ,  92 : 'visitation'
+  , 103 : 'stBarnabas'
+  , 116 : 'nativityOfJohnTheBaptist'
+  , 121 : 'stPeterAndPaul'
+  , 123 : 'dominion'
+  , 126 : 'independence'
+  , 144 : 'stMaryMagdalene'
+  , 147 : 'stJames'
+  , 159 : 'transfiguration'
+  , 168 : 'bvm'
+  , 177 : 'stBartholomew'
+  , 198 : 'holyCross'
+  , 205 : 'stMatthew'
+  , 213 : 'michaelAllAngels'
+  , 232 : 'stLuke'
+  , 237 : 'stJamesOfJerusalem'
+  , 242 : 'stsSimonAndJude'
+  , 256 : 'remembrance'
+  , 275 : 'stAndrew'
+  , 296 : 'stThomas'
+  , 300 : 'Christmas'
+  , 301 : 'stStephen'
+  , 302 : 'stJohn'
+  , 303 : 'holyInnocents'
+  };
+*/
+
+// IMPORTANT TO THE PROGRAMMER!!!
+// moment_date is MUTABLE
+// which is OK if you want to actually change moment_date
+// BUT if you want to use moment_date to calculate something
+// BE SURE TO CLONE it!!!
+// or give me a functional js
+
 export var LitYear = {
 
 thisYear: function (moment_date) { return moment(moment_date).year(); },
@@ -60,12 +105,24 @@ litYear: function (moment_date) {
   var yr = this.thisYear(moment_date);
   return moment_date.isSameOrAfter(this.advent(moment_date, 1)) ? yr + 1 : yr;
 },
+daysFromChristmas: function(moment_date) {
+  var xmas = this.christmasDay( moment(moment_date) )
+    , diff = this.daysTill(xmas, moment_date)
+    ;
+  if (diff < 0 ) { 
+    xmas = this.christmasDay( moment_date.clone().subtract(1, 'year'))
+    diff = this.daysTill(xmas, moment_date);
+  }
+  return diff;
+},
 litYearName: function (moment_date) { return litYearNames[ this.litYear(moment_date) % 3 ]; },
 isSunday: function (moment_date) { return moment_date.day() == sunday; },
 isMonday: function (moment_date) { return moment_date.day() == monday; },
 daysTillSunday: function (moment_date) { return 7 - moment_date.day(); },
 dateNextSunday: function (moment_date) { return moment_date.day(7); },
-dateLastSunday: function (moment_date) { return moment_date.day(0); },
+dateLastSunday: function (moment_date) { 
+  return (this.isSunday(moment_date) ? moment_date.day(-7) : moment_date.day(0));
+},
 firstCalendarSunday: function (moment_date) {
   return moment([moment_date.year(), moment_date.month()]).day(0);
 }, 
@@ -128,37 +185,10 @@ christmasSeason: function (moment_date, n) {
     ;
   return (n == 2) ? sundayAfter.add(1, 'weeks') : sundayAfter;
 },
-christmas: function (moment_date = moment()) {
-  switch (true) {
-    case Number.isInteger(moment_date):
-      switch (moment_date) {
-        case moment_date < 0:
-          console.log("There is no Christmas before year 0");
-          return NaN;
-          break;
-        case moment_date == 1: // presume it's the week in Christmas Season
-        case moment_date == 2: // presume it's the week in Christmas Season
-          let ns = this.date_next_sunday(this.christmas());
-          return ns.add(moment_date - 1, 'w');
-          break;
-        default:
-          return moment([moment_date, 11, 25]); // try to remember, js months are 0 - 11
-          break;
-    }
-    default: // presume it's a moment Object
-      return moment([moment_date.year(), 11, 25]); // try to remember, js months are 0 - 11
-  }
-  
+dayOfMarchYear: function(moment_date) {
+  var yr = (moment_date.year < 2) ? moment_date.getYear() - 1 : moment_date.getYear();
+  return this.daysTill( moment([yr, 2, 1]), moment_date ) + 1;
 },
-/*
-  def christmas(),      do: Timex.to_date {Timex.now(@tz).year, 12, 25},
-  def christmas(n) when n < 1, do: {:error, "There is no Christmas before year 0"},
-  def christmas(n) when n > 2, do: Timex.to_date {n, 12, 25} # presume n is a year
-  def christmas(n) do # n is 1 or 2, presume sunday after christmas
-    christmas |> date_next_sunday |> date_shift( weeks: n - 1)
-  end
-
-*/
 advent: function (moment_date, n) { 
   var sundayBefore = this.dateLastSunday(this.christmasDay(moment_date));
   return sundayBefore.add(n - 4, 'weeks'); 
@@ -168,7 +198,7 @@ epiphanyBeforeSunday: function (moment_date) {
   return moment_date.isSameOrAfter(this.epiphanyDay(moment_date)) && moment_date.isBefore(this.weekOfEpiphany(moment_date, 1)) ;
 },
 sundayAfterEpiphany: function (moment_date) { 
-  return dateNextSunday( this.epiphanyDay(moment_date) ) ;
+  return this.dateNextSunday( this.epiphanyDay(moment_date) ) ;
 },
 weekOfEpiphany: function (moment_date, n) { 
   return this.sundayAfterEpiphany(moment_date).add(n - 1, 'weeks');
@@ -200,39 +230,182 @@ toSeason: function (moment_date) {
     , weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday, 1))
     , daysTillEpiphany = this.daysTill(moment_date, this.epiphanyDay(moment_date))
     , weeksFromEpiphany = this.weeksTill(this.epiphanyDay(sunday), sunday)
-    , weeksFromChristmas = this.weeksTill(sunday, this.christmasDay(moment_date))
-    , isChristmas = this.isSunday(moment_date) && dOfMonth == "12/25"
-    , isHolyName = this.isSunday(moment_date) && dOfMonth == "1/1"
-    , isChristmas2 = (this.listContains(["1/1", "1/2", "1/3", "1/4", "1/5"], dOfMonth)  && (this.inRange(daysTillEpiphany, 1, 5)))
+    , weeksFromChristmas = Math.floor( this.daysFromChristmas(moment_date) / 7 )
+    , isChristmas = this.inRange( this.daysFromChristmas(moment_date), 0, 11)
     , weeksFromEaster = this.weeksTill(this.easter(moment_date), sunday)
     , daysTillEaster = this.daysTill(moment_date, this.easter(moment_date))
+    , [rldDate, rldTitle] = this.nextHolyDay( moment_date.clone() )
+    , isRLD = moment_date.isSame( rldDate )
     ;
+
+  switch (true) {
+
+  case isRLD:
+    return {season: rldTitle, week: 1, year: yrABC, date: moment_date };
+    break;
+  case (isChristmas):
+    return this.whereInChristmas(moment_date, yrABC);
+    break;
+  case (this.rightAfterAshWednesday(moment_date)): 
+    return {season: "ashWednesday", week: "1", year: yrABC, date: moment_date}; 
+    break;
+  case (this.rightAfterAscension(moment_date)):
+    return {season: "ascension",    week: "1", year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(daysTillEaster, 1, 6)):
+    return {season: "holyWeek",     week: (7 - daysTillEaster).toString(), year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(daysTillEaster, -1, -6)):
+    return {season: "easterWeek",   week: (0 - daysTillEaster).toString(), year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(weeksFromEaster, -2, -6)):
+    return {season: "lent",         week: (7 + weeksFromEaster).toString(), year: yrABC, date: moment_date};
+    break;
+  case (weeksFromEaster == -1):
+    return {season: "palmSunday",   week: "1", year: yrABC, date: moment_date};
+    break;
+  case (weeksFromEaster == -7):
+    return {season: "epiphany",     week: "9", year: yrABC, date: moment_date};
+    break;
+  case (weeksFromEaster == -8):
+    return {season: "epiphany",     week: "8", year: yrABC, date: moment_date};
+    break;
+  case (weeksFromEaster === 0):
+    return {season: "easterDay",    week: "1", year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(weeksFromEaster, 0, 6)):
+    return {season: "easter",       week: (1 + weeksFromEaster).toString(), year: yrABC, date: moment_date};
+    break;
+  case (weeksFromEaster == 7):
+    return {season: "pentecost",    week: "1", year: yrABC, date: moment_date};
+    break;
+  case (weeksFromEaster == 8):
+    return {season: "trinity",      week: "1", year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(weeksTillAdvent, 1, 27)):
+    return {season: "proper",       week: (29 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(weeksTillAdvent, 0, -3)):
+    return {season: "advent",       week: (1 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
+    break;
+  case (this.epiphanyBeforeSunday(moment_date)):
+    return {season: "epiphany",     week: "0", year: yrABC, date: moment_date};
+    break;
+  case (this.inRange(weeksFromEpiphany, 0, 8)):
+    return {season: "epiphany",     week: (weeksFromEpiphany + 1).toString(), year: yrABC, date: moment_date};
+    break;
+  default:
+    return {season: "unknown",      week: "unknown", year: "unknown",date: moment_date};
+  }
   
-  if      (this.rightAfterAshWednesday(moment_date)) { return {season: "ashWednesday", week: "1", year: yrABC, date: moment_date}; }
-  else if (this.rightAfterAscension(moment_date))    { return {season: "ascension",    week: "1", year: yrABC, date: moment_date}; }
-  else if (isChristmas)                         { return {season: "christmasDay", week: "1", year: yrABC, date: moment_date}; }
-  else if (isHolyName)                          { return {season: "holyName",     week: "1", year: yrABC, date: moment_date}; }
-  else if (this.christmas(y-1) == moment_date)       { return {season: "christmas",    week: "1", year: yrABC, date: moment_date}; }
-  else if (isChristmas2)                        { return {season: "christmas",    week: "2", year: yrABC, date: moment_date}; }
-  else if (this.inRange(daysTillEpiphany, 6, 11))    { return {season: "christmas",    week: "1", year: yrABC, date: moment_date}; }
-  else if (daysTillEaster == 2)                 { return {season: "goodFriday",   week: "1", year: yrABC, date: moment_date}; }
-  else if (this.inRange(daysTillEaster, 1, 6))       { return {season: "holyWeek",     week: (7 - daysTillEaster).toString(), year: yrABC, date: moment_date}; }
-  else if (this.inRange(daysTillEaster, -1, -6))     { return {season: "easterWeek",   week: (0 - daysTillEaster).toString(), year: yrABC, date: moment_date}; }
-  else if (this.inRange(weeksFromEaster, -2, -6))    { return {season: "lent",         week: (7 + weeksFromEaster).toString(), year: yrABC, date: moment_date}; }
-  else if (weeksFromEaster == -1)               { return {season: "palmSunday",   week: "1", year: yrABC, date: moment_date}; }
-  else if (weeksFromEaster == -7)               { return {season: "epiphany",     week: "9", year: yrABC, date: moment_date}; }
-  else if (weeksFromEaster == -8)               { return {season: "epiphany",     week: "8", year: yrABC, date: moment_date}; }
-  else if (weeksFromEaster === 0)               { return {season: "easterDay",    week: "1", year: yrABC, date: moment_date}; }
-  else if (this.inRange(weeksFromEaster, 0, 6))      { return {season: "easter",       week: (1 + weeksFromEaster).toString(), year: yrABC, date: moment_date}; }
-  else if (weeksFromEaster == 7)                { return {season: "pentecost",    week: "1", year: yrABC, date: moment_date}; }
-  else if (weeksFromEaster == 8)                { return {season: "trinity",      week: "1", year: yrABC, date: moment_date}; }
-  else if (this.inRange(weeksTillAdvent, 1, 27))     { return {season: "proper",       week: (29 - weeksTillAdvent).toString(), year: yrABC, date: moment_date}; }
-  else if (this.inRange(weeksTillAdvent, 0, -3))     { return {season: "advent",       week: (1 - weeksTillAdvent).toString(), year: yrABC, date: moment_date}; }
-  else if (this.inRange(weeksFromChristmas, 0, 1))   { return {season: "christmas",    week: (weeksFromChristmas + 1).toString(), year: yrABC, date: moment_date}; }
-  else if (this.epiphanyBeforeSunday(moment_date))   { return {season: "epiphany",     week: "0", year: yrABC, date: moment_date}; }
-  else if (this.inRange(weeksFromEpiphany, 0, 8))    { return {season: "epiphany",     week: (weeksFromEpiphany + 1).toString(), year: yrABC, date: date}; }
-  else                                          { return {season: "unknown",      week: "unknown", year: "unknown",date: moment_date}; }
-  
+},
+
+whereInChristmas: function (moment_date, yrABC) {
+  var now = moment_date.clone()
+    , dfx = this.daysFromChristmas(now)
+    , yr = (dfx > 6) ? now.year() - 1 : now.year() // dfx > 7 is the next year
+    , key = (this.christmasDay([yr]).day() * 12) + dfx
+    , xmasDay = { season: "christmasDay", week: '1', year: yrABC, date: now}
+    , xmas = "christmas"
+    , xmas1 = {season: xmas,    week: '1', year: yrABC, date: now}
+    , xmas2 = {season: xmas,    week: '2', year: yrABC, date: now}
+    , stStephen = {season: "stStephen", week: '', year: '', date: now}
+    , stJohn    = {season: "stJohn", week: '', year: '', date: now}
+    , holyInn   = {season: "holyInnocents", week: '', year: '', date: now}
+    , holyName  = {season: "holyName", week: '1', year: yrABC, date: now}
+    , obj = null;
+    ;
+  switch( key ) {
+    // Christmas on sunday
+    case 0: obj = xmasDay
+    case 1: obj = stStephen; break;
+    case 2: obj = stJohn; break;
+    case 3: obj = holyInn; break;
+    case 4:
+    case 5:
+    case 6: obj = xmasDay; break;
+    case 7: obj = holyName; break;
+    case 8:
+    case 9:
+    case 10:
+    case 11:  obj = xmas1; break;
+    // Christmas on monday
+    case 12: obj = xmasDay; break;
+    case 13: obj = stStephen; break;
+    case 14: obj = stJohn; break;
+    case 15: obj = holyInn; break;
+    case 16:
+    case 17: obj = xmasDay; break;
+    case 18: obj = xmas1; break;
+    case 19: obj = holyName; break;
+    case 20:
+    case 21:
+    case 22:
+    case 23: obj = xmas1; break;
+    // Christmas on tuesday
+    case 24: obj = xmasDay; break;
+    case 25: obj = stStephen; break;
+    case 26: obj = stJohn; break;
+    case 27: obj = holyInn; break;
+    case 28: obj = xmasDay; break;
+    case 29:
+    case 30: obj = xmas1; break;
+    case 31: obj = holyName; break;
+    case 32:
+    case 33:
+    case 34:
+    case 35: obj = xmas1; break;
+    // Christmas on wednesday
+    case 36: obj = xmasDay; break;
+    case 37: obj = stStephen; break;
+    case 38: obj = stJohn; break;
+    case 39: obj = holyInn; break;
+    case 40:
+    case 41:
+    case 42: obj = xmas1; break;
+    case 43: obj = holyName; break;
+    case 44:
+    case 45:
+    case 46: obj = xmas1; break;
+    case 47: obj = xmas2; break; 
+    // Christmas on thursday
+    case 48: obj = xmasDay; break;
+    case 49: obj = stStephen; break;
+    case 50: obj = stJohn; break;
+    case 51: obj = xmas1; break;
+    case 52: obj = holyInn; break;
+    case 53:
+    case 54: obj = xmas1; break;
+    case 55: obj = holyName; break;
+    case 56:
+    case 57: obj = xmas1; break;
+    case 58:
+    case 59: obj = xmas2; break
+    // Christmas on friday
+    case 60: obj = xmasDay; break;
+    case 61: obj = stStephen; break;
+    case 62: obj = xmas1; break;
+    case 63: obj = holyInn; break;
+    case 64: obj = stJohn; break;
+    case 65:
+    case 66: obj = xmas1; break;
+    case 67: obj = holyName; break;
+    case 68: obj = xmas1; break;
+    case 69:
+    case 70:
+    case 71: obj = xmas2; break;
+    // Christmas on saturday
+    case 72: obj = xmasDay; break;
+    case 73: obj = xmas1; break;
+    case 74: obj = stJohn; break;
+    case 75: obj = holyInn; break;
+    case 76: obj = stStephen; break;
+    case 77:
+    case 78: obj = xmas1; break;
+    case 79: obj = holyName; break;
+    default: obj = xmas2; // 80 - 83
+  }
+  return obj;
 },
 
 getSeasonName: function (season) {
@@ -379,21 +552,28 @@ holyDay: function (moment_date) {
 },
 
 nextHolyDay: function (moment_date) {
-  var keys = Object.keys(rlds)
+  var now = moment_date.clone()
+    , keys = Object.keys(rlds)
+    , key = undefined
     , last_key = keys[keys.length - 1]
-    , yr = moment_date.year()
-    , m_d = moment_date.format(mdFormat) // month_day
+    , yr = now.year()
+    , m_d = now.format(mdFormat) // month_day
     ;
-  if (m_d >= last_key) {
-    yr = yr + 1;
-    m_d = last_key;
-  }
-  keys.forEach(function(el) {
-    if (m_d < el) {
-      return [moment(yr + "-" + el), rlds[el]];
+
+  for (var i = 0; i < keys.length; i++) {
+    if ( m_d < keys[i]) {
+      key = keys[i];
+      break;
     }
-  });
-  return [moment_date, "unknown"]; // this should'ought'a never happen
+  }
+  // if this loop falls through then the date is 12/29 - 12/30
+  // and the next RLD is the first in the list
+  if (key === undefined) {
+    yr += 1;
+    key = keys[0];
+  }
+  return [moment(yr + "-" + key), rlds[key] ];
+
 },
 
 // function nextHolyDay(date) {

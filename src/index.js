@@ -18,6 +18,7 @@ import $ from 'jquery';
 var moment = require('moment');
 // var markdown = require('markdown').markdown;
 var LitYear = require( "./js/lityear.js" ).LitYear;
+var Calendar = require('./js/calendar.js').Calendar;
 var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
@@ -181,11 +182,11 @@ function putCalendarLessons( divId, refs ) {
 }
 
 app.ports.requestOffice.subscribe( function(request) {
+  var now = new moment().local();
   switch (request) {
     case "currentOffice": 
      // redirect to correct office based on local time
-      var now = new moment().local()
-        , mid = new moment().local().hour(11).minute(30).second(0)
+      var mid = new moment().local().hour(11).minute(30).second(0)
         , ep = new moment().local().hour(15).minute(0).second(0)
         , cmp = new moment().local().hour(20).minute(0).second(0)
         ;
@@ -195,86 +196,28 @@ app.ports.requestOffice.subscribe( function(request) {
       else { get_service("compline")}
       break;
     case "calendar":
-      get_calendar();
+      Calendar.get_calendar( now, app.ports.receivedCalendar );
       break;
     default: 
       get_service(request);
   };
 });
 
-function get_calendar() {
-  var now = moment().date(1).day('Sunday')
-    , daz = []
-    , daysInMonth = 41  // our visual calendar always has 42 days & 0 index
-    , allPromises = []
-    ;
-  for (var d = 0; d < daysInMonth; d++ ) {
-    daz[d] = LitYear.toSeason(now.clone())
-    now.add(1, 'day');
+app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
+  // month is coming as jan = 1; moment uses jan = 0
+  // that's why the weird math in the next line
+  var month = (toWhichMonth === "prev") ? fromMonth -1 : fromMonth + 1;
+  switch (true) {
+    case (month < 0): // december previous year
+      return Calendar.get_calendar( moment([year - 1, 11, 31]), app.ports.receivedCalendar );
+      break;
+    case (month > 11): // january next year
+      return Calendar.get_calendar( moment([year + 1, 0, 1]), app.ports.receivedCalendar );
+      break;
+    default: 
+      return Calendar.get_calendar( moment([year, month, 1]), app.ports.receivedCalendar );
   }
-  var dofKeys = daz.map(  function(d) {
-    return "mpep" + d.date.format("MMDD")
-  })
-  var euKeys = daz.map(  function(d) {
-    return d.season + d.week + d.year
-  })
-
-  dofKeys.forEach(  function(k) { allPromises.push( lectionary.get(k) ) });
-  euKeys.forEach(  function(k) { allPromises.push( iphod.get(k) ) });
-
-  return Promise.all( allPromises).then(  function(resp) {
-    var mpep = resp.slice(0, daysInMonth) // first 41 
-      , eu = resp.slice(daysInMonth) // last 41
-      , calday = []
-      ;
-    for ( var i = 0; i < daysInMonth; i++ ) {
-      var m = mpep[i]
-        , e = eu[i]
-        , dayOfMonth = daz[i].date.date()
-        , pss = DailyPsalms.stringified(dayOfMonth) // psalms index off 1
-        ;
-
-      calday[i] = 
-        { show: false
-        , id: i
-        , pTitle: m.title // String
-        , eTitle: e.title // String
-        , color: e.colors[0] // String
-        , colors: e.colors
-        , season: daz[i].season // String
-        , week: daz[i].week //String
-        , lityear: daz[i].year // String
-        , month: daz[i].date.month() // Int
-        , dayOfMonth: dayOfMonth // int
-        , year: daz[i].date.year() // Int
-        , dow: daz[i].date.day() // Int
-        , mp: {
-            lesson1: m.mp1
-          , lesson2: m.mp2
-          , psalms: pss.mp
-          , gospel: []
-          }
-        , ep: {
-            lesson1: m.ep1
-          , lesson2: m.ep2
-          , psalms: pss.ep
-          , gospel: []
-          }
-        , eu: {
-            lesson1: e.ot
-          , lesson2: e.nt
-          , psalms: e.ps.map(  function(p) { return p.read; } )
-          , gospel: e.gs
-          }
-        }
-    }
-    app.ports.receivedCalendar.send( calday )
-  })
-  .catch(  function(err) {
-    console.log("CALENDER GET FAILED: ", err)
-  })
-
-}
+})
 
 app.ports.toggleButtons.subscribe(  function(request) {
   var [div, section_button] = request.map(  function(r) { return r.toLowerCase(); } );

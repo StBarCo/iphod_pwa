@@ -1,0 +1,2 @@
+to run tests
+mocha -r esm tests --watch --require ignore-styles

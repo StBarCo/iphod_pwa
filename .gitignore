@@ -8,3 +8,27 @@ package-lock\.json
 yarn\.lock
 
 build/
+
+*.ldb
+
+*.log
+
+iphod/CURRENT
+
+iphod/LOCK
+
+iphod/LOG
+
+iphod/LOG\.old
+
+*.old
+
+iphod/MANIFEST-000020
+
+lectionary/CURRENT
+
+lectionary/LOCK
+
+lectionary/LOG
+
+lectionary/MANIFEST-000020
