@@ -1,6 +1,8 @@
 {
-  "short_name": "Elm App",
-  "name": "Create Elm App Sample",
+  "short_name": "Legereme",
+  "name": "Legereme = Liturgical Calendar and Offices",
+  "description": "Liturgical Calendar and Offices from ACNA",
+  "lang": "en-US",
   "icons": [
     {
       "src": "favicon.ico",
