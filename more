@@ -1,0 +1,82 @@
+Usage: yarn [options]
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  --generate-manpage=TEMPLATE
+                        fill in manual page TEMPLATE
+  --output=FILE         write output to FILE, instead of standard output
+  -n, --no-act, --dry-run, --pretend
+                        do not actually run any tests, merely print what would
+                        be run
+  --no-no-act, --no-dry-run, --no-pretend
+                        opposite of --no-act
+  -q, --quiet           be quiet, avoid progress reporting, only show errors
+  --no-quiet            opposite of --quiet
+  -v, --verbose         make progress reporting be more verbose ("wall of
+                        text"), instead of a one-line status info; this is
+                        turned automatically if there is not terminal
+  --no-verbose          opposite of --verbose
+  -s SHELL-LIBRARY, --shell-library=SHELL-LIBRARY
+                        include a shell library for the IMPLEMENTS sections to
+                        use
+  -r SCENARIO, --run=SCENARIO
+                        run only SCENARIO (this option can be repeated)
+  --tempdir=DIR         use DIR as the temporary directory for tests; it
+                        should be empty or not exist
+  --env=NAME=VALUE      add NAME=VALUE to the environment when tests are run
+  --snapshot            make snapshots of test working directory after each
+                        scenario step; you probably want to use this with
+                        --tempdir
+  --no-snapshot         opposite of --snapshot
+  --timings             report wall clock time for each scenario and step
+  --no-timings          opposite of --timings
+  --allow-missing-steps
+                        allow scenarios to reference steps that do not exist,
+                        by warning about them, but otherwise ignoring the
+                        scenarios
+  --no-allow-missing-steps
+                        opposite of --allow-missing-steps
+  --require-assumptions
+                        require ASSUMING to always pass
+  --no-require-assumptions
+                        opposite of --require-assumptions
+  --shell=SHELL         run IMPLEMENTS using SHELL
+  --shell-arg=ARG       use ARG when running shell
+  --cd-datadir          change to DATADIR when running commands
+  --no-cd-datadir       opposite of --cd-datadir
+  --stop-on-first-fail  stop if any scenario step fails, don't run more
+                        scenarios
+  --no-stop-on-first-fail
+                        opposite of --stop-on-first-fail
+
+  Configuration files and settings:
+    --dump-setting-names
+                        write out all names of settings and quit
+    --dump-config       write out the entire current configuration
+    --no-default-configs
+                        clear list of configuration files to read
+    --config=FILE       add FILE to config files
+    --list-config-files
+                        list all possible config files
+    --help-all          show all options
+
+  Logging:
+    --log=FILE          write log entries to FILE (default is to not write log
+                        files at all); use "syslog" to log to system log,
+                        "stderr" to log to the standard error output, or
+                        "none" to disable logging
+    --log-level=LEVEL   log at LEVEL, one of debug, info, warning, error,
+                        critical, fatal (default: debug)
+    --log-max=SIZE      rotate logs larger than SIZE, zero for never (default:
+                        0)
+    --log-keep=N        keep last N logs (10)
+    --log-mode=MODE     set permissions of new log files to MODE (octal;
+                        default 0600)
+
+  Peformance:
+    --dump-memory-profile=METHOD
+                        make memory profiling dumps using METHOD, which is one
+                        of: none, simple, or meliae (default: simple)
+    --memory-dump-interval=SECONDS
+                        make memory profiling dumps at least SECONDS apart

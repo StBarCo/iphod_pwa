@@ -1,16 +1,14 @@
-import './main.css';
+import './js/scripture.css';
 import { Elm } from './Main.elm';
 import registerServiceWorker from './registerServiceWorker';
 
-const app = Elm.Main.init({
-  node: document.getElementById('root')
+window.app = Elm.Main.init({
+  node: document.getElementById('root'),
+  flags: [window.innerHeight, window.innerWidth]
 });
 
 registerServiceWorker();
-import "./css/normalize.css";
-import "./css/bootstrap.min.css";
-import appcss from "./main.css";
-// 
+
 import $ from 'jquery';
 // 
 // // var popper = require('popper.js');
@@ -61,8 +59,20 @@ function syncError() {console.log("SYNC ERROR")};
 sync();
 
 function get_service(named) {
+  // have to map offices here
   // we might want to add offices other than acna
-  var dbName = "acna_" + named;
+  var dbName = 
+    { morning_prayer: "mp"
+    , midday: "midday"
+    , evening_prayer: "evening_prayer"
+    , compline: "compline"
+    , family: "family"
+    , reconciliation: "reconciliation"
+    , toTheSick: "toTheSick"
+    , communionToSick: "communionToSick"
+    , timeOfDeath: "timeOfDeath"
+    , vigil: "vigil"
+    }[named];
   service.get(dbName).then(  function(resp) {
     var now = moment()
       , day = [ "Sunday", "Monday", "Tuesday"
@@ -72,6 +82,8 @@ function get_service(named) {
       , season = LitYear.toSeason(now)
       , serviceHeader = [day, season.week.toString(), season.year, season.season, named]
     ;
+
+    request_lessons(named);
     app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
   }).catch( function(err) {
     console.log("GET SERVICE ERROR: ", err);
@@ -181,6 +193,7 @@ function putCalendarLessons( divId, refs ) {
   })
 }
 
+
 app.ports.requestOffice.subscribe( function(request) {
   var now = new moment().local();
   switch (request) {
@@ -192,7 +205,7 @@ app.ports.requestOffice.subscribe( function(request) {
         ;
       if ( now.isBefore(mid)) { get_service("morning_prayer") }
       else if ( now.isBefore(ep) ) { get_service("midday")} // { get_service("midday")}
-      else if ( now.isBefore(cmp) ) { get_service("morning_prayer")} // { get_service ("evening_prayer") }
+      else if ( now.isBefore(cmp) ) { get_service("evening_prayer")} // { get_service ("evening_prayer") }
       else { get_service("compline")}
       break;
     case "calendar":
@@ -254,6 +267,10 @@ app.ports.requestReference.subscribe(  function(request) {
 })
 
 app.ports.requestLessons.subscribe(  function(request) {
+  request_lessons(request);
+})
+
+function request_lessons(request) {
   if ( ["morning_prayer", "evening_prayer", "eucharist"].includes(request) ) { 
     insertPsalms( request )
     insertLesson( "lesson1", request )
@@ -263,7 +280,7 @@ app.ports.requestLessons.subscribe(  function(request) {
     insertProper( request )
   }
   // otherwise, don't do anything
-})
+}
 
 function insertLesson(lesson, office) {
   // mpepmmdd - mpep0122
@@ -276,6 +293,7 @@ function insertLesson(lesson, office) {
         , refs = thisReading.map(  function(r)  { return r.read })
         , styles = thisReading.map( function(r) { return r.style})
         , keys = BibleRef.dbKeys(refs)
+        //, refTitles = keys.map( function(r) { return BibleRef.lessonTitleFromKeys(r) } )
         , allPromises = []
         ;
       keys.forEach(  function(k) {
@@ -288,25 +306,17 @@ function insertLesson(lesson, office) {
       });
       return Promise.all( allPromises )
         .then(  function(resp) {
-          var $thisLesson = $("#" + lesson);
+          var thisLesson = [];
           resp.forEach( function(r, i) {
-            var klazz = "lessonTitle " + styles[i]
-              , newId = lesson + "_" + i
-              , [prefix, suffix] = styles[i] == "req" ? ["", "</br>"] : ["[ ", "]</br>"]
-              ;
-            $thisLesson.append(
-                "</br><div id='" + newId + "' >" 
-              + prefix
-              + BibleRef.lessonTitleFromKeys(keys[i].from, keys[i].to) 
-              + "</div>");
-            var $vss = $("#" + newId);
-            r.rows.forEach(  function(row) {
-              $thisLesson.append(row.doc.vss)
-            })
-            $thisLesson.append( suffix );
+            thisLesson[i] =
+              { ref: refs[i]
+              , style: styles[i]
+              , vss: r.rows.map( function(el) { return el.doc } )
+              }
           })
+          app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) )
         })
-      })
+    })
     .catch(  function(err) { 
       console.log("FAILED GETTING MPEP REFS: ", err)
     })
@@ -352,11 +362,33 @@ function insertPsalms(office) {
     })
     Promise.all( allPromises )
       .then(  function(resp) {
-        resp.map( function(r,i) {
-          r.from = psalmRefs[i][1]
-          r.to = psalmRefs[i][2]
-        })
-        showPsalms(resp);
+        // A lesson has 1 or more readings
+        // a reading has 1 or more verses
+        var thisLesson = [] // all the lessons from this response
+        resp.forEach( function(r,i) {
+          var vss = []; // all the verses for this reading
+          var [chap, from, to] = psalmRefs[i]
+          for(var j = from; j <= to; j++) { // add these verses to the reading
+            if (r[j] === undefined) { break; }
+            vss.push(
+              { book: "PSA"
+              , chap: chap
+              , vs: j
+              , vss: [r[j].hebrew, r[j].title, r[j].first, r[j].second].join("\n")
+              }
+            )
+          }
+          thisLesson.push ( // add this reading to the lesson
+            { ref: r.name + "\n" + (r.title ? r.title : "") //some titles are undefined
+            , style: "req"
+            , vss: vss
+            }
+          )
+        }) // end of resp.forEach
+        // console.log("PSALMS-> ", resp)
+        // showPsalms(resp);
+        app.ports.receivedLesson.send( JSON.stringify({lesson: "psalms", content: thisLesson}) )
+
       })
       .catch(  function(err) {
         console.log("PROBLEM GETTING PSALMS: " + err);

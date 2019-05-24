@@ -1,177 +1,483 @@
-port module Main exposing (..)
-
--- where
+port module Main exposing (main)
 
 import Browser exposing (Document)
+import Browser.Events
+import Element
+import Element.Background as Background
+import Element.Border as Border
+import Element.Input as Input
+-- Event is singular on purpose
+import Element.Events as Event
+import Element.Font as Font
+import Element.Region as Region
 import Html exposing (..)
-import Html
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Html.Attributes
+import Html.Parser
+import Markdown
 import Platform.Sub as Sub exposing (batch)
 import Platform.Cmd as Cmd exposing (Cmd)
-import Markdown
-import Update.Extra as Update exposing (andThen, filter)
-import List.Extra exposing (getAt, splitWhen, groupsOf, updateAt, updateIf)
-import Bootstrap.Grid as Grid
-import Bootstrap.Grid.Col as Col
-import Bootstrap.Grid.Row as Row
-import Bootstrap.Navbar as Navbar
-import Bootstrap.Button as Button
-import Regex
+import Mark
+import Mark.Default
+import Parser exposing ( .. )
+import Regex exposing(replace, Regex)
+import List.Extra exposing (getAt, find, findIndex, setAt, splitWhen, groupsOf, updateAt, updateIf)
+-- import Parser.Advanced exposing ((|.), (|=), Parser)
+import String.Extra exposing (toTitleCase)
+import MyParsers exposing (..)
+import Palette exposing (scale, scaleFont, pageWidth)
+import Models exposing (..)
+import Json.Decode as Decode
 
 
--- MAIN
-{-
-main =
-    Browser.element
-        { init = init
-        , update = update
-        , view = view
-        , subscriptions = subscriptions
-        }
+
+{-| Here we define our document.
+
+This may seem a bit overwhelming, but 95% of it is copied directly from `Mark.Default.document`. You can then customize as you see fit!
+
 -}
-
-main = 
-    Browser.document
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
-
-
--- MODEL
-
-type alias ReferenceStyle =
-    { style: String
-    , read: String
-    } 
-
-type alias AssignedReadings =
-    { lesson1: List ReferenceStyle
-    , lesson2: List ReferenceStyle
-    , psalms: List String
-    , gospel: List ReferenceStyle
-    }
-
-initAssignedReadings : AssignedReadings
-initAssignedReadings =
-    { lesson1 = []
-    , lesson2 = []
-    , psalms = []
-    , gospel = []
-    }
-
-type alias Reading =
-    { key: String
-    , text: String
-    }
-initReading : Reading
-initReading =
-    { key = ""
-    , text = ""
-    }
-
-type alias CalendarDay = 
-    { show      : Bool
-    , id        : Int
-    , pTitle    : String
-    , eTitle    : String
-    , color     : String
-    , colors    : List String
-    , season    : String
-    , week      : String
-    , lityear   : String
-    , month     : Int
-    , dayOfMonth: Int
-    , year      : Int
-    , dow       : Int
-    , mp        : AssignedReadings
-    , ep        : AssignedReadings
-    , eu        : AssignedReadings
-    }
-
-
-initCalendarDay : CalendarDay
-initCalendarDay =
-    { show       = False
-    , id         = 0
-    , pTitle     = ""
-    , eTitle     = ""
-    , color      = ""
-    , colors     = []
-    , season     = ""
-    , week       = ""
-    , lityear    = ""
-    , month      = 0
-    , dayOfMonth = 0
-    , year       = 0
-    , dow        = 0
-    , mp         = initAssignedReadings
-    , ep         = initAssignedReadings
-    , eu         = initAssignedReadings
-    }
-
-type alias Model =
-    { pageTitle: String
-    , pageName: String
-    , page: List (Html Msg)
-    , navbarState : Navbar.State
-    , raw : List String -- raw data
-    , requestLesson : String
-    , currentAlt : String
-    , day : String
-    , week : String
-    , year : String
-    , season : String
-    , showCalendar : Bool
-    , calendar : List CalendarDay
-    }
-
-initModel : Navbar.State -> Model
-initModel state =
-    { pageTitle     = "Legereme"
-    , pageName      = "currentOffice"
-    , page          = []
-    , navbarState   = state
-    , raw           = []
-    , requestLesson = ""
-    , currentAlt    = ""
-    , day           = ""
-    , week          = ""
-    , year          = ""
-    , season        = ""
-    , showCalendar  = False
-    , calendar      = []
-    }
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
+document =
     let
-        (navbarState, navbarCmd) =
-            Navbar.initialState NavbarMsg
+        defaultText =
+            Mark.Default.textWith
+                { code = Mark.Default.defaultTextStyle.code
+                , link = Mark.Default.defaultTextStyle.link
+                , inlines =
+                    [ Mark.inline "Drop"
+                        (\txt model ->
+                            Element.row [ Font.variant Font.smallCaps ]
+                                (List.map (\item -> Mark.Default.textFragment item model) txt)
+                        )
+                        |> Mark.inlineText
+                    ]
+                , replacements = Mark.Default.defaultTextStyle.replacements
+                }
     in
-    ( initModel navbarState, Cmd.batch[requestOffice "currentOffice", navbarCmd] )
+    Mark.document
+        (\children model ->
+            Element.textColumn
+                [ Element.spacing (scale model 8)
+                , Element.padding 10
+                , Element.centerX
+                , pageWidth model
+                , scaleFont model 14
+                ]
+                (List.map (\child -> child model) children)
+        )
+        (Mark.startWith
+            (\myTitle myContent ->
+                myTitle :: myContent
+            )
+            ( begining )
+            (Mark.manyOf
+                [ title [ Font.size 48, Font.center ] defaultText
+                , Mark.Default.header [ Font.size 36 ] defaultText
+                , Mark.Default.image []
+                , rubric
+                , quote
+                , reference
+                , prayer
+                , plain
+                , versicals 
+                , psalmTitle
+                , pageNumber
+                , MyParsers.section
+                , collectTitle defaultText
+                , openingSentence
+                , toggle
+                , options
+                , antiphon 
+                , lesson
+                , finish 
+                -- Toplevel Text
+                , Mark.map (\viewEls model -> 
+                    Element.paragraph 
+                        [ Font.alignLeft
+                        ] 
+                        (viewEls model)
+                    ) 
+                    defaultText
+                ]
+            )
+        )
 
--- tempModel is used to build protions of a page to be embedded in div's etc
-tempModel : String -> Model -> Model
-tempModel label model =
-    { model 
-    | page = []
-    , requestLesson = ""
-    , currentAlt = label
-    }
+emptyDivWithId : Model -> String -> Element.Element msg
+emptyDivWithId model s =
+    let 
+        attrs = 
+            [ (Html.Attributes.id s) |> Element.htmlAttribute
+            , Html.Attributes.class "lessons" |> Element.htmlAttribute
+            , pageWidth model
+            ]
+    in
+    Element.textColumn attrs [Element.none]
 
+hide : Element.Attribute msg
+hide = 
+    Html.Attributes.style "display" "none"
+    |> Element.htmlAttribute
+
+show : Element.Attribute msg
+show = 
+    Html.Attributes.style "display" "block"
+    |> Element.htmlAttribute
+
+showMenu : Model -> Element.Attribute msg
+showMenu model =
+    if model.showMenu then show else hide
+
+menuOptions : Model -> Element.Element Msg
+menuOptions model =
+    Element.column [ showMenu model, scaleFont model 18 ]
+        --[ clickOption "calendar" "Calendar"
+        [ clickOption "morning_prayer" "Morning Prayer"
+        , clickOption "midday" "Midday Prayer"
+        , clickOption "evening_prayer" "Evening Prayer"
+        , clickOption "compline" "Compline"
+        , clickOption "family" "Family Prayer"
+        , clickOption "reconciliation" "Reconciliation"
+        , clickOption "toTheSick" "To the Sick"
+        , clickOption "communionToSick" "Communion to Sick"
+        , clickOption "timeOfDeath" "Time of Death"
+        , clickOption "vigil" "Prayer for a Vigil"
+        ]
+    
+
+lesson : Mark.Block (Model -> Element.Element Msg)
+lesson =
+    Mark.block "Lesson"
+        (\request model ->
+            let
+                thisLesson = case (request |> String.trim) of
+                    "lesson1" -> showLesson model model.lessons.lesson1
+                    "lesson2" -> showLesson model model.lessons.lesson2
+                    "psalms"  -> showPsalms model model.lessons.psalms
+                    -- "gospel"  -> model.lessons.gospel
+                    _         -> [Element.none]
+
+            in
+            
+            Element.column []
+            thisLesson
+        )
+        Mark.string
+
+showPsalms : Model -> Lesson -> List (Element.Element Msg)
+showPsalms model thisLesson =
+    thisLesson.content |> List.map (\l ->
+        let
+            pss = l.vss 
+                |> List.map (\v -> psalmLine v.vs v.text )
+                |> List.concat
+            nameTitle = l.ref |> String.split "\n"
+            thisName = nameTitle |> getAt 0 |> Maybe.withDefault "" |> toTitleCase
+            thisTitle = nameTitle |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
+        in
+        Element.column [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} ]
+        (   Element.paragraph 
+            (Palette.lessonTitle model) 
+            [ Element.text thisName
+            , Element.el 
+                [ Font.alignRight
+                , Font.italic
+                , Element.paddingEach { top = 0, right = 0, bottom = 0, left = 20}
+                ]
+                (Element.text thisTitle)
+            ]
+        :: pss
+        )
+    )
+
+psalmLine : Int -> String -> List (Element.Element Msg)
+psalmLine n str =
+    let
+        lns = str |> String.split "\n"
+        hebrew = lns |> getAt 0 |> Maybe.withDefault ""
+        psTitle = lns |> getAt 1 |> Maybe.withDefault ""
+        ln1 = lns   |> getAt 2
+                    |> Maybe.withDefault "" 
+                    |> String.replace "&#42;" "*"
+        ln2 = lns |> getAt 3 |> Maybe.withDefault ""
+        psSection = if hebrew |> String.isEmpty
+            then Element.none
+            else
+                Element.paragraph [Element.paddingXY 0 10]
+                [ Element.el 
+                    [ Element.htmlAttribute <| Html.Attributes.style "margin-left" "-3rem"]
+                    (Element.text hebrew)
+                , Element.el [Font.italic, Element.paddingXY 20 0] (Element.text psTitle)
+                ]
+
+    in
+    -- all the weird margin-left stuff is for outdenting
+    [ Element.paragraph [Element.htmlAttribute <| Html.Attributes.style "margin-left" "3rem"]
+        [ psSection
+        , Element.el [Element.htmlAttribute <| Html.Attributes.style "margin-left" "-3rem"] Element.none
+        , Element.el 
+            [ Font.color Palette.darkRed
+            , Element.padding 5
+            ]
+            ( Element.text ( String.fromInt n ) )
+        , Element.el [] (Element.text ln1)
+        ]
+    , Element.paragraph [Element.htmlAttribute <| Html.Attributes.style "margin-left" "4rem"] 
+        [ Element.el [Element.htmlAttribute <| Html.Attributes.style "margin-left" "-2rem"] Element.none 
+        , Element.text ln2 
+        ]
+    ]
+
+showLesson : Model -> Lesson -> List (Element.Element Msg)
+showLesson model thisLesson =
+    thisLesson.content |> List.map (\l ->
+        let
+            vss = l.vss 
+                |> List.map (\v -> parseLine v.text)
+                |> List.concat
+        in
+        
+        Element.column []
+        [ Element.paragraph (Palette.lessonTitle model) [Element.text l.ref]
+        , Element.paragraph [] vss
+        ]
+    )
+    
+
+parseLine : String -> List (Element.Element Msg)
+parseLine str = 
+    let
+        els = case (Html.Parser.run str) of
+            Ok nodes ->
+             nodes |> List.map (\n -> parseNode n) |> List.concat
+
+            _ ->
+                let
+                    _ = Debug.log "ERROR:" "Couldn't parse String"
+                in
+                [ ]
+    in
+    els
+
+-- we need parseNodes because Html.Parser.Element has a list of Nodes that will have to be parsed
+parseNodes : List (Html.Parser.Node) -> List (Element.Element Msg)
+parseNodes nodes =
+    nodes |> List.map (\n -> parseNode n) |> List.concat
+
+parseNode : Html.Parser.Node -> List (Element.Element Msg)
+parseNode node = 
+    case node of
+        Html.Parser.Text s -> [Element.text s] 
+        
+        Html.Parser.Comment s -> [Element.none]
+
+        Html.Parser.Element s attrs ndz ->
+            newElement s attrs (parseNodes ndz)
+
+newElement : String 
+                -> List (Html.Parser.Attribute) 
+                -> List (Element.Element Msg) 
+                -> List (Element.Element Msg)
+newElement ofType attrs withTheseEls =
+    case ofType of
+        "span" ->
+            let
+                thisClass = getClass attrs
+                firstEl = getFirstEl withTheseEls
+            in
+            ( Element.el (Palette.class thisClass) firstEl)
+            :: ( withTheseEls |> List.drop 1)
+        "div" ->
+            ( Element.paragraph 
+                (Palette.class (getClass attrs) ) 
+                [ getFirstEl withTheseEls ]
+            )
+            :: ( withTheseEls |> List.drop 1 )
+            
+
+        _ -> 
+            let
+                _ = Debug.log "CANNOT HANDLE THIS ELEMENT: " ofType
+            in
+            withTheseEls
+
+getClass : List (Html.Parser.Attribute) -> String
+getClass attrs =
+    attrs
+    |> List.filter (\tup -> (Tuple.first tup) == "class")
+    |> getAt 0
+    |> Maybe.withDefault ("class", "")
+    |> Tuple.second
+
+getFirstEl : List (Element.Element Msg) -> Element.Element Msg
+getFirstEl list =
+    list |> getAt 0 |> Maybe.withDefault Element.none
+
+
+finish : Mark.Block (Model -> Element.Element Msg)
+finish =
+    Mark.block "Finish"
+    (\office model ->
+        Element.none
+    )
+    Mark.string
+
+begining : Mark.Block (Model -> Element.Element Msg)
+begining =
+    Mark.stub "Begin"
+    (\ model ->
+        Element.column (Palette.menu model)
+        [ Element.row [Element.centerX, Element.spacing (scale model 200)]
+            [ Element.el [] (Element.text "Legereme")
+            , Element.image 
+                [ Element.height (Element.px 36)
+                , Element.width (Element.px 35)
+                , Element.alignRight
+                , Background.color (Element.rgba 0.9 0.9 0.9 0.7)
+                , Event.onClick ToggleMenu
+                ] 
+                { src = "./menu.svg"
+                , description = "Toggle Menu"
+                }
+            ]
+        , menuOptions model
+--            ]
+        ]
+    )
+
+clickOption : String -> String -> Element.Element Msg
+clickOption request label =
+    Element.el
+    [ Event.onClick (Office request) ]
+    ( Element.text label )
+
+title : List (Element.Attribute msg) 
+    -> Mark.Block (Model -> List (Element.Element msg)) 
+    -> Mark.Block (Model -> Element.Element msg)
+title attrs titleText =
+    Mark.block "Title"
+        (\elements model ->
+            Element.column [ ]
+            [ Element.paragraph
+                (Region.heading 1 :: attrs)
+                (elements model)
+            ]
+        )
+        titleText
+
+
+toggle: Mark.Block (Model -> Element.Element Msg)
+toggle =
+    Mark.block "Toggle"
+        (\everything model ->
+            let
+                t = everything |> stringToOptions
+                opts = case ( thisOptions t.tag model.options ) of
+                    Just o -> o
+                    Nothing ->
+                        let
+                            _ = update (UpdateOption t)
+                        in
+                        t
+                btns = opts.options |> List.map (\o -> 
+                    Input.button
+                    (Palette.button model)
+                    { onPress = Just (ClickToggle opts.tag o.tag opts)
+                    , label = (Element.text o.label)
+                    }
+                    )
+                selectedText = opts.options
+                    |> List.foldl (\o acc ->
+                        if o.selected == "True" then acc ++ o.text else acc
+                        ) ""
+            in
+            Element.column []
+            [ Element.el [] (Element.text opts.label)
+            , Element.row [ Element.spacing 10, Element.padding 10 ] btns
+            , Element.el [ Element.alignLeft ] (Element.text selectedText)
+            ]    
+        )
+        Mark.multiline
+
+options: Mark.Block (Model -> Element.Element Msg)
+options =
+    Mark.block "Options"
+        (\everything model ->
+            let
+                t = everything |> stringToOptions
+                opts = case ( thisOptions t.tag model.options ) of
+                    Just o -> o
+                    Nothing -> 
+                        let
+                            _ = update (UpdateOption t)
+                        in 
+                        t
+
+                btns = opts.options |> List.map(\o ->
+                    Input.button 
+                     (Palette.button model)
+                     -- opts.tag == the options group tag
+                     -- o.tag == the selected option tag
+                     { onPress = Just (ClickOption opts.tag o.tag opts) 
+                     , label = (Element.text o.label)
+                     }
+                    )
+                selectedText = opts.options
+                    |> List.foldl (\o acc ->
+                        if o.selected == "True" then acc ++ o.text else acc
+                    ) ""
+            in
+
+            Element.column [] 
+            [ Element.paragraph [] [Element.text opts.label]
+            , Element.wrappedRow [ Element.spacing 10, Element.padding 10] btns
+            , Element.el [ Element.alignLeft ] (Element.text selectedText)
+            ]
+
+            
+        )
+        Mark.multiline
+
+openingSentence : Mark.Block (Model -> Element.Element msg)
+openingSentence =
+    Mark.block "OpeningSentence"
+        (\parseThis model -> 
+            let
+                okParsed = Parser.run openingSentenceParser parseThis
+            in
+            case okParsed of
+                Ok os ->
+                    Element.textColumn [ pageWidth model ] 
+                    [ Element.paragraph (Palette.openingSentenceTitle model)
+                        [ Element.text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
+                    , Element.paragraph [] [Element.text (os.text |> collapseWhiteSpace)]
+                    , Element.paragraph (Palette.reference model) [ Element.text (os.ref |> toTitleCase) ]
+                    ]
+                _ ->
+                    Element.paragraph [] [Element.text "Opening Sentence Error"]
+            
+        )
+        Mark.multiline
+
+
+-- MODEL 
+
+init : List Int -> ( Model, Cmd Msg )
+init  list =
+    let
+        ht = list |> getAt 0 |> Maybe.withDefault 667 -- iphone
+        wd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone
+        x = Element.classifyDevice { height = ht, width = wd}
+        firstModel = { initModel | width = wd - 20}
+    in
+    
+    ( firstModel, requestOffice "currentOffice" )
 
 -- REQUEST PORTS
 
 
-port requestReference : List String -> Cmd msg
+port requestReference : (List String) -> Cmd msg
 port requestOffice : String -> Cmd msg
 -- port requestReadings : String -> Cmd msg
 port requestLessons : String -> Cmd msg
-port toggleButtons: List String -> Cmd msg
+port toggleButtons : (List String) -> Cmd msg
 port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
 port clearLessons : String -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
@@ -183,6 +489,7 @@ port changeMonth : (String, Int, Int) -> Cmd msg
 --port receivedReading : (Reading -> msg) -> Sub msg
 port receivedCalendar : (List CalendarDay -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
+port receivedLesson : (String -> msg) -> Sub msg
 -- port receivedPsalms : (String -> msg) -> Sub msg
 -- port receivedLesson1 : (String -> msg) -> Sub msg
 -- port receivedLesson2 : (String -> msg) -> Sub msg
@@ -195,6 +502,7 @@ subscriptions model =
     Sub.batch
         [ receivedCalendar UpdateCalendar
         , receivedOffice UpdateOffice
+        , receivedLesson UpdateLesson
 --        , receivedPsalms UpdatePsalms
 --        , receivedLesson1 UpdateLesson1
 --        , receivedLesson2 UpdateLesson2
@@ -203,87 +511,85 @@ subscriptions model =
 
 
 
--- UPDATE
 
 
-type ShowHide
-    = Show
-    | Hide
 
-
-type Msg
+type Msg 
     = NoOp
-    | NavbarMsg Navbar.State
-    | UpdateCalendar (List CalendarDay)
-    | UpdateReading Reading
+    | UpdateOption Options
+    | ClickOption String String Options
+    | ClickToggle String String Options
+    | UpdateCalendar  (List CalendarDay)
     | UpdateOffice (List String)
-    | Calendar
+    | UpdateLesson String
     | DayClick CalendarDay
-    | MorningPrayer
-    | MiddayPrayer
-    | EveningPrayer
-    | Compline
-    | Family
+    | Office String
     | AltButton String String
     | RequestReference String String
     | TodaysLessons String CalendarDay
     | ChangeMonth String Int Int
---    | RequestLessons
---    | UpdatePsalms String
---    | UpdateLesson1 String
---    | UpdateLesson2 String
---    | UpdateGospel String
+    | ToggleMenu
 
-
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        NoOp -> (model, Cmd.none)
 
-        NavbarMsg state ->
-            ( { model | navbarState = state}, Cmd.none)
-
-        UpdateCalendar newCalendar ->
+        UpdateOption opts ->
             let
-                newModel = initModel model.navbarState
+                newModel = { model | options = updateOptions opts model.options }
             in
-                    
-            ( { newModel 
-                | calendar = newCalendar
-                , showCalendar = True
-              }
-            , Cmd.none
-            )
+            (newModel, Cmd.none)
 
-        UpdateReading newReading ->
-            ( model , Cmd.none )
-
-        UpdateOffice raw ->
+        ClickOption grp t opts ->
             let
-                newModel =
-                    formatOffice <|
-                        { model 
-                        | page = []
-                        , day = raw |> getAt 0 |> Maybe.withDefault "Sunday" 
-                        , week = raw |> getAt 1 |> Maybe.withDefault "1"
-                        , year = raw |> getAt 2 |> Maybe.withDefault "a"
-                        , season = raw |> getAt 3 |> Maybe.withDefault "anytime"
-                        , pageName = raw |> getAt 4 |> Maybe.withDefault "currentOffice"
-                        , raw = raw |> List.drop 5
-                        , showCalendar = False
-                        , calendar = []
+                newOpts = { opts | options = opts.options |> List.map 
+                            (\o ->
+                                if o.tag == t 
+                                then { o | selected = "True"}
+                                else { o | selected = "False"}
+                            )
                         }
+                
+                newModel = {model | options = updateOptions newOpts model.options }
             in
-            ( newModel, Cmd.batch[ requestLessons newModel.pageName, Cmd.none ] )
-                -- |> Update.andThen update AddToOffice
+            (newModel, Cmd.none)
 
-        Calendar -> 
-            ( { model | pageTitle = "Calendar", pageName = "calendar", page = [] }
-            , Cmd.batch [ requestOffice "calendar"
-                        , Cmd.none
-                        ]
-            )
+        ClickToggle grp t opts ->
+            let
+                newOpts = { opts | options = opts.options |> List.map
+                        (\o -> if o.selected == "True" 
+                            then { o | selected = "False"}
+                            else { o | selected = "True"}
+                        )
+                    }
+                newModel = {model | options = updateOptions newOpts model.options}
+            in
+            (newModel, Cmd.none)
+            
+
+        UpdateCalendar daz ->
+            (model, Cmd.none)
+
+        UpdateOffice recvd ->
+            let
+                newModel = { model
+                    | day = recvd |> requestedOfficeAt 0
+                    , week = recvd |> requestedOfficeAt 1
+                    , year = recvd |> requestedOfficeAt 2
+                    , season = recvd |> requestedOfficeAt 3
+                    , pageName = recvd |> requestedOfficeAt 4
+                    , source = recvd |> requestedOfficeAt 5 |> String.replace "\\n" "\n"
+                    }
+            in
+            
+            (newModel, requestLessons newModel.pageName )
+            -- (newModel, Cmd.none )
+
+        UpdateLesson s ->
+            (addNewLesson s model, Cmd.none)
+            
+----
 
         DayClick day ->
             let
@@ -297,37 +603,9 @@ update msg model =
                     
             ( newModel, Cmd.batch[ clearLessons "", Cmd.none ] )
                     
-
-        MorningPrayer ->
-            ( {model | pageTitle = "Morning Prayer", pageName = "morning_prayer", page = []}
-            , Cmd.batch [   requestOffice "morning_prayer"
-                        ,   Cmd.none
-                        ] 
-            )
-                    
-        MiddayPrayer ->
-            -- requestOffice "midday"
-            ( {model | pageTitle = "Midday Prayer", pageName = "midday", page = []}
-            , Cmd.batch [   requestOffice "midday"
-                        ,   Cmd.none
-                        ]
-            )
-                    
-        EveningPrayer ->
-            ( {model | pageTitle = "Evening Prayer", pageName = "evening_prayer", page = []}
-            , Cmd.batch [   requestOffice "evening_prayer"
-                        ,   Cmd.none
-                        ]
-            )
-                    
-        Compline ->
-            ( {model | pageTitle = "Compline", pageName = "compline", page = []}
-            , Cmd.batch [requestOffice "compline", Cmd.none] 
-            )
-
-        Family -> 
-            ( {model | pageTitle = "Family", pageName = "family", page = []}
-            , Cmd.batch [requestOffice "family_prayer", Cmd.none] 
+        Office o ->
+            ( { model | showMenu = False}
+            , Cmd.batch [requestOffice o, Cmd.none] 
             )
 
         AltButton altDiv buttonLabel ->
@@ -340,524 +618,84 @@ update msg model =
             (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
 
         ChangeMonth toWhichMonth month year ->
-            (model, Cmd.batch [changeMonth (toWhichMonth, month, year), Cmd.none] )
+            (model, Cmd.batch [changeMonth (toWhichMonth, month, year), Cmd.none] ) 
+
+        ToggleMenu ->
+            ( { model | showMenu = not model.showMenu }, Cmd.none )
+
+addNewLesson : String -> Model -> Model
+addNewLesson str model =
+    let
+        lessons = model.lessons
+        newModel = case (Decode.decodeString lessonDecoder str) of
+            Ok l    ->
+                let
+                    _ = Debug.log "ADD THIS LESSON:" l.lesson
+                    newLessons = case l.lesson of
+                        "lesson1" -> {lessons | lesson1 = l }    
+                        "lesson2" -> {lessons | lesson2 = l }    
+                        "psalms"  -> {lessons | psalms = l }    
+                        "gospel"  -> {lessons | gospel = l } 
+                        _         -> lessons     
+                in
+                { model | lessons = newLessons }
+            
+            _       -> 
+                let
+                    _ = Debug.log "FAILED TO DECODE LESSON" "--"
+                in
+                
+                model     
+    in
+    newModel
                     
-                    
+requestedOfficeAt : Int -> List String -> String
+requestedOfficeAt i list =
+    list |> getAt i |> Maybe.withDefault ""
 
+thisOptions : String -> List Options -> Maybe Options
+thisOptions tag opts =
+    opts |> find (\o -> tag == o.tag)
 
+updateOptions : Options -> List Options -> List Options
+updateOptions opt oList =
+    case ( optionsIndex opt.tag oList ) of
+        Just i ->
+            oList |> setAt i opt
+        Nothing ->
+            opt :: oList
 
-
--- HELPERS
-
-formatOffice : Model -> Model
-formatOffice model =
-    case (model.raw |> List.head) of
-        Nothing -> model -- nothing left
-        Just "--EOF--" ->
-            { model | raw = model.raw |> List.drop 1 }
-
-        Just "--END--" -> 
-            { model | raw = model.raw |> List.drop 1 }
-
-        Just "alternatives" -> 
-            alternatives model |> formatOffice
-        Just "alternative" -> 
-            alternative model "alternative" |> formatOffice
-        Just "collect" -> collect model |> formatOffice
-        Just "default" -> 
-            alternative model "alternative default" |> formatOffice
-        Just "indent" -> oneArg model |> formatOffice
-        Just "line" -> oneArg model |> formatOffice
-        Just "prayer" -> oneArg model |> formatOffice
-        Just "psalm_name" -> psalmName model |> formatOffice
-        Just "psalm1" -> psalm1 model |> formatOffice
-        Just "psalm2" -> oneArg model  |> formatOffice
-        Just "reading" -> reading model |> formatOffice
-        Just "ref" -> reference model |> formatOffice
-        Just "referenceText" -> referenceText model |> formatOffice
-        Just "rubric" -> oneArg model |> formatOffice
-        Just "scripture" -> scripture model |> formatOffice
-        Just "section" -> oneArg model |> formatOffice
-        Just "title" -> oneArg model |> formatOffice
-        Just "versical" -> versical model |> formatOffice
-        _ ->
-            { model | raw = model.raw |> List.drop 1 } |> formatOffice
-
-
--- create and div to hold all the alternatives
--- the buttons go into sub div class "altButtons"                
-alternatives : Model -> Model
-alternatives model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        label = model.raw |> getAt 2 |> Maybe.withDefault ""
-        altsId =  label |> makeId "alternatives_"
-        temp = { model | raw = model.raw |> List.drop 3 } |> tempModel label
-        subModel =  temp |> formatOffice
-        newDiv =
-            div [ id altsId, class c ]
-            (   (div [ class "altButtons" ] ( buttonBuilder temp.raw label [] )
-                ) :: subModel.page
-            )
-                    
-            -- do some smart stuff here
-    in
-    { model
-    | page = [newDiv] |> List.append model.page
-    , raw = subModel.raw
-    }
-
-alternative : Model -> String -> Model
-alternative model ofType =
-    let
-        -- c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        label = model.currentAlt
-        altId = model.raw |> getAt 2 |> Maybe.withDefault "" |> makeId (label ++ "Id_")
-        subModel = { model | raw = model.raw |> List.drop 3 } |> (tempModel label) |> formatOffice
-        newDiv = 
-            div [ id altId, class ofType ] subModel.page
-    in
-    { model 
-    | page = [newDiv] |> List.append model.page
-    , raw = subModel.raw
-    }
-
-
-dropThroughKey : a -> List a -> List a
-dropThroughKey key list =
-    case (list |> List.Extra.elemIndex key) of
-        Just n -> 
-            list |> List.drop (n + 1)
-        Nothing -> list
-
-
-buttonBuilder : List String -> String -> List (Html Msg) -> List (Html Msg)
-buttonBuilder list superClass buttons =
-    let
-        subLists = subListTuple list "--END--"
-        subList1 = subLists |> Tuple.first
-        subList2 = subLists |> Tuple.second
-        allDone = subList1 |> List.isEmpty
-            
-    in
-    case allDone of
-        True -> buttons |> List.reverse            
-        False ->
-            let
-                -- cls = subList1 |> getAt 0 |> Maybe.withDefault "" |> makeId ""
-                label = subList1 |> getAt 2 |> Maybe.withDefault ""
-                -- altDivId = label |> makeId ""
-                buttonId = label |> makeId (superClass ++ "Button_")
-        
-            in
-            ( Button.button 
-                [ Button.primary
-                , Button.attrs
-                    [ id buttonId
-                    --, class cls
-                    , onClick (AltButton superClass buttonId)
-                    ]
-                ]
-                [ Markdown.toHtml [] label ] :: buttons
-            ) |> buttonBuilder subList2 superClass
-
-
-collect : Model -> Model
-collect model =
-    let
-        cls = "collectContent"
-        s = model.raw |> getAt 4 |> Maybe.withDefault ""
-        title = if s |> String.isEmpty 
-            then "" 
-            else  
-                   (model.raw |> getAt 1 |> Maybe.withDefault "")
-                ++ " _"
-                ++ (model.raw |> getAt 2 |> Maybe.withDefault "")
-                ++ "_"     
-
-        collectId = if s |> String.isEmpty
-            then "collectOfDay"
-            else title |> makeId "collect_"
-            
-    in
-    { model 
-    | page = 
-        [ div [ id collectId, class cls ] 
-            [ div [ class "collectTitle" ] [ Markdown.toHtml [] title ]
-            , div [ class cls ] [ Markdown.toHtml [] s ] 
-            ]
-        ] |> List.append model.page
-    , raw = model.raw |> List.drop 5
-    }
-            
-
-oneArg : Model -> Model
-oneArg model =
-    let
-        s = model.raw |> getAt 1 |> Maybe.withDefault ""
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-    in
-    { model
-    | page = [ div [ class c ] [ Markdown.toHtml [] s ] ] |> List.append model.page 
-    , raw = model.raw |> List.drop 2
-    }
-
-psalmName : Model -> Model
-psalmName model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        name = model.raw |> getAt 1 |> Maybe.withDefault ""
-        title = model.raw |> getAt 2 |> Maybe.withDefault ""
-            
-    in
-    { model
-    | page = [ p [ class c ] [ text name, span [] [ text title ] ] ] |> List.append model.page
-    , raw = model.raw |> List.drop 2
-    }
-            
-
-psalm1 : Model -> Model
-psalm1 model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        n = model.raw |> getAt 1 |> Maybe.withDefault ""
-        s = model.raw |> getAt 2 |> Maybe.withDefault ""
-            
-    in
-    { model
-    | page = [ p [ class c ] [ sup [] [ text n], text s ] ] |> List.append model.page 
-    , raw = model.raw |> List.drop 3
-    }
-            
-scripture : Model -> Model
-scripture model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        s = model.raw |> getAt 1 |> Maybe.withDefault ""
-        ref = model.raw |> getAt 2 |> Maybe.withDefault ""
-            
-    in
-    { model
-    | page = [ div [ class c ] [ text s, span [ class "ref" ] [ text ref ]] ] |> List.append model.page 
-    , raw = model.raw |> List.drop 2
-    }
-
-versical : Model -> Model
-versical model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        speaker = model.raw |> getAt 1 |> Maybe.withDefault ""
-        says = model.raw |> getAt 2 |> Maybe.withDefault ""
-            
-    in
-    { model
-    | page = 
-        [ Grid.simpleRow
-            [ Grid.col [ Col.xs3, Col.sm3, Col.md2, Col.lg2] [ em [] [ text speaker ] ]
-            , Grid.col [ Col.xs8, Col.sm8, Col.md10, Col.lg6] [ text says ]
-            ]
-        ] |> List.append model.page 
-    , raw = model.raw |> List.drop 3
-    }
-
-reading : Model -> Model
-reading model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        mpep = model.raw |> getAt 1 |> Maybe.withDefault ""
-        thisReading = mpep
-              
-    in
-    { model
-    | page = [ div [ id mpep ] [] ] |> List.append model.page 
-    , raw = model.raw |> List.drop 2
-    , requestLesson = mpep
-    }
-
-reference : Model -> Model
-reference model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        ref = model.raw |> getAt 1 |> Maybe.withDefault ""
-            
-    in
-    { model
-    | page = [ p [class c] [text ref] ] |> List.append model.page 
-    , raw = model.raw |> List.drop 2
-    }
-
-
-referenceText : Model -> Model
-referenceText model =
-    let
-        c = model.raw |> getAt 0 |> Maybe.withDefault ""
-        ref = model.raw |> getAt 1 |> Maybe.withDefault ""
-        readingId = ref |> makeId "button_"
-               
-    in
-    { model
-    | page =
-        [ p [ class c ] 
-            [ button [ id readingId, onClick (RequestReference readingId ref) ] 
-              [ text ref ] 
-            ]
-        ] |> List.append model.page 
-    , raw = model.raw |> List.drop 2
-    }
-
-userReplace : String -> (Regex.Match -> String) -> String -> String
-userReplace userRegex replacer string =
-    case Regex.fromString userRegex of
-        Nothing -> string
-        Just regex ->
-            Regex.replace regex replacer string
-
-makeId : String -> String -> String
-makeId idType string =
-    let
-        labelName =
-            (userReplace "[^a-zA-Z0-9]" (\_ -> "_") string)
-            
-    in
-            
-    (idType ++ labelName) |> String.toLower
-
-subListTuple : List String -> String -> (List String, List String)
-subListTuple list splitHere =
-    case ( list |> splitWhen (\s -> s == splitHere) ) of
-        Just (a, b) -> (a,  b |> List.drop 1 )
-        Nothing -> ([], [])
-
--- VIEW
-
-
+optionsIndex : String -> List Options -> Maybe Int
+optionsIndex tag olist =
+    olist |> findIndex (\o -> o.tag == tag)
+    
 view : Model -> Document Msg
 view model =
-    let
-        showInfo = if model.showCalendar
-            then
-                [ div [ id "calendar span12" ] (calendar model.calendar) 
-                , div [ id "daily_readings_list" ] (daily_readings_list model
-                    )
-                ]
-            else
-                [ div [ id "service"] model.page ]
+    { title = "Morning Prayer"
+    , body = 
+        [ case Mark.parse document model.source of
+            Ok element ->
+                Element.layout
+                    [ Font.family [ Font.typeface "EB Garamond" ]
+                    , pageWidth model
+                    ]
+                    (element model) 
 
-        page = 
-            [ main_ [ attribute "role" "main", class "container-fluid"]
-              [ div []
-                [ div [ class "row" ]
-                  [ div [ class "col-xs-12" ]
-                      [ input [ id "csrf_token", hidden True, name "csrf-token", value ""] [] ]
-                  ]
-                -- , div [ class "col-xs-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-12 offset-lg-0"] showInfo
-                , div [ class "col-12 col-xs-12 col-sm-12 col-md-12 offset-lg-12 col-xl-12"] showInfo
-                ]
-              ]
-            ]
-
-    in
-            
-    { title = model.pageTitle
-    , body = navigation model :: page
+            Err errors ->
+                let
+                    _ =
+                        Debug.log "Error Parsing Document" errors
+                in
+                Element.layout
+                    []
+                    (Element.text "Error parsing document!")
+        ]
     }
-            
-navigation : Model -> Html Msg
-navigation model =
-    Navbar.config NavbarMsg
-        |> Navbar.brand [ href "#" ] [ text "Legereme"]
-        |> Navbar.items
-            [ Navbar.itemLink [ href "#", onClick Calendar ] [ text "Calendar"]
-            , Navbar.itemLink [ href "#", onClick MorningPrayer ] [ text "Morning" ]
-            , Navbar.itemLink [ href "#", onClick MiddayPrayer ] [ text "Midday" ]
-            , Navbar.itemLink [ href "#", onClick EveningPrayer ] [ text "Evening" ]
-            , Navbar.itemLink [ href "#", onClick Compline ] [ text "Compline" ]
-            , Navbar.itemLink [ href "#", onClick Family ] [ text "Family" ]
 
-            ]
-        |> Navbar.view model.navbarState
-
-daily_readings_list : Model -> List (Html Msg)
-daily_readings_list model =
-    let
-        d = 
-            model.calendar 
-            |> List.filter (\c -> c.show == True)
-            |> getAt 0
-            |> Maybe.withDefault initCalendarDay
-    in
-    if d.show then buildDayList d else []       
-
-calendar : List CalendarDay -> List (Html Msg)
-calendar days =
-    let
-        thisCalendar = if days |> List.isEmpty
-            then []
-            else buildMonth days
-    in
-    thisCalendar
-
-buildDayList : CalendarDay -> List (Html Msg)
-buildDayList d =
-    [ div [] 
-      [ p [] [ text 
-            ( [ intToDay(d.dow)
-              , intToMonth(d.month)
-              , String.fromInt(d.dayOfMonth)
-              , String.fromInt(d.year)
-              , d.season
-              , d.week
-              , d.lityear
-              ] |> String.join " "
-            ) ]
-      , ul [] 
-        [ li [ onClick (TodaysLessons "mp" d) ] 
-          [ text "Morning Prayer"
-          , ul [] 
-            [ li [] 
-              [ text ("Psalms: " ++ (d.mp.psalms |> String.join ", ")) 
-              , div [ id "mpp_today", class "lessons_today"] []
-              ]
-            , li [] 
-              [ text (lessonToText "Lesson 1:" d.mp.lesson1) 
-              , div [ id "mp1_today", class "lessons_today"] []
-              ]
-            , li [] 
-              [ text (lessonToText "Lesson 2:" d.mp.lesson2) 
-              , div [ id "mp2_today", class "lessons_today"] []
-              ]
-            ]
-          ]
-        , li [ onClick (TodaysLessons "ep" d) ] 
-            [ text "Evening Prayer"
-            , ul [] 
-              [ li [] 
-                [ text ("Psalms: " ++ (d.ep.psalms |> String.join ", ")) 
-                , div [ id "epp_today", class "lessons_today"] []
-                ]
-              , li [] 
-                [ text (lessonToText "Lesson 1:" d.ep.lesson1) 
-                , div [ id "ep1_today", class "lessons_today"] []
-                ]
-              , li [] 
-                [ text (lessonToText "Lesson 2:" d.ep.lesson2) 
-                , div [ id "ep2_today", class "lessons_today"] []
-                ]
-              ]
-            ]
-        , li [ onClick (TodaysLessons "eu" d) ] 
-            [ text ("Holy Eucharist: " ++ d.eTitle)
-            , ul [] 
-              [ li [] 
-                [ text (lessonToText "Lesson 1:" d.eu.lesson1) 
-                , div [ id "eu1_today", class "lessons_today"] []
-                ]
-              , li [] 
-                [ text ("Psalms: " ++ (d.eu.psalms |> String.join " or ")) 
-                , div [ id "eup_today", class "lessons_today"] []
-                ]
-              , li [] 
-                [ text (lessonToText "Lesson 2:" d.eu.lesson2) 
-                , div [ id "eu2_today", class "lessons_today"] []
-                ]
-              , li [] 
-                [ text (lessonToText "Gospel" d.eu.gospel) 
-                , div [ id "eugs_today", class "lessons_today"] []
-                ]
-              ]
-           ]
-        ]
-      ] 
-    ]
-
-lessonToText : String -> List ReferenceStyle -> String
-lessonToText label refs =
-    let
-        lessonRef ref = 
-            if ref.style == "req"
-            then ref.read
-            else "[" ++ ref.read ++ "]"
-            
-    in
-    label ++ " " ++ (List.map lessonRef refs |> String.join ", ")
-
-
-buildMonth : List CalendarDay -> List (Html Msg)
-buildMonth days =
-    let
-        -- week sevenDays = buildWeek sevenDays
-        -- days[7] will always be in the current month
-        inThisMonth = days |> getAt 7 |> Maybe.withDefault initCalendarDay
-        thisMonth = inThisMonth.month
-            
-    in
-    [ table [ id "calendar_month table-condensed table-bordered table-striper" ]
-        [ calendarHeader1 thisMonth inThisMonth.year
-        , calendarHeader2
-        , calendarBody days
-        ]
-    ]    
-
-
-calendarHeader1 : Int -> Int -> Html Msg
-calendarHeader1 thisMonth year =
-    thead []
-    [ tr []
-        [ th [colspan 7]   
-          [ Button.button 
-            [ Button.primary, Button.attrs [ onClick (ChangeMonth "prev" thisMonth year) ] ]
-              [ text "<--" ]
-          , Button.button 
-            [ Button.primary, Button.attrs [ onClick (ChangeMonth "this" thisMonth year) ] ]
-              [ text (intToMonth thisMonth ++ " " ++ String.fromInt year) ]
-          , Button.button
-            [ Button.primary, Button.attrs [ onClick (ChangeMonth "next" thisMonth year) ] ]
-              [ text "-->" ]
-        ] 
-      ]
-    ]
-
-calendarHeader2 : Html Msg
-calendarHeader2 =
-    tr []
-    [ th [] [ text "Su" ]
-    , th [] [ text "Mo" ]
-    , th [] [ text "Tu" ]
-    , th [] [ text "We" ]
-    , th [] [ text "Th" ]
-    , th [] [ text "Fr" ]
-    , th [] [ text "Sa" ]
-    ]
-
-calendarBody : List CalendarDay -> Html Msg
-calendarBody days =
-    let
-        weeks thisWeek = buildWeek thisWeek
-            
-    in
-    tbody [] ( List.map weeks ( days |> groupsOf 7 ) )
-            
-buildWeek : List CalendarDay -> Html Msg
-buildWeek days =
-    let
-        buildDay day =
-            td [ class ("calendar_day day_" ++ day.color), onClick (DayClick day) ]
-            [ p [] [ text (day.dayOfMonth |> String.fromInt) ]
-            -- , p [] [ text day.pTitle ]
-            ]
-                
-    in
-    tr [ class "calendar_week" ]
-      ( List.map buildDay days )
-   
-intToDay : Int -> String
-intToDay n =
-    [ "Sunday", "Monday", "Tueday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    |> getAt n |> Maybe.withDefault ("Invalid Day: " ++ String.fromInt n)
-
-intToMonth : Int -> String
-intToMonth n =
-    [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    |> getAt n 
-    |> Maybe.withDefault ("Invalid Month: " ++ String.fromInt n)
-
+main =
+    Browser.document
+    { init = init
+    , update = update
+    , subscriptions = subscriptions
+    , view = view
+    }

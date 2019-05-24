@@ -1,0 +1,254 @@
+module TimeOfDeath exposing (source)
+
+source =
+    """| Begin
+
+| Title
+    Ministry to the Dying
+
+| Toggle
+    tag: cm2d
+    label: BLANK
+    --
+    selected: False
+    tag: cm2d_text
+    label: concerning ministry to the dying
+    text:
+    For Christians, death is a defeated enemy. In Christ, death has
+    become the gateway to everlasting life. As St. Paul reminded the
+    Church at Corinth:
+    The sting of death is sin, and the power of sin is the law. But
+    thanks be to God, who gives us the victory through our Lord
+    Jesus Christ. 1 corinthians 15:54-57
+    When a person is near death, the minister should be notified.
+    This rite is a customary part of the Church’s pastoral care.
+    This liturgy is intended to be prayed with one who has received
+    Jesus Christ as Savior and Lord. The Officiant may appropriately
+    inquire of the dying person as to his or her acceptance of the
+    Christian faith. If the person has not been baptized, Emergency
+    Baptism (page 173) should be administered before the use of
+    this rite.
+    ‘Death is swallowed up in victory.
+    O death, where is your victory?
+    O death, where is your sting?’
+
+| Rubric
+    The Officiant begins
+
+| Quote
+    Peace be to this house [or place], and to all who dwell in it.
+
+| Ref
+    luke 10:5t
+
+| Quote
+    The Officiant continues with the following prayer
+
+| Plain
+    Almighty God, look on this your servant, lying in great weakness,
+    and comfort /him/ with the promise of life everlasting, given in the
+    resurrection of your Son Jesus Christ our Lord. Amen.
+
+| Section
+    litany at the time of death
+
+| Rubric
+    The following may be said. When possible, it is desirable that those present join in
+    the responses.
+
+| Prayer
+    O God the Father,
+        *Have mercy on your servant.*
+    O God the Son,
+        *Have mercy on your servant.
+    O God the Holy Spirit,
+        *Have mercy on your servant.*
+    O Holy Trinity, one God,
+        *Have mercy on your servant.*
+    Lord Jesus Christ, deliver your servant from all evil, sin, and tribulation;
+        *Good Lord, deliver /him/.*
+    By your holy Incarnation, by your Cross and Passion, by your precious Death and Burial,
+        *Good Lord, deliver /him/.*
+    By your glorious Resurrection and Ascension, and by the Coming of the Holy Spirit,
+        *Good Lord, deliver /him/.*
+    We sinners beseech you to hear us, Lord Christ: That it may please you to deliver the soul of your servant from the power of evil, and from eternal death,
+        *We beseech you to hear us, good Lord.*
+    That it may please you mercifully to pardon all his sins,
+        *We beseech you to hear us, good Lord.*
+    That it may please you to give /him/ joy and gladness in your kingdom, with your saints in light,
+        *We beseech you to hear us, good Lord.*
+    That it may please you to raise /him/ up at the last day,
+        *We beseech you to hear us, good Lord.*
+
+| Rubric
+    The following or some other suitable anthem may be sung or said
+
+| Prayer
+    Son of God, we beseech you to hear us.
+        Son of God, we beseech you to hear us.
+    O Lamb of God, you take away the sin of the world;
+        Have mercy upon /him/.
+    O Lamb of God, you take away the sin of the world;
+        Have mercy upon /him/.
+    O Lamb of God, you take away the sin of the world;
+        Grant /him/ your peace.
+    O Christ, hear us
+        O Christ, hear us.
+
+| Prayer
+    Lord, have mercy [upon us].
+    *Christ, have mercy [upon us].*
+    Lord, have mercy [upon us].
+
+| Rubric
+    Officiant and People say together
+
+| Options
+    tag: lords_prayer
+    label: Lord's Prayer
+    --
+    selected: True
+    tag: lords_prayer_traditional
+    label: Traditional
+    text: 
+    Our Father, who art in heaven
+        hallowed be thy Name,
+        thy kingdom come,
+        thy will be done,
+        on earth as it is in heaven.
+    Give us this day our daily bread.
+    And forgive us our trespasses,
+        as we forgive those
+        who trespass against us.
+    And lead us not into temptation,
+        but deliver us from evil.
+    For thine is the kingdom,
+        and the power, and the glory,
+        for ever and ever. Amen.
+    --
+
+    selected: False
+    tag: lords_prayer_modern
+    label: Modern
+    text: 
+    Our Father in heaven,
+        hallowed be your Name,
+        your kingdom come,
+        your will be done,
+        on earth as it is in heaven.
+    Give us today our daily bread.
+    And forgive us our sins
+        as we forgive those
+        who sin against us.
+    Save us from the time of trial,
+        and deliver us from evil.
+    For the kingdom, the power,
+        and the glory are yours,
+        now and for ever. Amen.
+    --
+
+| Versicals
+    Officiant O Lord, show your mercy upon us;
+    People As we put our trust in you.
+
+| Rubric
+    The Officiant prays
+
+| Plain
+    Let us pray.
+
+| Plain
+    O Sovereign Lord Christ, deliver your servant, N., from all evil,
+    and set /him/ free from every bond; that he may rest with all your
+    saints in the eternal habitations; where with the Father and the
+    Holy Spirit you live and reign, one God, for ever and ever. *Amen*.
+
+| Rubric
+    The Officiant may invite those present to offer words of thanksgiving,
+    reconciliation, or farewell. The Officiant may conclude with words of comfort.
+
+| Section
+    commendation at the time of death
+
+| Rubric
+    Here a Priest may anoint the dying person with oil.
+
+| Rubric
+    The Priest says
+
+| Prayer
+    Depart, O Christian soul, out of this world;
+    In the Name of God the Father Almighty who created you;
+    In the Name of Jesus Christ who redeemed you;
+    In the Name of the Holy Spirit who sanctifies you.
+    May your rest be this day in peace, and your dwelling place in the Paradise of God.
+
+| CollectTitle
+    a commendatory prayer
+
+| Plain
+    Into your hands, O merciful Savior, we commend your servant
+    N. Acknowledge, we humbly beseech you, a sheep of your own
+    fold, a lamb of your own flock, a sinner of your own redeeming.
+    Receive /him/ into the arms of your mercy, into the blessed rest of
+    everlasting peace, and into the glorious company of the saints in
+    light. *Amen*.
+
+| Rubric
+    The Officiant and People may say
+
+| PsalmTitle
+    nunc dimittis
+    The Song of Simeon
+
+| Prayer
+    Lord, now let your servant depart in peace, *
+        according to your word.
+    For my eyes have seen your salvation, *
+        which you have prepared before the face of all people;
+    To be a light to lighten the Gentiles, *
+        and to be the glory of your people Israel.
+    Glory be to the Father, and to the Son, and to the Holy Spirit; *
+        as it was in the beginning, is now, and ever shall be,
+        world without end. Amen. 
+        
+| Ref
+    luke 2:29-32
+
+| CollectTitle
+    closing prayer
+
+| Rubric
+    The Officiant prays
+
+| Plain
+    May his soul and the souls of all the faithful departed, through
+    the mercy of God, rest in peace. *Amen*.
+
+| Section
+    additional directions
+
+| Plain
+    This rite is designed to be flexible in length. It may be adjusted according
+    to the circumstances and condition of the dying person. Different
+    portions of the rite may be used at different times, provided the order
+    of the various elements is retained. In cases of great urgency, the
+    Commendation at the Time of Death may be used alone. In the absence
+    of a member of the clergy, this service may be led by any Christian.
+| Plain
+    The minister may inquire of the dying person as to his or her desire
+    to be reconciled to both God and neighbor. If the dying person feels
+    troubled in conscience with any matter, the minister should offer the rite 
+    of Reconciliation of a Penitent. On evidence of repentance, the minister
+    shall give assurance of God’s mercy and forgiveness.
+
+| Plain
+    If desired, Holy Communion may be administered using the rite for
+    Communion of the Sick. It is appropriate for others present to receive
+    the Sacrament as well. If the dying person cannot receive both the
+    consecrated bread and wine, it is suitable to administer the Sacrament in
+    one kind only. If he or she desires to receive, but by reason of extreme
+    sickness is unable to consume either element, the minister is to assure
+    the person that all the benefits of Holy Communion are conveyed, even
+    though the elements are not received with the mouth. 
+    """

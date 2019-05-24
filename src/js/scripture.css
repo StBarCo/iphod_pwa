@@ -1,0 +1,45 @@
+
+
+p.psalm_name {
+  font-size: 1.3rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+p.psalm_name span {
+  padding-left: 3rem;
+  font-style: italic;
+}
+p.psalm1 sup{
+  color: darkred;
+  padding-right: 1rem;
+}
+p.psalm1 { 
+    margin: 0rem 0rem 0rem 4rem;
+    line-height: 1.3rem;
+    white-space: normal;
+    text-indent: -4rem;
+}
+p.psalm2 {
+  line-height: 1.3rem;
+  white-space: normal;
+  margin: 0.3rem 0rem 0.5rem 4rem;
+  text-indent: -2rem
+}
+
+#lesson1, #lesson2 {
+    white-space: normal;
+    line-height: 1.3rem;
+}
+
+.vs { 
+    color: darkred; 
+    font-style: italic;
+    vertical-align: super;
+    font-size: 80%;
+    position: relative;
+  }
+
+.wj {
+  color: darkred;
+}
+  

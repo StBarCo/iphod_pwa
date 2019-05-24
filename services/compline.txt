@@ -1,0 +1,399 @@
+| Begin
+
+| Title
+    Compline
+
+| Rubric
+    The Officiant begins
+
+| Plain
+    The Lord Almighty grant us a peaceful night
+    and a perfect end. Amen.
+
+| Versicals
+    Officiant Our help is in the Name of the Lord;
+    People The maker of heaven and earth.
+
+
+| Rubric
+    The Officiant continues
+
+| Plain
+    Let us humbly confess our sins to Almighty God.
+
+| Rubric
+    Silence may be kept. The Officiant and People then say
+
+| Prayer
+    Almighty God and Father, we confess to you,
+    to one another, and to the whole company of heaven,
+    that we have sinned, through our own fault,
+    in thought, and word, and deed,
+    and in what we have left undone.
+    For the sake of your Son our Lord Jesus Christ,
+    have mercy upon us, forgive us our sins,
+    and by the power of your Holy Spirit
+    raise us up to serve you in newness of life,
+    to the glory of your Name. Amen.
+
+| Rubric
+    The Officiant alone says
+
+| Plain
+    May Almighty God grant us forgiveness of all our sins,
+    and the grace and comfort of the Holy Spirit. Amen.
+
+| Versicals
+    Officiant O God, make speed to save us;
+    People O Lord, make haste to help us.
+    Officiant Glory be to the Father, and to the Son, and to the Holy Spirit;
+    People As it was in the beginning, is now, and ever shall be, world without end. Amen.
+
+| Rubric
+    Except in Lent, add Alleluia.
+
+| Options
+    tag: compline_psalms
+    Label: One or more of the following, or some other suitable Psalm, is sung or said.
+    --
+    selected: False
+    tag: ps_4
+    label: Psalm 119
+    text:
+     Psalm 119 /Cum invocarem/
+    1 Hear me when I call, O God of my righteousness; *
+        you set me free when I was in trouble; have mercy upon me, and hear my prayer.
+    2 O you children of men, how long will you blaspheme my honor, *
+        and have such pleasure in vanity, and seek after falsehood?
+    3 Know this also, that the Lord has chosen for himself the one that is godly; *
+        when I call upon the Lord, he will hear me.
+    4 Stand in awe, and sin not; *
+        commune with your own heart upon your bed, and be still.
+    5 Offer the sacrifice of righteousness *
+        and put your trust in the Lord. 
+    6 There are many that say, “Who will show us any good?” *
+        Lord, lift up the light of your countenance upon us.
+    7 You have put gladness in my heart, *
+        more than when others’ grain and wine and oil increased.
+    8 I will lay me down in peace, and take my rest; *
+        for you, Lord, only, make me dwell in safety.
+    --
+    selected: False
+    tag: ps_31
+    label: Psalm 31
+    text:
+    psalm 31:1-6 /In te, Domine, speravi/
+    1 In you, O Lord, have I put my trust; *
+        let me never be put to confusion;
+        deliver me in your righteousness.
+    2 Bow down your ear to me, *
+        make haste to deliver me,
+    3 And be my strong rock and house of defense, *
+        that you may save me.
+    4 For you are my strong rock and my castle; *
+        be also my guide, and lead me for your Name’s sake.
+    5 Draw me out of the net that they have laid secretly for me, *
+        for you are my strength.
+    6 Into your hands I commend my spirit, *
+        for you have redeemed me, O Lord, O God of truth.
+    --
+    selected: False
+    tag: ps_91
+    label: Psalm 91
+    text:
+    psalm 91 /Qui habitat/
+    1 Whoever dwells under the defense of the Most High *
+        shall abide under the shadow of the Almighty.
+    2 I will say unto the Lord, “You are my refuge and my stronghold, *
+        my God in whom I will trust.”
+    3 For he shall deliver you from the snare of the hunter *
+        and from the deadly pestilence.
+    4 He shall defend you under his wings, and you shall be safe under his feathers; *
+        his faithfulness and truth shall be your shield and buckler.
+    5 You shall not be afraid of any terror by night, *
+        nor of the arrow that flies by day,
+    6 Of the pestilence that walks in darkness, *
+        nor of the sickness that destroys at noonday.
+    7 A thousand shall fall beside you, and ten thousand at your right hand, *
+        but it shall not come near you.
+    8 Indeed, with your eyes you shall behold *
+        and see the reward of the ungodly.
+    9 Because you have said, “The Lord is my refuge,” *
+        and have made the Most High your stronghold,
+    10 There shall no evil happen to you, *
+        neither shall any plague come near your dwelling.
+    11 For he shall give his angels charge over you, *
+        to keep you in all your ways.
+    12 They shall bear you in their hands, *
+        that you hurt not your foot against a stone.
+    13 You shall tread upon the lion and adder; *
+        the young lion and the serpent you shall trample under your feet.
+    14 “Because he has set his love upon me, therefore I will deliver him; *
+        I will lift him up, because he has known my Name.
+    15 He shall call upon me, and I will hear him; *
+        indeed, I am with him in trouble; I will deliver him and bring him honor.
+    16 With long life I will satisfy him, *
+        and show him my salvation.”
+    --
+    selected: False
+    tag: ps_134
+    label: Psalm 134
+    text:
+    psalm 134 /Ecce nunc/
+    1 Behold now, praise the Lord, *
+        all you servants of the Lord,
+    2 You that stand by night in the house of the Lord, *
+        even in the courts of the house of our God.
+    3 Lift up your hands in the sanctuary *
+        and sing praises unto the Lord. 
+    4 The Lord who made heaven and earth *
+        give you blessing out of Zion.
+
+| Rubric
+    At the end of the Psalms the Gloria Patri (Glory be...) is sung or said
+
+| Prayer
+    Glory be to the Father, and to the Son, and to the Holy Spirit;
+        as it was in the beginning, is now, and ever shall be,
+        world without end. Amen.
+
+| Rubric
+    One of the following, or some other suitable passage of Scripture, is read
+
+| Quote
+    You, O Lord, are in the midst of us, and we are called by your
+    name; do not leave us. 
+    
+| Ref
+    jeremiah 14:9
+
+| Quote
+    Come to me, all who labor and are heavy laden, and
+    I will give you rest. Take my yoke upon you, and learn
+    from me, for I am gentle and lowly in heart, and you will find
+    rest for your souls. For my yoke is easy, and my burden
+    is light. 
+    
+| Rubric
+    matthew 11:28-30
+
+| Quote
+    Now may the God of peace who brought again from the dead
+    our Lord Jesus, the great shepherd of the sheep, by the blood
+    of the eternal covenant, equip you with everything good that
+    you may do his will, working in us that which is pleasing in
+    his sight, through Jesus Christ, to whom be glory forever and
+    ever. Amen. 
+    
+| Rubric
+    hebrews 13:20-21
+
+| Quote
+    Be sober-minded; be watchful. Your adversary the devil prowls
+    around like a roaring lion, seeking someone to devour. Resist
+    him, firm in your faith. 
+    
+| Ref
+    1 peter 5:8-9
+
+| Rubric
+    At the end of the reading is said
+
+| Versicals
+    -- The Word of the Lord.
+    People Thanks be to God.
+
+| Rubric
+    A period of silence may follow. A suitable hymn may be sung.
+
+| Versicals
+    Officiant Into your hands, O Lord, I commend my spirit;
+    People For you have redeemed me, O Lord, O God of truth.
+    Officiant Keep me, O Lord, as the apple of your eye;
+    People Hide me under the shadow of your wings.
+
+| Plain
+    Lord, have mercy [upon us].
+    Christ, have mercy [upon us].
+    Lord, have mercy [upon us].
+
+| Rubric
+    Officiant and People
+
+| Options
+    tag: lords_prayer
+    label: Lord's Prayer
+    --
+    selected: True
+    tag: lords_prayer_traditional
+    label: Traditional
+    text: 
+    Our Father, who art in heaven
+        hallowed be thy Name,
+        thy kingdom come,
+        thy will be done,
+        on earth as it is in heaven.
+    Give us this day our daily bread.
+    And forgive us our trespasses,
+        as we forgive those
+        who trespass against us.
+    And lead us not into temptation,
+        but deliver us from evil.
+    For thine is the kingdom,
+        and the power, and the glory,
+        for ever and ever. Amen.
+    --
+
+    selected: False
+    tag: lords_prayer_modern
+    label: Modern
+    text: 
+    Our Father in heaven,
+        hallowed be your Name,
+        your kingdom come,
+        your will be done,
+        on earth as it is in heaven.
+    Give us today our daily bread.
+    And forgive us our sins
+        as we forgive those
+        who sin against us.
+    Save us from the time of trial,
+        and deliver us from evil.
+    For the kingdom, the power,
+        and the glory are yours,
+        now and for ever. Amen.
+    --
+
+| Versicals
+    Officiant O Lord, hear our prayer;
+    People And let our cry come to you.
+    Officiant Let us pray.
+
+| Rubric
+    The Officiant then says one or more of the following Collects. Other appropriate
+    Collects may also be used.
+
+| Plain
+    Visit this place, O Lord, and drive far from it all snares of the
+    enemy; let your holy angels dwell with us to preserve us in
+    peace; and let your blessing be upon us always; through Jesus
+    Christ our Lord. Amen.
+
+| Plain
+    Lighten our darkness, we beseech you, O Lord; and by your
+    great mercy defend us from all perils and dangers of this night;
+    for the love of your only Son, our Savior Jesus Christ. Amen.
+    Be present, O merciful God, and protect us through the hours
+    of this night, so that we who are wearied by the changes and
+    chances of this life may rest in your eternal changelessness;
+    through Jesus Christ our Lord. Amen.
+
+| Plain
+    Look down, O Lord, from your heavenly throne, illumine this
+    night with your celestial brightness, and from the children of
+    light banish the deeds of darkness; through Jesus Christ our
+    Lord. Amen.
+
+| CollectTitle
+    a collect for /saturdays/
+
+| Plain
+    We give you thanks, O God, for revealing your Son Jesus
+    Christ to us by the light of his resurrection: Grant that as we
+    sing your glory at the close of this day, our joy may abound in
+    the morning as we celebrate the Paschal mystery; through Jesus
+    Christ our Lord. Amen.
+
+| Rubric
+    One of the following prayers may be added
+
+| Plain
+    Keep watch, dear Lord, with those who work, or watch, or weep
+    this night, and give your angels charge over those who sleep.
+    Tend the sick, Lord Christ; give rest to the weary, bless the
+    dying, soothe the suffering, pity the afflicted, shield the joyous;
+    and all for your love’s sake. Amen.
+
+| Rubric
+    or this
+
+| Plain
+    O God, your unfailing providence sustains the world we live in
+    and the life we live: Watch over those, both night and day, who
+    work while others sleep, and grant that we may never forget that
+    our common life depends upon each other’s toil; through Jesus
+    Christ our Lord. Amen.
+
+| Rubric
+    Silence may be kept, and other intercessions and thanksgivings may be offered.
+
+| Rubric
+    The Officiant and People say or sing the Song of Simeon with this Antiphon
+
+| Prayer
+    Guide us waking, O Lord, and guard us sleeping; that awake
+    we may watch with Christ, and asleep we may rest in peace.
+
+| Rubric
+    In Easter Season, add Alleluia, alleluia, alleluia.
+
+| PsalmTitle
+    nunc dimittis
+    The Song of Simeon
+
+| Prayer
+    Lord, now let your servant depart in peace, *
+        according to your word.
+    For my eyes have seen your salvation, *
+        which you have prepared before the face of all people;
+    To be a light to lighten the Gentiles, *
+        and to be the glory of your people Israel.
+    Glory be to the Father, and to the Son, and to the Holy Spirit; *
+        as it was in the beginning, is now, and ever shall be,
+        world without end. Amen. 
+        
+| Ref    
+    luke 2:29-32
+
+| Prayer
+    Guide us waking, O Lord, and guard us sleeping; that awake
+    we may watch with Christ, and asleep we may rest in peace.
+
+| Rubric
+    In Easter Season, add Alleluia, alleluia, alleluia.
+
+| Versicals
+    Officiant Let us bless the Lord.
+    People Thanks be to God.
+
+| Rubric
+    The Officiant concludes with the following
+
+| Quote
+    The almighty and merciful Lord, Father, Son, and Holy Spirit,
+    bless us and keep us, this night and evermore. Amen.
+
+| Section
+    additional directions
+
+| Plain
+    A Bishop or Priest, if present, may pronounce absolution after the
+    confession.
+
+| Plain
+    For those saying Compline every day, particularly in families or other
+    communities, additional short Scriptural readings may be desired. Some
+    appropriate readings include:
+
+| Prayer
+    isaiah 26:3-4
+    isaiah 30:15
+    matthew 6:31-34
+    2 corinthians 4:6
+    1 thessalonians 5:9-10
+    1 thessalonians 5:23
+    ephesians 4:26-27
+
+| Rubric
+    Either version of the Lord’s Prayer may be ended with, “deliver us from
+    evil. Amen.” omitting the concluding doxology.

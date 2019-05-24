@@ -1,0 +1,281 @@
+| Begin
+
+| Title
+    Midday Prayer
+
+| Versicals
+    Officiant O God, make speed to save us;
+    People O Lord, make haste to help us.
+    Officiant Glory be to the Father, and to the Son, and to the Holy Spirit;
+    People As it was in the beginning, is now, and ever shall be, world without end. Amen.
+
+| Rubric
+    Except in Lent, add Alleluia.
+
+| Rubric
+    A suitable hymn may be sung.
+    
+| Options
+    tag: psalm
+    label: One or more of the following, or some other suitable Psalm, is sung or said.
+    --
+    selected: False
+    tag: ps_119
+    label: Psalm 119
+    text:
+    119:105-112 /Lucerna pedibus meis/
+    105 Your word is a lantern to my feet *
+        and a light upon my path.
+    106 I have sworn and am steadfastly purposed *
+        to keep your righteous judgments.
+    107 I am troubled above measure; *
+        revive me, O Lord, according to your word.
+    108 Let the freewill offerings of my mouth please you, O Lord; *
+        and teach me your judgments.
+    109 My life is always in my hand, *
+        yet I do not forget your law.
+    110 The ungodly have laid a snare for me, *
+        yet I have not strayed from your commandments.
+    111 Your testimonies have I claimed as my heritage for ever, *
+        and why? They are the very joy of my heart.
+    112 I have applied my heart to fulfill your statutes always, *
+        even unto the end.
+    --
+    selected: False
+    tag: ps_121
+    label: Psalm 121
+    text:
+    Psalm 121 /Levavi oculos/
+    1 I will lift up my eyes unto the hills; *
+        from whence comes my help?
+    2 My help comes from the Lord, *
+        who has made heaven and earth.
+    3 He will not let your foot be moved, *
+        and he who keeps you will not sleep.
+    4 Behold, he who keeps Israel *
+        shall neither slumber nor sleep.
+    5 The Lord himself is your keeper; *
+        the Lord is your defense upon your right hand,
+    6 So that the sun shall not burn you by day, *
+        neither the moon by night.
+    7 The Lord shall preserve you from all evil; *
+        indeed, it is he who shall keep your soul.
+    8 The Lord shall preserve your going out and your coming in, *
+        from this time forth for evermore.
+    --
+    selected: False
+    tag: ps_124
+    label: Psalm 124
+    text:
+    psalm 124 /Nisi quia Dominus/
+    1 If the Lord himself had not been on our side, now may Israel say: *
+        if the Lord himself had not been on our side, when men rose up against us,
+    2 Then would they have swallowed us up alive, *
+        when they were so wrathfully displeased with us;
+    3 Then the waters would have drowned us, and the torrent gone over us; *
+        then the raging waters would have gone clean over us.
+    4 But praised be the Lord, *
+        who has not given us over to be prey for their teeth.
+    5 We escaped like a bird out of the snare of the fowler; *
+        the snare is broken, and we have been delivered.
+    6 Our help is in the Name of the Lord, *
+        the maker of heaven and earth.
+    --
+    selected: False
+    tag: ps_126
+    label: Psalm 126
+    text:
+    psalm 126 /In convertendo/
+    1 When the Lord overturned the captivity of Zion, *
+        then were we like those who dream.
+    2 Then was our mouth filled with laughter *
+        and our tongue with shouts of joy.
+    3 Then they said among the nations, *
+        “The Lord has done great things for them.”
+    4 Indeed, the Lord has done great things for us already, *
+        whereof we rejoice.
+    5 Overturn our captivity, O Lord, *
+        as when streams refresh the deserts of the south.
+    6 Those who sow in tears *
+        shall reap with songs of joy.
+    7 He who goes on his way weeping and bears good seed *
+        shall doubtless come again with joy, and bring his sheaves with him.
+    --
+
+| Rubric
+    At the end of the Psalms the Gloria Patri (Glory be...) is sung or said
+
+| Prayer
+    Glory be to the Father, and to the Son, and to the Holy Spirit;
+    as it was in the beginning, is now, and ever shall be,
+    world without end. Amen.
+
+| Rubric
+    One of the following, or some other suitable passage of Scripture, is read
+
+| OpeningSentence
+    tag: always
+    label: --
+    ref: john 12:31-32
+    text:
+    Jesus said, “Now is the judgment of this world; now will the
+    ruler of this world be cast out. And I, when I am lifted up from
+    the earth, will draw all people to myself.” 
+    --
+| OpeningSentence
+    tag: always
+    label: --
+    ref: 2 corinthians 5:17-18
+    text:
+    If anyone is in Christ, he is a new creation. The old has passed
+    away; behold, the new has come. All this is from God, who
+    through Christ reconciled us to himself and gave us the ministry
+    of reconciliation.
+    --
+
+| OpeningSentence
+    tag: always
+    label: --
+    ref: malachi 1:11
+    text:
+    From the rising of the sun to its setting my name will be great
+    among the nations, and in every place incense will be offered to
+    my name, and a pure offering. For my name will be great among
+    the nations, says the Lord of Hosts. 
+    --
+
+| Rubric
+    At the end of the reading is said
+| Versicals
+    -- The Word of the Lord.
+    People Thanks be to God.
+
+| Rubric
+    A meditation, silent or spoken, may follow.
+    The Officiant then begins the Prayers
+
+| Versicals
+    Officiant I will bless the Lord at all times.
+    People His praise shall continually be in my mouth.
+
+| Prayer
+    Lord, have mercy [upon us].
+    Christ, have mercy [upon us].
+    Lord, have mercy [upon us].
+
+| Rubric
+    Officiant and People
+
+| Options
+    tag: lords_prayer
+    label: Lord's Prayer
+    --
+    selected: True
+    tag: lords_prayer_traditional
+    label: Traditional
+    text: 
+    Our Father, who art in heaven
+        hallowed be thy Name,
+        thy kingdom come,
+        thy will be done,
+        on earth as it is in heaven.
+    Give us this day our daily bread.
+    And forgive us our trespasses,
+        as we forgive those
+        who trespass against us.
+    And lead us not into temptation,
+        but deliver us from evil.
+    For thine is the kingdom,
+        and the power, and the glory,
+        for ever and ever. Amen.
+    --
+
+    selected: False
+    tag: lords_prayer_modern
+    label: Modern
+    text: 
+    Our Father in heaven,
+        hallowed be your Name,
+        your kingdom come,
+        your will be done,
+        on earth as it is in heaven.
+    Give us today our daily bread.
+    And forgive us our sins
+        as we forgive those
+        who sin against us.
+    Save us from the time of trial,
+        and deliver us from evil.
+    For the kingdom, the power,
+        and the glory are yours,
+        now and for ever. Amen.
+    --
+
+| Versicals
+    Officiant O Lord, hear our prayer;
+    People And let our cry come to you.
+    Officiant Let us pray. 
+
+| Rubric
+    The Officiant then says one or more of the following Collects. 
+    Other appropriate Collects may also be used.
+
+| Plain
+    Blessed Savior, at this hour you hung upon the Cross, stretching
+    out your loving arms: Grant that all the peoples of the earth may
+    look to you and be saved; for your tender mercies’ sake. *Amen*.
+
+| Plain
+    Almighty Savior, who at mid-day called your servant Saint Paul
+    to be an apostle to the Gentiles: We pray you to illumine the
+    world with the radiance of your glory, that all nations may come
+    and worship you; for you live and reign with the Father and the
+    Holy Spirit, one God, for ever and ever. *Amen*.
+
+| Plain
+    Father of all mercies, you revealed your boundless compassion
+    to your apostle Saint Peter in a three-fold vision: Forgive our
+    unbelief, we pray, and so strengthen our hearts and enkindle our
+    zeal, that we may fervently desire the salvation of all people, and
+    diligently labor in the extension of your kingdom; through him
+    who gave himself for the life of the world, your Son our Savior
+    Jesus Christ. *Amen*.
+
+| Plain
+    Pour your grace into our hearts, O Lord, that we who have
+    known the incarnation of your Son Jesus Christ, announced by
+    an angel to the Virgin Mary, may by his Cross and passion be
+    brought to the glory of his resurrection; who lives and reigns
+    with you, in the unity of the Holy Spirit, one God, now and for
+    ever. *Amen*.
+
+| Rubric
+    Silence may be kept, and other intercessions and thanksgivings may be offered.
+
+| Versicals
+    Officiant Let us bless the Lord.
+    People Thanks be to God.
+
+| Rubric\n
+    From Easter Day through the Day of Pentecost, “Alleluia, alleluia” may be added
+    to the preceding versicle and response.
+| Rubric
+    The Officiant may conclude with this, or one of the other concluding sentences from
+    Morning and Evening Prayer.
+
+| Quote
+    The grace of our Lord Jesus Christ, and the love of God,
+    and the fellowship of the Holy Spirit, be with us all evermore.
+    Amen. 
+    
+| Ref
+    2 corinthians 13:14t
+
+| Section
+    a d d i t i o n a l d i r e c t i o n s
+
+| Plain
+    Other suitable selections from the Psalter include Psalms 19, 67, one or
+    more sections of Psalm 119, or a selection from Psalms 120 through 133.
+    Either version of the Lord’s Prayer may be ended with, “deliver us from
+    evil. Amen.” omitting the concluding doxology.
+
