@@ -249,10 +249,11 @@ parseLine str =
              nodes |> List.map (\n -> parseNode n) |> List.concat
 
             _ ->
-                let
-                    _ = Debug.log "ERROR:" "Couldn't parse String"
-                in
-                [ ]
+                [ Element.paragraph []
+                    [ Element.el [Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
+                    , Element.el [Font.color Palette.darkBlue] (Element.text str)
+                    ]
+                ]
     in
     els
 
@@ -293,9 +294,6 @@ newElement ofType attrs withTheseEls =
             
 
         _ -> 
-            let
-                _ = Debug.log "CANNOT HANDLE THIS ELEMENT: " ofType
-            in
             withTheseEls
 
 getClass : List (Html.Parser.Attribute) -> String
@@ -630,7 +628,6 @@ addNewLesson str model =
         newModel = case (Decode.decodeString lessonDecoder str) of
             Ok l    ->
                 let
-                    _ = Debug.log "ADD THIS LESSON:" l.lesson
                     newLessons = case l.lesson of
                         "lesson1" -> {lessons | lesson1 = l }    
                         "lesson2" -> {lessons | lesson2 = l }    
@@ -641,10 +638,6 @@ addNewLesson str model =
                 { model | lessons = newLessons }
             
             _       -> 
-                let
-                    _ = Debug.log "FAILED TO DECODE LESSON" "--"
-                in
-                
                 model     
     in
     newModel
@@ -682,10 +675,6 @@ view model =
                     (element model) 
 
             Err errors ->
-                let
-                    _ =
-                        Debug.log "Error Parsing Document" errors
-                in
                 Element.layout
                     []
                     (Element.text "Error parsing document!")

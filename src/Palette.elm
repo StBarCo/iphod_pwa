@@ -44,9 +44,9 @@ class name =
         "q2" ->
             [ paddingEach { top = 0, right = 0, bottom = 0, left = 10}]
         _ ->
-            let
-                _ = Debug.log "UNRECOGNIZED CLASS NAME:" name
-            in
+            -- let
+            --     _ = Debug.log "UNRECOGNIZED CLASS NAME:" name
+            -- in
             []
             
 
