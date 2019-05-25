@@ -229,10 +229,11 @@ showLesson : Model -> Lesson -> List (Element.Element Msg)
 showLesson model thisLesson =
     thisLesson.content |> List.map (\l ->
         let
-            vss = l.vss 
-                |> List.map (\v -> parseLine v.text)
-                |> List.concat
-        in
+            -- put all the verse texts in to a single string (for parsing)
+            -- and wrap in <p>...</p>, because sometimes the lesson will include </p><p>
+            -- wrapping the whole thing fixes that
+            str = l.vss |> List.foldr (\t acc -> t.text :: acc) [] |> String.join " "
+            vss = parseLine ( "<p>" ++ str ++ "</p>")
         
         Element.column []
         [ Element.paragraph (Palette.lessonTitle model) [Element.text l.ref]
@@ -246,7 +247,7 @@ parseLine str =
     let
         els = case (Html.Parser.run str) of
             Ok nodes ->
-             nodes |> List.map (\n -> parseNode n) |> List.concat
+                nodes |> List.map (\n -> parseNode n) |> List.concat
 
             _ ->
                 [ Element.paragraph []
@@ -291,10 +292,16 @@ newElement ofType attrs withTheseEls =
                 [ getFirstEl withTheseEls ]
             )
             :: ( withTheseEls |> List.drop 1 )
-            
+        "p" ->
+            ( Element.paragraph
+                (Palette.class (getClass attrs) )
+                [ getFirstEl withTheseEls ]
+            )
+            :: ( withTheseEls |> List.drop 1 )
 
         _ -> 
-            withTheseEls
+            ( Element.paragraph [Font.color Palette.darkRed] [Element.text ("Don't know tag: " ++ ofType)] )
+            :: withTheseEls
 
 getClass : List (Html.Parser.Attribute) -> String
 getClass attrs =
