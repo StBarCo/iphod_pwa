@@ -234,6 +234,7 @@ showLesson model thisLesson =
             -- wrapping the whole thing fixes that
             str = l.vss |> List.foldr (\t acc -> t.text :: acc) [] |> String.join " "
             vss = parseLine ( "<p>" ++ str ++ "</p>")
+        in
         
         Element.column []
         [ Element.paragraph (Palette.lessonTitle model) [Element.text l.ref]
