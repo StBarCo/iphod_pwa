@@ -24,7 +24,7 @@ import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updat
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
 import String.Extra exposing (toTitleCase)
 import MyParsers exposing (..)
-import Palette exposing (scale, scaleFont, pageWidth)
+import Palette exposing (scale, scaleFont, pageWidth, indent, outdent, show, hide)
 import Models exposing (..)
 import Json.Decode as Decode
 
@@ -111,16 +111,6 @@ emptyDivWithId model s =
     in
     Element.textColumn attrs [Element.none]
 
-hide : Element.Attribute msg
-hide = 
-    Html.Attributes.style "display" "none"
-    |> Element.htmlAttribute
-
-show : Element.Attribute msg
-show = 
-    Html.Attributes.style "display" "block"
-    |> Element.htmlAttribute
-
 showMenu : Model -> Element.Attribute msg
 showMenu model =
     if model.showMenu then show else hide
@@ -202,16 +192,16 @@ psalmLine n str =
             else
                 Element.paragraph [Element.paddingXY 0 10]
                 [ Element.el 
-                    [ Element.htmlAttribute <| Html.Attributes.style "margin-left" "-3rem"]
+                    [ outdent "3rem"]
                     (Element.text hebrew)
                 , Element.el [Font.italic, Element.paddingXY 20 0] (Element.text psTitle)
                 ]
 
     in
     -- all the weird margin-left stuff is for outdenting
-    [ Element.paragraph [Element.htmlAttribute <| Html.Attributes.style "margin-left" "3rem"]
+    [ Element.paragraph [indent "3rem"]
         [ psSection
-        , Element.el [Element.htmlAttribute <| Html.Attributes.style "margin-left" "-3rem"] Element.none
+        , Element.el [outdent "3rem"] Element.none
         , Element.el 
             [ Font.color Palette.darkRed
             , Element.padding 5
@@ -219,8 +209,8 @@ psalmLine n str =
             ( Element.text ( String.fromInt n ) )
         , Element.el [] (Element.text ln1)
         ]
-    , Element.paragraph [Element.htmlAttribute <| Html.Attributes.style "margin-left" "4rem"] 
-        [ Element.el [Element.htmlAttribute <| Html.Attributes.style "margin-left" "-2rem"] Element.none 
+    , Element.paragraph [ indent "4rem"] 
+        [ Element.el [ outdent "2rem"] Element.none 
         , Element.text ln2 
         ]
     ]

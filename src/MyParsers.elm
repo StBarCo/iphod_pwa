@@ -13,7 +13,7 @@ import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt)
 import String.Extra exposing (toTitleCase)
-import Palette exposing(scaleFont, pageWidth, scale)
+import Palette exposing(scaleFont, pageWidth, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 
 restOfLine : String -> Parser String
@@ -109,9 +109,9 @@ antiphon =
                                 then Element.none 
                                 else 
                                     Element.paragraph 
-                                    [ Element.htmlAttribute <| Html.Attributes.style "margin-left" "3rem"] 
+                                    [ indent "3rem"] 
                                     [ Element.el 
-                                        [ Element.htmlAttribute <| Html.Attributes.style "margin-left" "-3rem"]
+                                        [ outdent "3rem"]
                                         Element.none
                                     , Element.el [] (Element.text h)
                                     ]
@@ -249,16 +249,22 @@ makeVersical model str =
             else (word1, (word1 |> String.length) + 1)
         -- get the length of the first word plus it's trailing space
         says = str |> String.dropLeft wordLen
-        el1 = Element.el (Palette.versicalSpeaker model) ( Element.text speaker )
-        el2 = Element.paragraph (Palette.versicalSays model)
-            [ Element.text says ]
+        el1 = Element.column [scaleWidth model 90] [ Element.text speaker ]
+        el2 = Element.column []
+            [ Element.paragraph [scaleWidth model 260] [Element.text says ]
+            ]
     in
-    Element.wrappedRow 
-        [ Element.width Element.fill
-        , Element.spacing 10 
-        , Element.paddingXY 0 2
-        ] 
-        [ el1, el2 ]
+        Element.paragraph
+        [ ]
+        [ el1
+        , el2
+        ]
+    --Element.wrappedRow 
+    --    [ Element.width Element.fill
+    --    , Element.spacing 10 
+    --    , Element.paddingXY 0 2
+    --    ] 
+    --    [ el1, el2 ]
     
 
 quote : Mark.Block (model -> Element.Element msg)
@@ -284,14 +290,6 @@ rubric =
         )
         Mark.multiline
 
-mLeft : Element.Attribute msg
-mLeft = 
-    Html.Attributes.style "margin-left" "3rem" |> Element.htmlAttribute
-
-minusLeft : Element.Attribute msg
-minusLeft =
-    Html.Attributes.style "margin-left" "-3rem" |> Element.htmlAttribute
-
 prayer : Mark.Block (Model -> Element.Element msg)
 prayer =
     Mark.block "Prayer"
@@ -300,8 +298,8 @@ prayer =
                 lns = str 
                     |> String.split "\n" 
                     |> List.map (\l -> 
-                        Element.paragraph [mLeft, Element.width (Element.px (model.width - 50))] 
-                        [ Element.el [minusLeft] Element.none
+                        Element.paragraph [indent "3rem", Element.width (Element.px (model.width - 50))] 
+                        [ Element.el [outdent "3rem"] Element.none
                         , Element.text (String.trimRight l)
                         ] 
                     )

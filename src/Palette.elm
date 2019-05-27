@@ -21,6 +21,14 @@ scale: Model -> Int -> Int
 scale model n =
     ((toFloat model.width  / 375) * (toFloat n)) |> round
 
+scalePx : Model -> Int -> Element.Length
+scalePx model n =
+    Element.px (scale model n)
+
+scaleWidth : Model -> Int -> Attribute msg
+scaleWidth model n =
+    Element.width (scalePx model n)
+
 scaleFont : Model -> Int -> Attribute msg
 scaleFont model n = 
     (scale model n) |> Font.size
@@ -28,6 +36,25 @@ scaleFont model n =
 pageWidth : Model -> Attribute msg
 pageWidth model = 
     Element.width (px model.width)
+
+indent : String -> Attribute msg
+indent s =
+    Element.htmlAttribute <| Html.Attributes.style "margin-left" s
+
+outdent : String -> Attribute msg
+outdent s = 
+    Element.htmlAttribute <| Html.Attributes.style "margin-left" ("-" ++s)
+
+hide : Element.Attribute msg
+hide = 
+    Html.Attributes.style "display" "none"
+    |> Element.htmlAttribute
+
+show : Element.Attribute msg
+show = 
+    Html.Attributes.style "display" "block"
+    |> Element.htmlAttribute
+
 
 -- these classes come from an API and need to be mapped from text
 class : String -> List (Attribute msg)
@@ -99,6 +126,7 @@ antiphonTitle model =
     , Font.italic
     , Font.color darkBlue
     , Font.variant Font.smallCaps
+    , outdent "3rem"
     ] 
 
 pageNumber : Model -> List (Attribute msg)
@@ -108,7 +136,7 @@ pageNumber model =
     , Font.color darkRed
     , Font.alignLeft
     --, paddingEach { top= 0, right= 10, bottom= 10, left= 0}
-    , Element.htmlAttribute( Html.Attributes.hidden True)
+    , hide
     ]
 
 psalmTitle : Model -> List (Attribute msg)
