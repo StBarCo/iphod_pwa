@@ -19,7 +19,11 @@ litRed = rgb255 188 5 33
 
 scale: Model -> Int -> Int
 scale model n =
-    ((toFloat model.width  / 375) * (toFloat n)) |> round
+    if model.width > 500 
+    then
+        ((toFloat model.width  / 700) * (toFloat n)) |> round
+    else
+        ((toFloat model.width  / 375) * (toFloat n)) |> round
 
 scalePx : Model -> Int -> Element.Length
 scalePx model n =
@@ -28,6 +32,10 @@ scalePx model n =
 scaleWidth : Model -> Int -> Attribute msg
 scaleWidth model n =
     Element.width (scalePx model n)
+
+maxWidth : Model -> Attribute msg
+maxWidth model =
+    scaleWidth model (model.width - 40)
 
 scaleFont : Model -> Int -> Attribute msg
 scaleFont model n = 
@@ -94,6 +102,7 @@ rubric model =
     , Font.alignLeft
     , paddingEach { top= 0, right= 0, bottom= 0, left= 0}
     , spacing 0
+    , maxWidth model
     ]
 radioRow : Model -> List (Attribute msg)
 radioRow model =
@@ -186,6 +195,7 @@ openingSentence model =
     , Font.variant Font.smallCaps
     , Font.color darkRed
     , scaleFont model 18
+    , maxWidth model
     ]                                       
 
 menu : Model -> List (Attribute msg)
@@ -194,6 +204,6 @@ menu model =
     , Font.color foggy
     , spacing 10
     , padding 10
-    , pageWidth model
+    , maxWidth model
     ]
 

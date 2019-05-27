@@ -231,7 +231,7 @@ showLesson model thisLesson =
         
         Element.column []
         [ Element.paragraph (Palette.lessonTitle model) [Element.text l.ref]
-        , Element.paragraph [] vss
+        , Element.paragraph [ Palette.maxWidth model] vss
         ]
     )
     
@@ -476,7 +476,7 @@ openingSentence =
 init : List Int -> ( Model, Cmd Msg )
 init  list =
     let
-        ht = list |> List.head |> Maybe.withDefault 667 -- iphone
+        ht = list |> List.head |> Maybe.withDefault 500 |> min 500
         wd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone
         x = Element.classifyDevice { height = ht, width = wd}
         firstModel = { initModel | width = wd - 20}
