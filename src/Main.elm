@@ -20,7 +20,7 @@ import Mark
 import Mark.Default
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
-import List.Extra exposing (getAt, last, find, findIndex, setAt, splitWhen, groupsOf, updateAt, updateIf)
+import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
 import String.Extra exposing (toTitleCase)
 import MyParsers exposing (..)
@@ -55,11 +55,11 @@ document =
     Mark.document
         (\children model ->
             Element.textColumn
-                [ Element.spacing (scale model 8)
+                [ Element.spacing (scale model 18)
                 , Element.padding 10
                 , Element.centerX
                 , pageWidth model
-                , scaleFont model 14
+                , scaleFont model 18
                 ]
                 (List.map (\child -> child model) children)
         )
@@ -169,7 +169,7 @@ showPsalms model thisLesson =
                 |> List.map (\v -> psalmLine v.vs v.text )
                 |> List.concat
             nameTitle = l.ref |> String.split "\n"
-            thisName = nameTitle |> getAt 0 |> Maybe.withDefault "" |> toTitleCase
+            thisName = nameTitle |> List.head |> Maybe.withDefault "" |> toTitleCase
             thisTitle = nameTitle |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
         in
         Element.column [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} ]
@@ -191,7 +191,7 @@ psalmLine : Int -> String -> List (Element.Element Msg)
 psalmLine n str =
     let
         lns = str |> String.split "\n"
-        hebrew = lns |> getAt 0 |> Maybe.withDefault ""
+        hebrew = lns |> List.head |> Maybe.withDefault ""
         psTitle = lns |> getAt 1 |> Maybe.withDefault ""
         ln1 = lns   |> getAt 2
                     |> Maybe.withDefault "" 
@@ -326,13 +326,13 @@ getClass : List (Html.Parser.Attribute) -> String
 getClass attrs =
     attrs
     |> List.filter (\tup -> (Tuple.first tup) == "class")
-    |> getAt 0
+    |> List.head
     |> Maybe.withDefault ("class", "")
     |> Tuple.second
 
 getFirstEl : List (Element.Element Msg) -> Element.Element Msg
 getFirstEl list =
-    list |> getAt 0 |> Maybe.withDefault Element.none
+    list |> List.head |> Maybe.withDefault Element.none
 
 
 finish : Mark.Block (Model -> Element.Element Msg)
@@ -349,7 +349,7 @@ begining =
     (\ model ->
         Element.column (Palette.menu model)
         [ Element.row [Element.centerX, Element.spacing (scale model 200)]
-            [ Element.el [] (Element.text "Legereme")
+            [ Element.el [scaleFont model 18] (Element.text "Legereme")
             , Element.image 
                 [ Element.height (Element.px 36)
                 , Element.width (Element.px 35)
@@ -486,7 +486,7 @@ openingSentence =
 init : List Int -> ( Model, Cmd Msg )
 init  list =
     let
-        ht = list |> getAt 0 |> Maybe.withDefault 667 -- iphone
+        ht = list |> List.head |> Maybe.withDefault 667 -- iphone
         wd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone
         x = Element.classifyDevice { height = ht, width = wd}
         firstModel = { initModel | width = wd - 20}

@@ -135,23 +135,32 @@
     One of these antiphons, or one from the seasonal antiphons provided at the end of
     the Office (pages 29-30), may be sung or said before and after the Invitatory Psalm.
 
-| Prayer
-    The earth is the Lord’s for he made it: *
+| Antiphon
+    tag: default
+    label: BLANK
+    text: The earth is the Lord’s for he made it: *
         O come, let us adore him.
+    --
 
 | Rubric 
     or this
 
-| Prayer
-    Worship the Lord in the beauty of holiness: *
+| Antiphon
+    tag: default
+    label: BLANK
+    text: Worship the Lord in the beauty of holiness: *
         O come, let us adore him.
+    --
 
 | Rubric
     or this
 
-| Prayer
-    The mercy of the Lord is everlasting: *
+| Antiphon
+    tag: default
+    label: BLANK
+    text: The mercy of the Lord is everlasting: *
         O come, let us adore him.
+    --
 
 | PsalmTitle 
     venite

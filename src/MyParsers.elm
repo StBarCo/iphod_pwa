@@ -11,9 +11,9 @@ import Mark
 import Mark.Default
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
-import List.Extra exposing (getAt, splitWhen, groupsOf, updateAt, updateIf)
+import List.Extra exposing (getAt)
 import String.Extra exposing (toTitleCase)
-import Palette
+import Palette exposing(scaleFont, pageWidth, scale)
 import Models exposing (..)
 
 restOfLine : String -> Parser String
@@ -103,17 +103,35 @@ antiphon =
             case okParsed of
                 Ok a ->
                     let
-                        lns = a.text 
-                            |> String.split "\n"
-                            |> List.map (\o -> Element.paragraph [] [Element.text o] )
+                        lns = a.text |> String.split "\n"
+                        h = lns |> List.head |> Maybe.withDefault ""
+                        line1 = if String.length h == 0 
+                                then Element.none 
+                                else 
+                                    Element.paragraph 
+                                    [ Element.htmlAttribute <| Html.Attributes.style "margin-left" "3rem"] 
+                                    [ Element.el 
+                                        [ Element.htmlAttribute <| Html.Attributes.style "margin-left" "-3rem"]
+                                        Element.none
+                                    , Element.el [] (Element.text h)
+                                    ]
+                        t = lns 
+                            |> List.tail 
+                            |> Maybe.withDefault [""]
+                            |> List.map (\l ->
+                                if String.length l == 0 
+                                then Element.none
+                                else Element.el [Element.spacing 10] (Element.text l)
+
+                            )
                     in
                     
-                    Element.textColumn
-                    [ Element.width (Element.px 300) ]
+                    Element.textColumn 
+                    [ pageWidth model ]
                     ([ Element.el (Palette.antiphonTitle model)
                         ( Element.text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
-                    , Element.el [Element.alignLeft] Element.none
-                    ] ++ lns)
+                    , line1
+                    ] ++ t)
                     
 
                 _  ->
@@ -175,7 +193,7 @@ psalmTitle =
         (\str model ->
             let
                 lines = str |> String.lines
-                line1 = lines |> getAt 0 |> Maybe.withDefault "" |> toTitleCase
+                line1 = lines |> List.head |> Maybe.withDefault "" |> toTitleCase
                 line2 = lines |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
             in
             Element.column
@@ -225,7 +243,7 @@ listOfVersicals model str =
 makeVersical : Model -> String -> Element.Element msg
 makeVersical model str =
     let
-        word1 = str |> String.words |> getAt 0 |> Maybe.withDefault ""
+        word1 = str |> String.words |> List.head |> Maybe.withDefault ""
         (speaker, wordLen) = if word1 == "BLANK"
             then ("", (word1 |> String.length) + 1)
             else (word1, (word1 |> String.length) + 1)
@@ -291,6 +309,7 @@ prayer =
             
             Element.column
             [ Font.alignLeft
+            , Element.paddingEach { top = 0, right = 0, bottom = 0, left = 0} 
             ]
             lns
         )

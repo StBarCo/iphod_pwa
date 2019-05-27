@@ -56,7 +56,7 @@ reference model =
     , Font.italic
     , Font.color darkRed
     , Font.alignLeft
-    , paddingEach { top= 0, right= 10, bottom= 10, left= 0}
+    --, paddingEach { top= 0, right= 10, bottom= 0, left= 0}
     ]
 
 rubric : Model -> List (Attribute msg)
@@ -90,6 +90,7 @@ lessonTitle model =
     [ Font.color darkBlue
     , Font.variant Font.smallCaps
     , scaleFont model 18
+    , paddingEach { top = 10, right = 0, bottom = 5, left = 0}
     ]
 
 antiphonTitle : Model -> List (Attribute msg)
@@ -139,7 +140,7 @@ versicalSays model =
     [ Font.alignLeft
     , Element.alignTop
     , Element.padding 0
-    , Element.width( Element.px (scale model 200))
+    , Element.width( Element.px (scale model (model.width - 110)) )
     ] 
 
 openingSentenceTitle : Model -> List (Attribute msg)
@@ -156,7 +157,7 @@ openingSentence model =
     , Font.italic
     , Font.variant Font.smallCaps
     , Font.color darkRed
-    , scaleFont model 14
+    , scaleFont model 18
     ]                                       
 
 menu : Model -> List (Attribute msg)
