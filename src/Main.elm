@@ -20,7 +20,7 @@ import Mark
 import Mark.Default
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
-import List.Extra exposing (getAt, find, findIndex, setAt, splitWhen, groupsOf, updateAt, updateIf)
+import List.Extra exposing (getAt, last, find, findIndex, setAt, splitWhen, groupsOf, updateAt, updateIf)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
 import String.Extra exposing (toTitleCase)
 import MyParsers exposing (..)
@@ -232,8 +232,11 @@ showLesson model thisLesson =
             -- put all the verse texts in to a single string (for parsing)
             -- and wrap in <p>...</p>, because sometimes the lesson will include </p><p>
             -- wrapping the whole thing fixes that
-            str = l.vss |> List.foldr (\t acc -> t.text :: acc) [] |> String.join " "
-            vss = parseLine ( "<p>" ++ str ++ "</p>")
+            vss = l.vss 
+                |> List.foldr (\t acc -> t.text :: acc) [] 
+                |> String.join " "
+                |> fixPTags
+                |> parseLine
         in
         
         Element.column []
@@ -241,6 +244,21 @@ showLesson model thisLesson =
         , Element.paragraph [] vss
         ]
     )
+    
+fixPTags : String -> String
+fixPTags str =
+    let
+        openP = str |> String.indexes "<p"
+        closeP = str |> String.indexes "/p"
+
+        openP1 = openP |> List.head |> Maybe.withDefault 0
+        closeP1 = closeP |> List.head |> Maybe.withDefault 0
+        newStr = if openP1 > closeP1 then "<p>" ++ str else str
+        
+        openPLast = openP |> last |> Maybe.withDefault 0
+        closePLast = closeP |> last |> Maybe.withDefault 0
+    in
+    if openPLast > closePLast then newStr ++ "</p>" else newStr
     
 
 parseLine : String -> List (Element.Element Msg)
