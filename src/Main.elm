@@ -357,7 +357,7 @@ begining =
                 , Background.color (Element.rgba 0.9 0.9 0.9 0.7)
                 , Event.onClick ToggleMenu
                 ] 
-                { src = "./menu.svg"
+                { src = "https://legereme.com/pwa/menu.svg"
                 , description = "Toggle Menu"
                 }
             ]
