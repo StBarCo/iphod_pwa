@@ -19,7 +19,7 @@ litRed = rgb255 188 5 33
 
 scale: Model -> Int -> Int
 scale model n =
-    if model.width > 500 
+    if model.width > 700 
     then
         ((toFloat model.width  / 700) * (toFloat n)) |> round
     else
@@ -33,9 +33,13 @@ scaleWidth : Model -> Int -> Attribute msg
 scaleWidth model n =
     Element.width (scalePx model n)
 
+--maxWidth : Model -> Attribute msg
+--maxWidth model =
+--    scaleWidth model (model.width - 25)
+
 maxWidth : Model -> Attribute msg
 maxWidth model =
-    scaleWidth model (model.width - 40)
+    width (px (model.width - 25))
 
 scaleFont : Model -> Int -> Attribute msg
 scaleFont model n = 
@@ -195,7 +199,7 @@ openingSentence model =
     , Font.variant Font.smallCaps
     , Font.color darkRed
     , scaleFont model 18
-    , maxWidth model
+    --, width (px (model.width - 100))
     ]                                       
 
 menu : Model -> List (Attribute msg)

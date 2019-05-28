@@ -13,7 +13,7 @@ import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt)
 import String.Extra exposing (toTitleCase)
-import Palette exposing(scaleFont, pageWidth, scale, indent, outdent, scaleWidth)
+import Palette exposing(scaleFont, pageWidth, maxWidth, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 
 restOfLine : String -> Parser String
@@ -127,7 +127,7 @@ antiphon =
                     in
                     
                     Element.textColumn 
-                    [ pageWidth model ]
+                    [ maxWidth model ]
                     ([ Element.el (Palette.antiphonTitle model)
                         ( Element.text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
                     , line1
@@ -251,7 +251,7 @@ makeVersical model str =
         says = str |> String.dropLeft wordLen
         el1 = Element.column [scaleWidth model 90] [ Element.text speaker ]
         el2 = Element.column []
-            [ Element.paragraph [scaleWidth model 260] [Element.text says ]
+            [ Element.paragraph [scaleWidth model 250] [Element.text says ]
             ]
     in
         Element.paragraph
@@ -259,12 +259,6 @@ makeVersical model str =
         [ el1
         , el2
         ]
-    --Element.wrappedRow 
-    --    [ Element.width Element.fill
-    --    , Element.spacing 10 
-    --    , Element.paddingXY 0 2
-    --    ] 
-    --    [ el1, el2 ]
     
 
 quote : Mark.Block (model -> Element.Element msg)
@@ -298,7 +292,7 @@ prayer =
                 lns = str 
                     |> String.split "\n" 
                     |> List.map (\l -> 
-                        Element.paragraph [indent "3rem", Element.width (Element.px (model.width - 50))] 
+                        Element.paragraph [indent "3rem", Element.width (Element.px (model.width - 70))] 
                         [ Element.el [outdent "3rem"] Element.none
                         , Element.text (String.trimRight l)
                         ] 

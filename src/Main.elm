@@ -35,6 +35,8 @@ import Json.Decode as Decode
 This may seem a bit overwhelming, but 95% of it is copied directly from `Mark.Default.document`. You can then customize as you see fit!
 
 -}
+
+document : Mark.Document (Model -> Element.Element Msg)
 document =
     let
         defaultText =
@@ -58,7 +60,7 @@ document =
                 [ Element.spacing (scale model 18)
                 , Element.padding 10
                 , Element.centerX
-                , pageWidth model
+                , Element.width (Element.px model.width)
                 , scaleFont model 18
                 ]
                 (List.map (\child -> child model) children)
@@ -69,9 +71,7 @@ document =
             )
             ( begining )
             (Mark.manyOf
-                [ title [ Font.size 48, Font.center ] defaultText
-                , Mark.Default.header [ Font.size 36 ] defaultText
-                , Mark.Default.image []
+                [ title defaultText
                 , rubric
                 , quote
                 , reference
@@ -99,6 +99,7 @@ document =
                 ]
             )
         )
+
 
 emptyDivWithId : Model -> String -> Element.Element msg
 emptyDivWithId model s =
@@ -162,7 +163,10 @@ showPsalms model thisLesson =
             thisName = nameTitle |> List.head |> Maybe.withDefault "" |> toTitleCase
             thisTitle = nameTitle |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
         in
-        Element.column [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} ]
+        Element.column 
+        [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} 
+        , Palette.maxWidth model
+        ]
         (   Element.paragraph 
             (Palette.lessonTitle model) 
             [ Element.text thisName
@@ -362,15 +366,18 @@ clickOption request label =
     [ Event.onClick (Office request) ]
     ( Element.text label )
 
-title : List (Element.Attribute msg) 
-    -> Mark.Block (Model -> List (Element.Element msg)) 
+title : Mark.Block (Model -> List (Element.Element msg)) 
     -> Mark.Block (Model -> Element.Element msg)
-title attrs titleText =
+title titleText =
     Mark.block "Title"
         (\elements model ->
             Element.column [ ]
             [ Element.paragraph
-                (Region.heading 1 :: attrs)
+                [ Region.heading 1
+                , scaleFont model 32
+                , Font.center
+                , Element.width (Element.px model.width)
+                ]
                 (elements model)
             ]
         )
@@ -458,7 +465,7 @@ openingSentence =
             in
             case okParsed of
                 Ok os ->
-                    Element.textColumn [ pageWidth model ] 
+                    Element.textColumn [ Palette.maxWidth model ] 
                     [ Element.paragraph (Palette.openingSentenceTitle model)
                         [ Element.text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
                     , Element.paragraph [] [Element.text (os.text |> collapseWhiteSpace)]
@@ -476,10 +483,11 @@ openingSentence =
 init : List Int -> ( Model, Cmd Msg )
 init  list =
     let
-        ht = list |> List.head |> Maybe.withDefault 500 |> min 500
-        wd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone
+        ht = list |> List.head |> Maybe.withDefault 0
+        winWd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone = 375
+        wd = min winWd 500
         x = Element.classifyDevice { height = ht, width = wd}
-        firstModel = { initModel | width = wd - 20}
+        firstModel = { initModel | width = wd - 20, windowWidth = winWd }
     in
     
     ( firstModel, requestOffice "currentOffice" )
@@ -504,6 +512,7 @@ port changeMonth : (String, Int, Int) -> Cmd msg
 port receivedCalendar : (List CalendarDay -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
 port receivedLesson : (String -> msg) -> Sub msg
+port newWidth : (Int -> msg) -> Sub msg
 -- port receivedPsalms : (String -> msg) -> Sub msg
 -- port receivedLesson1 : (String -> msg) -> Sub msg
 -- port receivedLesson2 : (String -> msg) -> Sub msg
@@ -517,15 +526,12 @@ subscriptions model =
         [ receivedCalendar UpdateCalendar
         , receivedOffice UpdateOffice
         , receivedLesson UpdateLesson
+        , newWidth NewWidth
 --        , receivedPsalms UpdatePsalms
 --        , receivedLesson1 UpdateLesson1
 --        , receivedLesson2 UpdateLesson2
 --        , receivedGospel UpdateGospel
         ]
-
-
-
-
 
 
 type Msg 
@@ -543,6 +549,7 @@ type Msg
     | TodaysLessons String CalendarDay
     | ChangeMonth String Int Int
     | ToggleMenu
+    | NewWidth Int
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -637,6 +644,12 @@ update msg model =
         ToggleMenu ->
             ( { model | showMenu = not model.showMenu }, Cmd.none )
 
+        NewWidth i ->
+            ( { model 
+                | windowWidth = i
+                , width = (min i 500) - 20
+            }, Cmd.none)
+
 addNewLesson : String -> Model -> Model
 addNewLesson str model =
     let
@@ -680,13 +693,15 @@ optionsIndex tag olist =
     
 view : Model -> Document Msg
 view model =
-    { title = "Morning Prayer"
+    { title = "Legereme"
     , body = 
         [ case Mark.parse document model.source of
             Ok element ->
                 Element.layout
                     [ Font.family [ Font.typeface "EB Garamond" ]
-                    , pageWidth model
+                    -- , pageWidth model
+                    , Element.centerX
+                    , Element.width (Element.px model.windowWidth)
                     ]
                     (element model) 
 

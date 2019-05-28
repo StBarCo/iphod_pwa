@@ -134,6 +134,11 @@ function initElmHeader() {
 
 // END OF POUCHDB ....................
 
+$(window).on("resize", function() {
+  var newWidth = $(window).width();
+  app.ports.newWidth.send( newWidth )
+})
+
 app.ports.requestTodaysLessons.subscribe(  function(request) {
   $(".lessons_today").empty();
   var [office, day] = request;

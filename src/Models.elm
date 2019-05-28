@@ -175,7 +175,8 @@ initCalendarDay =
 
 
 type alias Model =
-    { width: Int
+    { windowWidth: Int
+    , width: Int
     , pageTitle: String
     , pageName: String
     , source: String
@@ -195,7 +196,8 @@ type alias Model =
 
 initModel : Model
 initModel =
-    { width = 355 -- iphone minus 20
+    { windowWidth = 375
+    , width = 355 -- iphone minus 20
     , pageTitle     = "Legereme"
     , pageName      = "currentOffice"
     , source        = "| Begin"
