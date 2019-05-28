@@ -1,0 +1,696 @@
+| Begin
+
+| Title
+    An Order for the Distribution of Holy Communion
+
+| Title
+    by a Deacon in Public Worship,
+
+| Title
+    Anglican Standard Text, Adapted
+
+| Rubric
+    A hymn, psalm, or anthem may be sung.
+
+| Section
+    The Acclamation
+
+| Rubric
+    The People standing, the Deacon says this or a seasonal greeting.
+
+| Versicals
+    BLANK Blessed be God: the Father, the Son, and the Holy Spirit.
+    People And blessed be his kingdom, now and for ever. Amen.
+
+| Section
+    The Collect for Purity
+
+| Rubric
+    The Deacon prays (and the People may be invited to join)
+
+| Plain
+    Almighty God, to you all hearts are open, all desires known, and from you no secrets are hid:
+    Cleanse the thoughts of our hearts by the inspiration of your Holy Spirit, that we may perfectly love
+    you, and worthily magnify your holy Name; through Christ our Lord. *Amen*.
+
+| Section
+    The Summary of the Law
+
+| Rubric
+    Then follows the Summary of the Law, or The Decalogue.
+
+| Plain
+    Hear what our Lord Jesus Christ says:
+
+| Plain
+    You shall love the Lord your God with all your heart and with all your soul and with all your mind.
+    This is the first and great commandment. And the second is like it: You shall love your neighbor as
+    yourself. On these two commandments depend all the Law and the Prophets.
+
+| Ref
+    Matthew 22:37-40
+
+| Section
+    The Kyrie
+
+| Rubric
+    The Deacon and people pray
+
+| Plain
+    Lord, have mercy [upon us].
+    Christ, have mercy [upon us].
+    Lord, have mercy [upon us].
+
+
+| Rubric
+    or this
+
+| Section
+    The Trisagion
+
+| Plain
+    Holy God,
+    Holy and Mighty,
+    Holy Immortal One,
+    /Have mercy upon us./
+
+| Section
+    The Gloria in Excelsis
+
+| Rubric
+    The Gloria or some other song of praise may be sung or said, all standing. It is appropriate to omit the song of praise during penitential
+    seasons and days appointed for fasting.
+
+| Prayer
+    Glory to God in the highest,
+        and peace to his people on earth.
+    Lord God, heavenly King,
+    almighty God and Father,
+        we worship you, we give you thanks,
+        we praise you for your glory.
+    Lord Jesus Christ, only Son of the Father,
+    Lord God, Lamb of God,
+    you take away the sin of the world:
+        have mercy on us;
+    you are seated at the right hand of the Father:
+        receive our prayer.
+    For you alone are the Holy One,
+    you alone are the Lord,
+    you alone are the Most High,
+        Jesus Christ,
+        with the Holy Spirit,
+        in the glory of God the Father. Amen.
+
+| Section
+    The Collect of the Day
+
+| Rubric
+    The Deacon says to the People
+
+| Versicals
+    BLANK The Lord be with you.
+    People And with your spirit.
+    Deacon Let us pray.
+
+| Rubric
+    The Deacon prays the Collect.
+
+| Versicals
+    People Amen.
+
+| Section
+    The Lessons
+
+| Rubric
+    One or more lessons, as appointed, are read, the Reader first saying
+
+| Plain
+    A Reading from __________.
+
+| Rubric
+    A citation giving chapter and verse may be added.
+
+| Rubric
+    After each lesson, the Reader may say
+
+| Versicals
+    BLANK The Word of the Lord.
+    People Thanks be to God.
+
+| Rubric
+    Or the Reader may say Here ends the Reading.
+    Silence may follow.
+    A psalm, hymn or anthem may follow each reading.
+
+| Rubric
+    All standing, the Deacon reads the Gospel, first saying
+
+| Versicals
+    The Holy Gospel of our Lord Jesus Christ according to ________.
+    People Glory to you, Lord Christ.
+
+| Rubric
+    After the Gospel, the Deacon says
+
+| Versicals
+    BLANK The Gospel of the Lord.
+    People Praise to you, Lord Christ.
+
+| Section
+    The Sermon
+
+| Section
+    The Nicene Creed
+
+| Rubric
+    On Sundays, other Major Feast Days, and other times as appointed, 
+    all stand to recite the Nicene Creed, the Deacon first saying
+
+| Plain
+    Let us confess our faith in the words of the Nicene Creed:
+
+| Rubric
+    Deacon and People
+
+| Prayer
+    We believe in one God,
+        the Father, the Almighty, maker of heaven and earth,
+        of all that is, visible and invisible.
+    We believe in one Lord, Jesus Christ,
+        the only-begotten Son of God,
+        eternally begotten of the Father,
+        God from God, Light from Light, true God from true God,
+        begotten, not made, of one Being with the Father;
+        through him all things were made.
+        For us and for our salvation he came down from heaven,
+        was incarnate from the Holy Spirit and the Virgin Mary,
+        and was made man.
+        For our sake he was crucified under Pontius Pilate;
+        he suffered death and was buried.
+        On the third day he rose again in accordance with the Scriptures;
+        he ascended into heaven
+        and is seated at the right hand of the Father.
+        He will come again in glory to judge the living and the dead,
+        and his kingdom will have no end.
+    We believe in the Holy Spirit, the Lord, the giver of life,
+        who proceeds from the Father [and the Son],
+        who with the Father and the Son is worshiped and glorified,
+        who has spoken through the prophets.
+        We believe in one holy catholic and apostolic Church.
+        We acknowledge one baptism for the forgiveness of sins.
+        We look for the resurrection of the dead,
+        and the life of the world to come. Amen.
+
+| Section
+    The Prayers of the People
+
+| Rubric
+    The Deacon or another person appointed says these prayers, or the Prayers of the People in the Renewed Ancient Text.
+
+| Plain
+    Let us pray for the Church and for the world.
+
+| Plain
+    Almighty and everliving God, we are taught by your holy Word to offer prayers and supplications
+    and to give thanks for all people. We humbly ask you mercifully to receive our prayers. Inspire
+    continually the universal Church with the spirit of truth, unity and concord; and grant that all who
+    confess your holy Name may agree in the truth of your holy Word, and live in unity and godly love.
+
+| Rubric
+    Silence
+
+| Versicals
+    Reader Lord, in your mercy:
+    People Hear our prayer.
+
+| Plain
+    We pray that you will lead the nations of the world in the way of righteousness; and so guide and
+    direct their leaders, especially N, our President/Sovereign/Prime Minister, that your people may enjoy the
+    blessings of freedom and peace. Grant that our leaders may impartially administer justice, uphold
+    integrity and truth, restrain wickedness and vice, and protect true religion and virtue.
+
+| Rubric
+    Silence
+
+| Versicals
+    Reader Lord, in your mercy:
+    People Hear our prayer.
+
+| Plain
+    Give grace, heavenly Father, to all Bishops, Priests, and Deacons, and especially to your servant(s) N, our
+    Archbishop/Bishop/Priest/Deacon, etc., that by their life and teaching, they may proclaim your true and
+    life-giving Word, and rightly and duly administer your holy Sacraments. And to all your people give
+    your heavenly grace, especially to this congregation, that with reverent and obedient hearts we may
+    hear and receive your holy Word, and serve you in holiness and righteousness all the days of our
+    lives.
+
+| Rubric
+    Silence
+
+| Versicals
+    Reader Lord in your mercy:
+    People Hear our prayer.
+
+| Plain
+    Prosper, we pray, all those who proclaim the Gospel of your kingdom throughout the world, and
+    strengthen us to fulfill your great commission, making disciples of all nations, baptizing them and
+    teaching them to obey all that you have commanded.
+
+| Rubric
+    Silence
+
+| Versicals
+    Reader Lord in your mercy:
+    People Hear our prayer.
+
+| Plain
+    We ask you in your goodness, O Lord, to comfort and sustain all who in this transitory life are in
+    trouble, sorrow, need, sickness, or any other adversity [especially _________].
+
+| Rubric
+    Silence
+
+| Versicals
+    Reader Lord in your mercy:
+    People Hear our prayer.
+
+| Plain
+    We remember before you all your servants who have departed this life in your faith and fear,
+    [especially ______________,] that your will for them may be fulfilled, and we ask you to give us
+    grace to follow the good examples of [N., and] all your saints, that we may share with them in your
+    heavenly kingdom.
+
+| Rubric
+    Silence
+
+| Versicals
+    Reader Lord in your mercy:
+    People Hear our prayer.
+
+| Rubric
+    Additional prayers may be added.
+
+| Rubric
+    The Deacon concludes with the following prayer
+
+| Plain
+    Heavenly Father, grant these our prayers for the sake of Jesus Christ, our only Mediator and
+    Advocate, who lives and reigns with you in the unity of the Holy Spirit, one God, now and for ever.
+    *Amen*.
+
+| Rubric
+    The Deacon may then read the Exhortation.
+
+| Section
+    The Confession and Absolution of Sin
+
+| Rubric
+    The Deacon or other person appointed says the following
+
+| Plain
+    All who truly and earnestly repent of your sins, and seek to live in love and charity with your
+    neighbors, and intend to lead the new life, following the commandments of God, and walking in his
+    holy ways: draw near with faith and make your humble confession to Almighty God.
+
+| Rubric
+    or
+
+| Plain
+    Let us humbly confess our sins to Almighty God.
+
+| Rubric
+    Silence
+
+| Rubric
+    The Deacon and People kneel as able and pray
+
+| Prayer
+    Almighty God, Father of our Lord Jesus Christ,
+        maker and judge of us all:
+    We acknowledge and repent of our many sins and offenses,
+        which we have committed by thought, word, and deed
+        against your divine majesty,
+        provoking most justly your righteous anger against us.
+    We are deeply sorry for these transgressions;
+        the burden of them is more than we can bear.
+    Have mercy upon us,
+    Have mercy upon us, most merciful Father;
+        for your Son our Lord Jesus Christ’s sake,
+        forgive us all that is past;
+        and grant that we may evermore serve and please you in newness of life,
+        to the honor and glory of your Name;
+        through Jesus Christ our Lord. Amen.
+
+| Rubric
+    The Deacon remains kneeling and says
+
+| Plain
+    Grant your faithful people, merciful Lord, pardon and peace; that we may be cleansed from all our
+    sins and serve you with a quiet mind; through Jesus Christ our Lord. *Amen*.
+
+| Section
+    The Comfortable Words
+
+| Rubric
+    The Deacon, standing, may then say one or more of the following sentences, first saying
+
+| Plain
+    Hear the Word of God to all who truly turn to him.
+
+| Quote
+    Come to me, all who labor and are heavy laden, and I will give you rest.
+
+| Ref
+    Matthew 11:28
+
+| Quote
+    God so loved the world, that he gave his only-begotten Son, that whoever believes in him should
+    not perish but have eternal life.
+
+| Ref
+    John 3:16
+
+| Quote
+    The saying is trustworthy and deserving of full acceptance, that Christ Jesus came into the world to
+    save sinners.
+
+| Ref
+    1 Timothy 1:15
+
+| Quote
+    If anyone sins, we have an advocate with the Father, Jesus Christ the righteous. He is the
+    propitiation for our sins, and not for ours only but also for the sins of the whole world.
+
+| Ref
+    1 John 2:1-2
+
+| Section
+    The Peace
+
+| Versicals
+    Deacon The Peace of the Lord be always with you.
+    People And with your spirit.
+
+| Rubric
+    Then the Deacon and People may greet one another in the name of the Lord.
+
+| Section
+    The Offertory
+
+| Rubric
+    Before the offering the Deacon may say,
+
+| Plain
+    Brothers and sisters, in the Gospel of Saint Luke we hear:
+
+| Plain
+    At supper with his disciples on the night before he was betrayed Jesus took the cup, and after
+    giving thanks he said, ‘Take this and divide it among yourselves; for I tell you that from now on
+    I will not drink of the fruit of the vine until the kingdom of God comes.’ Then he took a loaf of
+    bread, and when he had given thanks, he broke it and gave it to them, saying, ‘This is my body,
+    which is given for you. Do this in remembrance of me.’
+
+| Plain
+    Today, we receive bread and wine consecrated at a previous service of this congregation [or of N.
+    of congregation] so that through Jesus’ body and blood we might dwell in him and he in us.
+    I invite you, therefore, to….
+
+| Rubric
+    The Deacon then says one of these sentences of Scripture.
+
+| Quote
+    Ascribe unto the Lord the honor due his Name; bring offerings and come into his courts.
+
+| Ref
+    Psalm 96:8
+
+| Quote
+    Walk in love, as Christ loved us and gave himself up for us, a fragrant offering and sacrifice to God.
+
+| Ref
+    Ephesians 5:2
+
+| Rubric
+    During the Offertory a hymn, psalm, or anthem may be sung. The Deacon prepares the Holy Table for the celebration. Representatives
+    of the congregation may bring the People’s offerings of bread and wine, and money or other gifts, to the Deacon.
+    The People stand while the offerings are presented. The following may be said.
+
+| Versicals
+    Deacon Yours, O Lord, is the greatness, and the power, and the glory, and the victory, and the majesty: for everything in heaven and on earth is yours; yours is the Kingdom, O Lord, and you are exalted as Head above all. All things come from you, O Lord,
+    People And of your own have we given you.
+
+| Ref
+    1 Chronicles 29:11, 14
+
+| Section
+    The Distribution of Holy Communion
+
+| Rubric
+    The People remain standing. The Deacon, from his or her place in the chancel, then sings or says
+
+| Versicals
+    BLANK The Lord be with you.
+    People And with your spirit.
+    Deacon Let us pray.
+
+| Rubric
+    The deacon may continue with one or more of the following prayers:
+
+| Plain
+    Lord Jesus Christ, by the Father's plan and by the working of the Holy Ghost, of your own free
+    will you died, and mercifully redeemed the world from sin and everlasting death. We adore and
+    venerate you as much as ever we can, though our love is so cold, our devotion so poor. Thank
+    you for the good gift of this your holy Body and Blood, which we desire to receive as cleansing
+    from sin, and for a defense against it. 
+
+| Ref
+    St. Anselm
+
+| Plain
+    Lord we acknowledge that we are far from worthy to approach and touch this sacrament; but we
+    trust in that mercy which caused you to lay down your life for sinners, that they might be
+    justified and because you gave yourself willingly as a holy sacrifice to the Father. 
+    
+| Ref
+    St. Anselm
+
+| Plain
+    Make us O Lord, to be worthy to be incorporated into your body, which is the Church. And at
+    the resurrection refashion the body of our humiliation according to the body of your glory, and
+    we shall rejoice in you forever, to your glory, who with the Father and the Holy Spirit lives and
+    reigns forever. Amen.
+
+| Options
+    tag: footnotes1
+    label: BLANK
+    --
+    selected: False
+    tag: fn1
+    label: Footnote
+    text: 
+    adapted from Prayers and Meditations of Saint Anselm with the Proslogion. 
+    (Benedicta Ward, trans.) London UK: Penguin Books 1976, pp. 100-101
+    --
+
+| Ref
+    St. Anselm
+
+| Plain
+    Almighty Father, whose most dear Son, on the night before he suffered, instituted the
+    Sacrament of his Body and Blood: Mercifully grant that we may receive it in thankful
+    remembrance of Jesus Christ our Savior, who in these holy mysteries gives us a pledge of eternal
+    life; and who lives and reigns with you and the Holy Spirit, one God, for ever and ever. Amen.
+
+| Ref
+    Collect for Maundy Thursday
+
+| Section
+    The Lord’s Prayer
+
+| Rubric
+    The Deacon then says
+
+| Plain
+    And now as our Savior Christ has taught us, we are bold to pray:
+
+| Rubric
+    Deacon and People together pray
+ 
+| Options
+    tag: lords_prayer
+    label: Lord's Prayer
+    --
+    selected: True
+    tag: lords_prayer_traditional
+    label: Traditional
+    text: 
+    Our Father, who art in heaven
+        hallowed be thy Name,
+        thy kingdom come,
+        thy will be done,
+        on earth as it is in heaven.
+    Give us this day our daily bread.
+    And forgive us our trespasses,
+        as we forgive those
+        who trespass against us.
+    And lead us not into temptation,
+        but deliver us from evil.
+    For thine is the kingdom,
+        and the power, and the glory,
+        for ever and ever. Amen.
+    --
+
+    selected: False
+    tag: lords_prayer_modern
+    label: Modern
+    text: 
+    Our Father in heaven,
+        hallowed be your Name,
+        your kingdom come,
+        your will be done,
+        on earth as it is in heaven.
+    Give us today our daily bread.
+    And forgive us our sins
+        as we forgive those
+        who sin against us.
+    Save us from the time of trial,
+        and deliver us from evil.
+    For the kingdom, the power,
+        and the glory are yours,
+        now and for ever. Amen.
+    --
+
+| Section
+    The Prayer of Humble Access
+
+| Rubric
+    Deacon and People together may say
+
+| Plain
+    We do not presume to come to this your table, O merciful Lord,
+        trusting in our own righteousness,
+        but in your abundant and great mercies.
+    We are not worthy so much as to gather up
+        the crumbs under your table;
+        but you are the same Lord,
+        whose character is always to have mercy.
+    Grant us, therefore, gracious Lord,
+        so to eat the flesh of your dear Son Jesus Christ, and to drink his blood,
+        that our sinful bodies may be made clean by his body,
+        and our souls washed through his most precious blood,
+        and that we may evermore dwell in him, and he in us. Amen.
+
+| Section
+    The Agnus Dei
+
+| Rubric
+    The following or some other suitable anthem may be sung or said here
+
+| Prayer
+    Lamb of God, you take away the sin of the world,
+        /have mercy on us/.
+    Lamb of God, you take away the sin of the world,
+        /have mercy on us/.
+    Lamb of God, you take away the sin of the world,
+        /grant us your peace/.
+
+| Section
+    The Ministration of Communion
+
+| Rubric
+    Facing the People, the Deacon may say the following invitation
+
+| Plain
+    The gifts of God for the people of God. [Take them in remembrance that Christ died for you and
+    feed on him in your hearts by faith, with thanksgiving.]
+
+| Rubric
+    The Bread and Cup are given to the communicants with these words
+
+
+| Plain
+    The Body of our Lord Jesus Christ, [which was given for you, preserve your body and soul to
+    everlasting life. Take and eat this in remembrance that Christ died for you, and feed on him in your
+    heart by faith, with thanksgiving.]
+
+| Plain
+    The Blood of our Lord Jesus Christ, [which was shed for you, preserve your body and soul to
+    everlasting life. Drink this in remembrance that Christ’s Blood was shed for you, and be thankful.]
+
+| Rubric
+    During the ministration of Communion, hymns, psalms, or anthems may be sung.
+
+| Section
+    The Post Communion Prayer
+
+| Rubric
+    After Communion, the Deacon says
+
+| Plain
+    Let us pray.
+
+| Rubric
+    Deacon and People together say the following, or the Post Communion Prayer in the Renewed Ancient Text
+
+| Prayer
+    Almighty and everliving God,
+    we thank you for feeding us, in these holy mysteries,
+        with the spiritual food of the most precious Body and Blood
+        of your Son our Savior Jesus Christ;
+    and for assuring us, through this Sacrament, of your favor and
+        goodness towards us:
+        that we are true members of the mystical body of your Son,
+        the blessed company of all faithful people;
+        and are also heirs, through hope,
+        of your everlasting kingdom.
+    And we humbly ask you, heavenly Father,
+        to assist us with your grace,
+        that we may continue in that holy fellowship,
+        and do all the good works that you have prepared for us to walk in;
+    through Jesus Christ our Lord,
+        to whom with you and the Holy Spirit,
+        be all honor and glory, now and for ever. Amen.
+
+| Section
+    The Dismissal
+
+| Rubric
+    The Deacon may dismiss the people with these words
+
+| Versicals
+    BLANK Let us go forth in the name of Christ.
+    People Thanks be to God.
+
+| Rubric
+    or this
+
+| Versicals
+    Deacon Go in peace to love and serve the Lord.
+    People Thanks be to God.
+
+| Rubric
+    or this
+
+| Versicals
+    Deacon Let us go forth into the world, rejoicing in the power of the Holy Spirit.
+    People Thanks be to God.
+
+| Rubric
+    or this
+
+| Versicals
+    Deacon Let us bless the Lord.
+    People Thanks be to God.
+
+| Rubric
+    From the Easter Vigil through the Day of Pentecost “Alleluia, alleluia” is added to any of the dismissals. It may be added at other
+    times, except during Lent and on other penitential occasions.
+
+| Rubric
+    The People respond
+
+| Plain
+    Thanks be to God. [Alleluia, Alleluia.]
+
+| Finish
+    Deacon's Mass

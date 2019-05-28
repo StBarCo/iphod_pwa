@@ -62,7 +62,8 @@ function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
   var dbName = 
-    { morning_prayer: "mp"
+    { deacons_mass: "deacons_mass"
+    , morning_prayer: "mp"
     , midday: "midday"
     , evening_prayer: "evening_prayer"
     , compline: "compline"
