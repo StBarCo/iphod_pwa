@@ -64,6 +64,17 @@ openingSentenceParser =
     |= label
     |= ref
     |= text
+    |. spaces
+
+seasonalOpeningSentenceParser : Parser OpeningSentence
+seasonalOpeningSentenceParser =
+    succeed OpeningSentence
+    |. spaces
+    |= tag
+    |= label
+    |= ref
+    |= text
+    |. spaces
 
 antiphonParser : Parser Antiphon
 antiphonParser =

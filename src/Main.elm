@@ -88,6 +88,7 @@ document =
                 , antiphon 
                 , lesson
                 , finish 
+                , seasonal
                 -- Toplevel Text
                 , Mark.map (\viewEls model -> 
                     Element.paragraph 
@@ -99,7 +100,6 @@ document =
                 ]
             )
         )
-
 
 emptyDivWithId : Model -> String -> Element.Element msg
 emptyDivWithId model s =
@@ -456,6 +456,67 @@ options =
         )
         Mark.multiline
 
+
+seasonal : Mark.Block (Model -> Element.Element Msg)
+seasonal =
+    Mark.block "Seasonal"
+    (\everything model ->
+        let
+            (ofType, tList) = everything |> parseSeasonal
+            (newModel, _) = update (UpdateOpeningSentences tList) model
+            thisSeason = newModel.openingSentences 
+                |> List.foldl (\os acc 
+                    -> if os.tag == model.season || os.tag == "anytime"
+                        then os :: acc
+                        else acc
+                    ) []
+                |> List.reverse
+                |> List.map (\os ->
+                    Element.textColumn []
+                    [ ( if os.label == "BLANK"
+                        then Element.paragraph (Palette.rubric model) [Element.text "or this"]
+                        else Element.paragraph (Palette.openingSentenceTitle model) [Element.text os.label]
+                      )
+                    , Element.paragraph [] [Element.text os.text]
+                    , Element.paragraph (Palette.reference model) [Element.text os.ref]
+                    ]
+                )
+        in
+
+        Element.textColumn
+        []
+        thisSeason
+        
+    )
+    Mark.multiline
+    
+parseSeasonal : String -> ( String, List OpeningSentence )
+parseSeasonal everything =
+    let
+        lns = everything |> String.split "--"
+        ofType = lns |> List.head |> Maybe.withDefault "no_type"
+        seasonList = lns |> linesToSeasonalList
+    in
+    (ofType, seasonList)
+    
+linesToSeasonalList : List String -> List OpeningSentence 
+linesToSeasonalList lns =
+    lns
+    |> List.tail
+    |> Maybe.withDefault []
+    |> replaceSplitter
+    |> List.map (\l ->
+        case (Parser.run seasonalOpeningSentenceParser l) of
+            Ok os -> os
+            Err x ->
+                { tag = "err"
+                , label = "ERROR PARSING SEASONAL->"
+                , ref = ""
+                , text = "Text->\n" ++ l
+                }
+
+    )
+
 openingSentence : Mark.Block (Model -> Element.Element msg)
 openingSentence =
     Mark.block "OpeningSentence"
@@ -542,6 +603,7 @@ type Msg
     | UpdateCalendar  (List CalendarDay)
     | UpdateOffice (List String)
     | UpdateLesson String
+    | UpdateOpeningSentences (List OpeningSentence)
     | DayClick CalendarDay
     | Office String
     | AltButton String String
@@ -609,6 +671,9 @@ update msg model =
 
         UpdateLesson s ->
             (addNewLesson s model, Cmd.none)
+
+        UpdateOpeningSentences l ->
+            ( {model | openingSentences = l}, Cmd.none)
             
 ----
 

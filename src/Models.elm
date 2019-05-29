@@ -191,6 +191,7 @@ type alias Model =
     , calendar : List CalendarDay
     , showMenu : Bool
     , lessons : Lessons
+    , openingSentences : List OpeningSentence
     }
     
 
@@ -212,5 +213,6 @@ initModel =
     , calendar      = []
     , showMenu      = False
     , lessons       = initLessons
+    , openingSentences = []
     }
 
