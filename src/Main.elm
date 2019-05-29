@@ -120,9 +120,7 @@ menuOptions : Model -> Element.Element Msg
 menuOptions model =
     Element.column [ showMenu model, scaleFont model 18 ]
         --[ clickOption "calendar" "Calendar"
-        [ clickOption "deacons_mass" "Deacon's Mass"
-        , Element.paragraph [] [Element.text "---"]
-        , clickOption "morning_prayer" "Morning Prayer"
+        [ clickOption "morning_prayer" "Morning Prayer"
         , clickOption "midday" "Midday Prayer"
         , clickOption "evening_prayer" "Evening Prayer"
         , clickOption "compline" "Compline"
