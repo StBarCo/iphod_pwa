@@ -7,38 +7,140 @@
     Scripture. One of the following, or a sentence from among those provided at the
     end of the Office (pages 27-29), is customary.
 
-| OpeningSentence
-    tag: always
-    label: BLANK
+| Seasonal
+    ofType: opening_sentence
+    --
+    tag: proper
+    label: At Any Time
     ref: philippians 1:2
     text:
     Grace to you and peace from God our Father and the Lord
     Jesus Christ.
     --    
-
-| Rubric
-    or this
-
-| OpeningSentence
-    tag: always
+    tag: proper
     label: BLANK
     ref: psalm 122:1
     text:
     I was glad when they said unto me, “We will go into the house
     of the Lord.” 
     --
-
-| Rubric
-    or this
-
-| OpeningSentence
-    tag: always
+    tag: proper
     label: BLANK
     ref: psalm 19:14
     text:
     Let the words of my mouth and the meditation of my heart
     be always acceptable in your sight, O Lord, my rock and my
     redeemer. 
+    --
+    tag: advent
+    label: Advent
+    ref: isaiah 40:3
+    text: In the wilderness prepare the way of the Lord; make straight in
+    the desert a highway for our God. 
+    --
+    tag: christmas
+    label: Christmas
+    ref: luke 2:10-11
+    text: Fear not, for behold, I bring you good news of great joy that will
+    be for all the people. For unto you is born this day in the city of
+    David a Savior, who is Christ the Lord.
+    --
+    tag: epiphany
+    label: Epiphany
+    ref: malachi 1:11
+    text: From the rising of the sun to its setting my name will be great
+    among the nations, and in every place incense will be offered to
+    my name, and a pure offering. For my name will be great among
+    the nations, says the Lord of hosts.
+    --
+    tag: lent
+    label: lent and other penitential occasions
+    ref: matthew 3:2
+    text: Repent, for the kingdom of heaven is at hand.
+    --
+    tag: lent
+    label: BLANK
+    ref: psalm 51:9
+    text: Turn your face from my sins,
+    and blot out all my misdeeds.
+    --
+    tag: lent
+    label: BLANK
+    ref: mark 8:34
+    text: If anyone would come after me, let him deny himself and take
+    up his cross and follow me.
+    --
+    tag: holy_week
+    label: Holy Week
+    ref: lamentations 1:12
+    text: Is it nothing to you, all you who pass by? Look and see
+    if there is any sorrow like my sorrow, which was brought
+    upon me, which the Lord inflicted on the day of his
+    fierce anger.
+    --
+    tag: easter
+    label: Easter
+    ref: colossians 3:1
+    text: If then you have been raised with Christ, seek the things
+    that are above, where Christ is, seated at the right hand
+    of God.
+    --
+    tag: ascension
+    label: Ascension
+    ref: hebrews 4:14, 16
+    text: Since then we have a great high priest who has passed through
+    the heavens, Jesus, the Son of God, let us hold fast our
+    confession. Let us then with confidence draw near to the throne
+    of grace, that we may receive mercy and find grace to help in
+    time of need.
+    --
+    tag: pentecost
+    label: Pentecost
+    ref: acts 1:8
+    text: You will receive power when the Holy Spirit has come upon
+    you, and you will be my witnesses in Jerusalem and in all Judea
+    and Samaria, and to the end of the earth.
+    --
+    tag: trinity
+    label: Trinity Sunday
+    ref: revelation 4:8
+    text: Holy, holy, holy, is the Lord God Almighty, who was and is and
+    is to come!
+    --
+    tag: thanksgiving
+    label: days of thanksgiving
+    ref: proverbs 3:9-10
+    text: Honor the Lord with your wealth and with the firstfruits of all
+    your produce; then your barns will be filled with plenty, and your
+    vats will be bursting with wine.
+    --
+    tag: anytime
+    label: At Any Time
+    ref: habakkuk 2:20
+    text: The Lord is in his holy temple; let all the earth keep silence
+    before him.
+    --
+    tag: anytime
+    label: BLANK
+    ref: psalm 43:3
+    text: O send out your light and your truth, that they may lead me, and
+    bring me to your holy hill, and to your dwelling.
+    --
+    tag: anytime
+    label: BLANK
+    ref: isaiah 57:15
+    text: Thus says the One who is high and lifted up, who inhabits
+    eternity, whose name is Holy: “I dwell in the high and holy
+    place, and also with him who is of a contrite and lowly spirit,
+    to revive the spirit of the lowly, and to revive the heart of
+    the contrite.”
+    --
+    tag: anytime
+    label: BLANK
+    ref: john 4:23
+    text: The hour is coming, and is now here, when the true worshipers
+    will worship the Father in spirit and truth, for the Father is
+    seeking such people to worship him. 
     --
 
 | Section
@@ -109,17 +211,13 @@
     The Almighty and merciful Lord grant you absolution and
     remission of all your sins, true repentance, amendment of life,
     and the grace and consolation of his Holy Spirit. Amen.
-
-| Rubric
     A Deacon or layperson remains kneeling and prays
-
-| Plain
     Grant to your faithful people, merciful Lord, pardon and peace;
     that we may be cleansed from all our sins, and serve you with a
     quiet mind; through Jesus Christ our Lord. Amen.
 
 | Section
-    Invitatory
+    invitatory
 
 | Rubric
     All stand.
@@ -139,32 +237,23 @@
     One of these antiphons, or one from the seasonal antiphons provided at the end of
     the Office (pages 29-30), may be sung or said before and after the Invitatory Psalm.
 
-| Antiphon
-    tag: default
-    label: BLANK
-    text: The earth is the Lord’s for he made it: *
+| Prayer
+    The earth is the Lord’s for he made it: *
         O come, let us adore him.
-    --
 
 | Rubric 
     or this
 
-| Antiphon
-    tag: default
-    label: BLANK
-    text: Worship the Lord in the beauty of holiness: *
+| Prayer
+    Worship the Lord in the beauty of holiness: *
         O come, let us adore him.
-    --
 
 | Rubric
     or this
 
-| Antiphon
-    tag: default
-    label: BLANK
-    text: The mercy of the Lord is everlasting: *
+| Prayer
+    The mercy of the Lord is everlasting: *
         O come, let us adore him.
-    --
 
 | PsalmTitle 
     venite
@@ -326,11 +415,6 @@ Here ends the Reading.
         Father, of majesty unbounded,
     your true and only Son, worthy of all praise, *
         and the Holy Spirit, advocate and guide.
-
-| PageNumber
-    18 d a i ly o f f i c e
-
-| Prayer
     You, Christ, are the king of glory, *
         the eternal Son of the Father.
     When you took our flesh to set us free *
@@ -371,11 +455,6 @@ Here ends the Reading.
 | Prayer
     Glory to you, Lord God of our fathers; *
         you are worthy of praise; glory to you.
-
-| PageNumber
-     d a i ly m o r n i n g p r ay e r 19
-
-| Prayer
     Glory to you for the radiance of your holy Name; *
         we will praise you and highly exalt you for ever.
     Glory to you in the splendor of your temple; *
@@ -413,11 +492,6 @@ Here ends the Reading.
         for you will go before the Lord to prepare his way,
     To give his people knowledge of salvation *
         by the forgiveness of their sins.
-
-| PageNumber
-    20 d a i ly o f f i c e
-
-| Prayer
     In the tender compassion of our God *
         the dawn from on high shall break upon us,
         To shine on those who dwell in darkness
@@ -455,9 +529,6 @@ Here ends the Reading.
         the forgiveness of sins,
         the resurrection of the body,
         and the life everlasting. Amen.
-
-| PageNumber
-    d a i ly m o r n i n g p r ay e r 21
 
 | Section
     the prayers
@@ -529,11 +600,6 @@ Here ends the Reading.
     People And lead us in the way of justice and truth.
     Officiant Clothe your ministers with righteousness;
     People And let your people sing with joy.
-
-| PageNumber
-    22 d a i ly o f f i c e
-
-| Versicals
     Officiant O Lord, save your people;
     People And bless your inheritance.
     Officiant Give peace in our time, O Lord;
@@ -568,15 +634,14 @@ Here ends the Reading.
     us bold to praise you and to do your will; and steel us to wait
     for the consummation of your kingdom on the last great Day;
     through Jesus Christ our Lord. Amen.
-    a collect for the renewal of life Monday
+
+| CollectTitle
+    a collect for the renewal of life /Monday/
+
+| Plain
     O God, the King eternal, whose light divides the day from the
     night and turns the shadow of death into the morning: Drive
     far from us all wrong desires, incline our hearts to keep your
-
-| PageNumber 
-     d a i ly m o r n i n g p r ay e r 23
-
-| Plain
     law, and guide our feet into the way of peace; that, having done
     your will with cheerfulness during the day, we may, when night
     comes, rejoice to give you thanks; through Jesus Christ our
@@ -621,9 +686,6 @@ Here ends the Reading.
     crucified: Mercifully grant that we, walking in the way of the
     Cross, may find it none other than the way of life and peace;
     through Jesus Christ your Son our Lord. Amen.
-
-| PageNumber
-    24 d a i ly o f f i c e
 
 | CollectTitle
     a collect for sabbath rest /Saturday/
@@ -670,11 +732,6 @@ Here ends the Reading.
     Lord Jesus Christ, you stretched out your arms of love on the
     hard wood of the Cross that everyone might come within the
     reach of your saving embrace: So clothe us in your Spirit that 
-
-| PageNumber
-     d a i ly m o r n i n g p r ay e r 25
-
-| Plain
     we, reaching forth our hands in love, may bring those who do
     not know you to the knowledge and love of you; for the honor
     of your Name. Amen.
@@ -712,9 +769,6 @@ Here ends the Reading.
     Through Jesus Christ our Lord,
     to whom, with you and the Holy Spirit,
     be honor and glory throughout all ages. Amen.
-
-| PageNumber
-    26 d a i ly o f f i c e
 
 | CollectTitle
     a prayer of st. john chrysostom
@@ -761,11 +815,8 @@ Here ends the Reading.
     to generation in the Church, and in Christ Jesus for ever and
     ever. Amen. 
 
-|Ref
+| Ref
     ephesians 3:20-21t
-
-| PageNumber
-    d a i ly m o r n i n g p r ay e r 27
 
 | Section
     opening sentences of scripture
@@ -829,9 +880,6 @@ Here ends the Reading.
     upon me, which the Lord inflicted on the day of his
     fierce anger.
     --
-
-| PageNumber
-    28 d a i ly o f f i c e
 
 | OpeningSentence
     tag: easter
@@ -955,9 +1003,6 @@ Here ends the Reading.
         O come, let us adore him.
     --
 
-| PageNumber
-    30 d a i ly o f f i c e
-
 | Antiphon
     tag: lent
     label: Lent
@@ -999,9 +1044,6 @@ Here ends the Reading.
     text: The Lord is glorious in his saints: *
         O come, let us adore him.
     --
-
-| PageNumber
-    d a i ly m o r n i n g p r ay e r 31
 
 | Section
     additional directions

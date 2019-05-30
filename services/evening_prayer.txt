@@ -8,32 +8,144 @@
     Scripture. One of the following, or a sentence from among those provided at the
     end of the Office (pages 54-56), is customary.
 
-| Quote
+| Seasonal
+    ofType: opening_sentence
+    --
+    tag: proper
+    label: At Any Time
+    ref: john 8:12
+    text:
     Jesus spoke to them, saying, “I am the light of the world.
     Whoever follows me will not walk in darkness, but will have
     the light of life.” 
-| Ref
-    john 8:12
-
-| Rubric
-    or this
-
-| Quote
+    --
+    tag: proper
+    label: BLANK
+    ref: psalm 26:8
+    text:
     Lord, I have loved the habitation of your house and the place
     where your honor dwells. 
-    
-| Ref
-    psalm 26:8
-
-| Rubric
-    or this
-
-|Quote
+    --
+    tag: proper
+    label: BLANK
+    ref:  psalm 141:2
+    text:
     Let my prayer be set forth in your sight as incense, and let the
     lifting up of my hands be an evening sacrifice. 
-    
-| Ref
-    psalm 141:2
+    --
+    tag: advent
+    label: Advent
+    ref: mark 13:35-36
+    text: 
+    Therefore stay awake—for you do not know when the master of
+    the house will come, in the evening, or at midnight, or when the
+    rooster crows, or in the morning—lest he come suddenly and
+    find you asleep.
+    --
+    tag: christmas
+    label: Chriatmas
+    ref: mark 13:35-36
+    text: 
+    Behold, the dwelling place of God is with man. He will dwell
+    with them, and they will be his people, and God himself will be
+    with them as their God. revelation 21:3
+    --
+    tag: epiphany
+    label: Ephiphany
+    ref: isaiah 60:3
+    text: 
+    Nations shall come to your light, and kings to the brightness of
+    your rising. 
+    --
+    tag: lent
+    label: Lent and Other Penitential Occasions
+    ref: 1 john 1:8-9
+    text: 
+    If we say we have no sin, we deceive ourselves, and the truth is
+    not in us. If we confess our sins, he is faithful and
+    just to forgive us our sins and to cleanse us from
+    all unrighteousness. 
+    --
+    tag: lent
+    label: BLANK
+    ref: daniel 9:9
+    text: 
+    For I acknowledge my faults,
+    and my sin is ever before me. psalm 51:3
+    To the Lord our God belong mercy and forgiveness, for we have
+    rebelled against him. 
+    --
+    tag: holy_week
+    label: Holy Week
+    ref: isaiah 53:6
+    text: 
+    All we like sheep have gone astray; we have turned every one to
+    his own way; and the Lord has laid on him the iniquity of us
+    all. 
+    --
+    tag: easter
+    label: Easter
+    ref: 1 corinthians 15:57
+    text: 
+    Thanks be to God, who gives us the victory through our Lord
+    Jesus Christ. 
+    --
+    tag: ascension
+    label: Ascension
+    ref: hebrews 9:24
+    text: 
+    For Christ has entered, not into holy places made
+    with hands, which are copies of the true things, but
+    into heaven itself, now to appear in the presence of God
+    on our behalf. 
+    --
+    tag: pentecost
+    label: Pentecost
+    ref: revelation 22:17
+    text: 
+    The Spirit and the Bride say, “Come.” And let the one
+    who hears say, “Come.” And let the one who is thirsty
+    come; let the one who desires take the water of life
+    without price. 
+    --
+    tag: pentecost
+    label: BLANK
+    ref: psalm 46:4
+    text: 
+    There is a river whose streams make glad the city of God,
+    the holy dwelling place of the Most High. 
+    --
+    tag: trinity
+    label: Trinity Sunday
+    ref: isaiah 6:3
+    text: 
+    Holy, holy, holy is the Lord of Hosts; the whole earth is full of
+    his glory! 
+    --
+    tag: thanksgiving
+    label: Days of Thanksgiving
+    ref: proverbs 3:19-20
+    text: 
+    The Lord by wisdom founded the earth; by understanding he
+    established the heavens; by his knowledge the deeps broke open,
+    and the clouds drop down the dew. 
+    --
+    tag: anytime
+    label: At Any Time
+    ref: psalm 96:9
+    text:
+    O worship the Lord in the beauty of holiness;
+    let the whole earth stand in awe of him. 
+    --
+    tag: anytime
+    label: BLANK
+    ref: psalm 16:8-9
+    text: 
+    I will thank the Lord for giving me counsel;
+    my heart also chastens me in the night season.
+    I have set the Lord always before me;
+    he is at my right hand, therefore I shall not fall. 
+    --
 
 | Section
     confession of sin
@@ -697,7 +809,6 @@
     label: at any time
     ref: psalm 96:9
     text: 
-    at any time
     O worship the Lord in the beauty of holiness;
     let the whole earth stand in awe of him. 
     --
