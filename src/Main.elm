@@ -243,14 +243,15 @@ fixPTags : String -> String
 fixPTags str =
     let
         openP = str |> String.indexes "<p"
-        closeP = str |> String.indexes "/p"
+        closeP = str |> String.indexes "</p"
 
         openP1 = openP |> List.head |> Maybe.withDefault 0
         closeP1 = closeP |> List.head |> Maybe.withDefault 0
-        newStr = if openP1 > closeP1 then "<p>" ++ str else str
+        newStr = if closeP1 > openP1 then "<p>" ++ str else str
         
         openPLast = openP |> last |> Maybe.withDefault 0
         closePLast = closeP |> last |> Maybe.withDefault 0
+
     in
     if openPLast > closePLast then newStr ++ "</p>" else newStr
     
@@ -258,18 +259,18 @@ fixPTags str =
 parseLine : String -> List (Element.Element Msg)
 parseLine str = 
     let
-        els = case (Html.Parser.run str) of
-            Ok nodes ->
-                nodes |> List.map (\n -> parseNode n) |> List.concat
-
-            _ ->
-                [ Element.paragraph []
-                    [ Element.el [Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
-                    , Element.el [Font.color Palette.darkBlue] (Element.text str)
-                    ]
-                ]
+        parsed = Html.Parser.run str
     in
-    els
+    case parsed of
+        Ok nodes ->
+            nodes |> List.map (\n -> parseNode n) |> List.concat
+
+        _ ->
+            [ Element.paragraph []
+                [ Element.el [Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
+                , Element.el [Font.color Palette.darkBlue] (Element.text str)
+                ]
+            ]
 
 -- we need parseNodes because Html.Parser.Element has a list of Nodes that will have to be parsed
 parseNodes : List (Html.Parser.Node) -> List (Element.Element Msg)
