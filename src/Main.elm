@@ -333,16 +333,17 @@ begining : Mark.Block (Model -> Element.Element Msg)
 begining =
     Mark.stub "Begin"
     (\ model ->
-        Element.column (Palette.menu model)
+        Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
         [ Element.row [Element.centerX, Element.spacing (scale model 200)]
             [ Element.el [scaleFont model 18] (Element.text "Legereme")
             , Element.image 
-                [ Element.height (Element.px 36)
-                , Element.width (Element.px 35)
-                , Element.alignRight
-                , Background.color (Element.rgba 0.9 0.9 0.9 0.7)
-                , Event.onClick ToggleMenu
-                ] 
+                ( List.append (backgroundGradient model.color)
+                    [ Element.height (Element.px 36)
+                    , Element.width (Element.px 35)
+                    , Element.alignRight
+                    , Event.onClick ToggleMenu
+                    ]
+                )
                 { src = "https://legereme.com/pwa/menu.svg"
                 , description = "Toggle Menu"
                 }
@@ -351,6 +352,47 @@ begining =
 --            ]
         ]
     )
+
+backgroundGradient : String -> List (Element.Attribute msg)
+backgroundGradient s =
+    let
+        _ = Debug.log "BACKGROUND COLOR:" s
+        ang = 2.0
+        (foreground, grad) = case s of
+            "white" ->
+                ( Palette.darkGrey
+                , {angle = ang, steps = [Element.rgb255 255 222 168, Element.rgb255 254 200 78]}
+                )
+            "green" ->
+                ( Palette.foggy
+                , {angle = ang, steps = [Element.rgb255 255 255 255, Element.rgb255 55 136 41]}
+                )
+            "red"   ->
+                ( Palette.foggy
+                , {angle = ang, steps = [Element.rgb255 255 0 0, Element.rgb255 153 0 0]}
+                )
+            "violet"->
+                ( Palette.foggy
+                , {angle = ang, steps = [Element.rgb255 224 86 253, Element.rgb255 0 0 0]}
+                )
+            "blue"  ->
+                ( Palette.foggy
+                , {angle = ang, steps = [Element.rgb255 0 159 253, Element.rgb255 42 42 114]}
+                )
+            "rose"  ->
+                ( Palette.darkGrey
+                , {angle = ang, steps = [Element.rgb255 238 142 107, Element.rgb255 239 1109 160]}
+                )
+            "gold"  ->
+                ( Palette.darkGrey
+                , {angle = ang, steps = [Element.rgb255 255 222 168, Element.rgb255 254 200 78]}
+                )
+            _       ->
+                ( Palette.foggy
+                , {angle = 1.0, steps = [Palette.foggy, Palette.foggy]}
+                )
+    in
+    [ Font.color foreground, Background.gradient grad ]
 
 clickOption : String -> String -> Element.Element Msg
 clickOption request label =
@@ -371,6 +413,14 @@ title titleText =
                 , Element.width (Element.px model.width)
                 ]
                 (elements model)
+            , Element.paragraph 
+                [ Font.center, scaleFont model 18] 
+                [ Element.text model.today ]
+            , Element.paragraph
+                [ Font.center, scaleFont model 18]
+                [ Element.text ((model.season |> toTitleCase) ++ " " ++ model.week) 
+                , Element.el [Font.italic] (Element.text model.year)
+                ]
             ]
         )
         titleText
@@ -649,12 +699,14 @@ update msg model =
         UpdateOffice recvd ->
             let
                 newModel = { model
-                    | day = recvd |> requestedOfficeAt 0
-                    , week = recvd |> requestedOfficeAt 1
-                    , year = recvd |> requestedOfficeAt 2
-                    , season = recvd |> requestedOfficeAt 3
-                    , pageName = recvd |> requestedOfficeAt 4
-                    , source = recvd |> requestedOfficeAt 5 |> String.replace "\\n" "\n"
+                    | today = recvd |> requestedOfficeAt 0
+                    , day = recvd |> requestedOfficeAt 1
+                    , week = recvd |> requestedOfficeAt 2
+                    , year = recvd |> requestedOfficeAt 3
+                    , season = recvd |> requestedOfficeAt 4
+                    , color = recvd |> requestedOfficeAt 5
+                    , pageName = recvd |> requestedOfficeAt 6
+                    , source = recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n"
                     }
             in
             
@@ -750,6 +802,10 @@ optionsIndex tag olist =
     
 view : Model -> Document Msg
 view model =
+    let
+        _ = Debug.log "VIEW MODEL->" model
+    in
+    
     { title = "Legereme"
     , body = 
         [ case Mark.parse document model.source of

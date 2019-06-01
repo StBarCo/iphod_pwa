@@ -76,16 +76,28 @@ function get_service(named) {
     }[named];
   service.get(dbName).then(  function(resp) {
     var now = moment()
+      , today = now.format("dddd, MMMM Do YYYY")
       , day = [ "Sunday", "Monday", "Tuesday"
               , "Wednesday", "Thursday", "Friday"
               , "Saturday"
               ][now.weekday()]
       , season = LitYear.toSeason(now)
-      , serviceHeader = [day, season.week.toString(), season.year, season.season, named]
+      , iphodKey = season.season + season.week + season.year
     ;
+    iphod.get(iphodKey).then( function(euResp){
+      var serviceHeader = [
+            today
+          , day
+          , season.week.toString()
+          , season.year
+          , season.season
+          , euResp.colors[0]
+          , named
+        ]
 
-    request_lessons(named);
-    app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
+      request_lessons(named);
+      app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
+    })
   }).catch( function(err) {
     console.log("GET SERVICE ERROR: ", err);
   });
@@ -406,7 +418,6 @@ function insertPsalms(office) {
 // ----
 
 function showPsalms(pss) {
-  // $("#psalms").waitUntilExists(function() { console.log("PSALMS EXISTS!!!")});
   pss.forEach(  function(ps) {
     var title = ps.title ? ps.title : "";
     $("#psalms").append("<p class='psalm_name'>" + ps.name + "<span>" + title + "</span></p>")

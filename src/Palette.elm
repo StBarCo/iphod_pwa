@@ -204,9 +204,7 @@ openingSentence model =
 
 menu : Model -> List (Attribute msg)
 menu model =
-    [ Background.color litGreen
-    , Font.color foggy
-    , spacing 10
+    [ spacing 10
     , padding 10
     , maxWidth model
     ]

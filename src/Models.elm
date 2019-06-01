@@ -182,10 +182,12 @@ type alias Model =
     , source: String
     , requestLesson : String
     , currentAlt : String
+    , today : String -- date string
     , day : String
     , week : String
     , year : String
     , season : String
+    , color : String
     , showCalendar : Bool
     , options: List Options
     , calendar : List CalendarDay
@@ -204,10 +206,12 @@ initModel =
     , source        = "| Begin"
     , requestLesson = ""
     , currentAlt    = ""
+    , today         = ""
     , day           = ""
     , week          = ""
     , year          = ""
     , season        = ""
+    , color         = ""
     , showCalendar  = False
     , options       = []
     , calendar      = []
