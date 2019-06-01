@@ -241,19 +241,10 @@ showLesson model thisLesson =
     
 fixPTags : String -> String
 fixPTags str =
-    let
-        openP = str |> String.indexes "<p"
-        closeP = str |> String.indexes "</p"
-
-        openP1 = openP |> List.head |> Maybe.withDefault 0
-        closeP1 = closeP |> List.head |> Maybe.withDefault 0
-        newStr = if closeP1 > openP1 then "<p>" ++ str else str
-        
-        openPLast = openP |> last |> Maybe.withDefault 0
-        closePLast = closeP |> last |> Maybe.withDefault 0
-
-    in
-    if openPLast > closePLast then newStr ++ "</p>" else newStr
+    -- let's try removing all the p tags
+    str
+    |> String.replace "<p>" " "
+    |> String.replace "</p>" " "
     
 
 parseLine : String -> List (Element.Element Msg)
@@ -265,7 +256,7 @@ parseLine str =
         Ok nodes ->
             nodes |> List.map (\n -> parseNode n) |> List.concat
 
-        _ ->
+        Err msg ->
             [ Element.paragraph []
                 [ Element.el [Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
                 , Element.el [Font.color Palette.darkBlue] (Element.text str)

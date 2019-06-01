@@ -2,7 +2,7 @@ module Models exposing (..)
 
 import Element
 import Json.Decode as Decode exposing (Decoder, int, string)
-import Json.Decode.Pipeline exposing (required)
+import Json.Decode.Pipeline exposing (required, optional)
 
 -- PARSER MODELS
 
@@ -81,7 +81,7 @@ vsDecoder =
     |> required "book" string
     |> required "chap" int
     |> required "vs" int
-    |> required "vss" string
+    |> optional "vss" string ""
 
 type alias Reading =
     { ref: String
