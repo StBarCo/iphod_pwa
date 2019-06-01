@@ -356,7 +356,6 @@ begining =
 backgroundGradient : String -> List (Element.Attribute msg)
 backgroundGradient s =
     let
-        _ = Debug.log "BACKGROUND COLOR:" s
         ang = 2.0
         (foreground, grad) = case s of
             "white" ->
@@ -802,10 +801,6 @@ optionsIndex tag olist =
     
 view : Model -> Document Msg
 view model =
-    let
-        _ = Debug.log "VIEW MODEL->" model
-    in
-    
     { title = "Legereme"
     , body = 
         [ case Mark.parse document model.source of
