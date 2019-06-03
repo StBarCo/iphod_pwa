@@ -380,7 +380,7 @@ backgroundGradient s =
                 )
             "rose"  ->
                 ( Palette.darkGrey
-                , {angle = ang, steps = [Element.rgb255 188, 9, 103, Element.rgb255 239 220 230]}
+                , {angle = ang, steps = [Element.rgb255 188 9 103, Element.rgb255 239 220 230]}
                 )
             "gold"  ->
                 ( Palette.darkGrey
