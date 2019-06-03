@@ -356,35 +356,35 @@ begining =
 backgroundGradient : String -> List (Element.Attribute msg)
 backgroundGradient s =
     let
-        ang = 2.0
+        ang = 3.0
         (foreground, grad) = case s of
             "white" ->
                 ( Palette.darkGrey
-                , {angle = ang, steps = [Element.rgb255 255 222 168, Element.rgb255 254 200 78]}
+                , {angle = ang, steps = [Element.rgb255 233 255 2, Element.rgb255 237 239 210]}
                 )
             "green" ->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 255 255 255, Element.rgb255 55 136 41]}
+                , {angle = ang, steps = [Element.rgb255 23 102 10, Element.rgb255 226 255 221]}
                 )
             "red"   ->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 255 0 0, Element.rgb255 153 0 0]}
+                , {angle = ang, steps = [Element.rgb255 119 2 14, Element.rgb255 255 226 229]}
                 )
             "violet"->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 224 86 253, Element.rgb255 0 0 0]}
+                , {angle = ang, steps = [Element.rgb255 60 1 99, Element.rgb255 241 229 249]}
                 )
             "blue"  ->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 0 159 253, Element.rgb255 42 42 114]}
+                , {angle = ang, steps = [Element.rgb255 0 5 99, Element.rgb255 220 230 239]}
                 )
             "rose"  ->
                 ( Palette.darkGrey
-                , {angle = ang, steps = [Element.rgb255 238 142 107, Element.rgb255 239 1109 160]}
+                , {angle = ang, steps = [Element.rgb255 188, 9, 103, Element.rgb255 239 220 230]}
                 )
             "gold"  ->
                 ( Palette.darkGrey
-                , {angle = ang, steps = [Element.rgb255 255 222 168, Element.rgb255 254 200 78]}
+                , {angle = ang, steps = [Element.rgb255 233 255 2, Element.rgb255 237 239 210]}
                 )
             _       ->
                 ( Palette.foggy
