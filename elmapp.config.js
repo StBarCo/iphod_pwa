@@ -13,5 +13,5 @@ module.exports = {
 
     return config
   },
-  homepage: "https://legereme.com/pwa"
+  homepage: "https://bcp2019.com"
 }
