@@ -1,25 +1,31 @@
-| Begin
+|> Metadata
+    maintainer = PASutcliffe+
+    title =  Prayers for a Vigil
+    description = ACNA Prayers for a Vigil
 
-| Title
-    prayers for a vigil
+|> Service
+    title = Prayers for a Vigil
+    description =
+        absolution and formal blessings, are reserved to Bishops and Priests. 
 
-| Rubric
+
+|> Rubric
     It is appropriate that family and friends come together prior to a funeral. This rite may
     be used on such an occasion, whether at the church, a funeral home, or elsewhere.
 
-| Rubric
+|> Rubric
     The Minister says
 
-| Plain
+|> Plain
     Dear Friends: It was our Lord Jesus /him/self who said, “Come to
     me, all who labor and are heavy laden, and I will give you rest.”
     Let us pray, then, for our brother N., that he may rest from his
     labors, and enter into God’s eternal Sabbath rest.
 
-| Rubric
+|> Rubric
     A psalm may be prayed.
 
-| Options
+|> Options
     tag: v_psalms
     label: Psalms 23 and 121 are particularly appropriate.
     --
@@ -84,10 +90,10 @@
         from this time forth for evermore.
     --
 
-| Rubric
+|> Rubric
     One or more of the following Lessons is read.
 
-| Quote
+|> Quote
     But we do not want you to be uninformed, brothers and sisters,
     about those who are asleep, that you may not grieve as others
     do who have no hope. For since we believe that Jesus died and
@@ -97,23 +103,23 @@
     the coming of the Lord, will not precede those who have fallen
     asleep.
 
-| Ref
+|> Ref
     1 thessalonians 4:13-15
 
-| Quote
+|> Quote
     In my Father’s house are many rooms. If it were not so, would
     I have told you that I go to prepare a place for you?And if I go
     and prepare a place for you, I will come again and will take you
     to myself, that where I am you may be also.
 
-| Ref
+|> Ref
     john 14:2-3
 
-| Rubric
+|> Rubric
     The following and other additional prayers may be said. The Litany at the Time
     of Death (pages 237-239) may also be used.
 
-| Toggle
+|> Toggle
     tag: v_lit
     label: BLANK
     --
@@ -145,7 +151,7 @@
         *We beseech you to hear us, good Lord.*
     --
 
-| Plain
+|> Plain
     O God, who by the glorious resurrection of your Son Jesus
     Christ destroyed death and brought life and immortality to
     light: Grant that your servant N., being raised with Christ, may
@@ -153,7 +159,7 @@
     glory; who with you and the Holy Spirit lives and reigns, one
     God, for ever and ever. *Amen*.
 
-| Plain
+|> Plain
     Most merciful God, whose wisdom is beyond our
     understanding: deal graciously with those who mourn
     [especially _________]. Surround them with your love, that they
@@ -161,16 +167,16 @@
     your goodness, and strength to meet the days to come; through
     Jesus Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     The Minister says
 
-| Plain
+|> Plain
     And now as our Savior Christ has taught us, we are bold to pray
 
-| Rubric
+|> Rubric
     Minister and People say together
 
-| Options
+|> Options
     tag: lords_prayer
     label: Lord's Prayer
     --
@@ -214,19 +220,19 @@
         now and for ever. Amen.
     --
 
-| Rubric
+|> Rubric
     The Minister says
 
-| Quote
+|> Quote
     May the God of hope fill us with all joy and peace in believing
     through the power of the Holy Spirit. Amen.
 
-| Ref
+|> Ref
     romans 15:13
 
-| Rubric
+|> Rubric
     The Minister may say
 
-| Versicals
+|> Versicals
     BLANK May his soul, and the souls of all the faithful departed, through the mercy of God, rest in peace.
     People And may light perpetual shine upon them. Amen.

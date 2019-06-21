@@ -1,13 +1,26 @@
-| Begin
-| Title
-    Daily Morning Prayer
+|> Metadata
+    maintainer = PASutcliffe+
+    title = Daily Morning Prayer
+    description = ACNA Daily Morning Prayer
 
-| Rubric
+|> Service
+    title: Daily Morning Prayer
+    description:
+        Daily Morning Prayer and Daily Evening Prayer are the
+        established rites (offices) by which, both corporately and
+        individually, God’s people annually encounter the whole of the
+        Holy Scriptures, daily confess their sins and praise Almighty
+        God, and offer timely thanksgivings, petitions, and intercessions.
+        The prayer book tradition has historically expected clergy to pray
+        the Daily Office morning and evening each day. 
+
+
+|> Rubric
     The Officiant may begin Morning Prayer by reading an opening sentence of
     Scripture. One of the following, or a sentence from among those provided at the
     end of the Office (pages 27-29), is customary.
 
-| Seasonal
+|> Seasonal
     ofType: opening_sentence
     --
     tag: proper
@@ -35,20 +48,23 @@
     tag: advent
     label: Advent
     ref: isaiah 40:3
-    text: In the wilderness prepare the way of the Lord; make straight in
+    text:
+    In the wilderness prepare the way of the Lord; make straight in
     the desert a highway for our God. 
     --
     tag: christmas
     label: Christmas
     ref: luke 2:10-11
-    text: Fear not, for behold, I bring you good news of great joy that will
+    text:
+    Fear not, for behold, I bring you good news of great joy that will
     be for all the people. For unto you is born this day in the city of
     David a Savior, who is Christ the Lord.
     --
     tag: epiphany
     label: Epiphany
     ref: malachi 1:11
-    text: From the rising of the sun to its setting my name will be great
+    text:
+    From the rising of the sun to its setting my name will be great
     among the nations, and in every place incense will be offered to
     my name, and a pure offering. For my name will be great among
     the nations, says the Lord of hosts.
@@ -56,24 +72,28 @@
     tag: lent
     label: lent and other penitential occasions
     ref: matthew 3:2
-    text: Repent, for the kingdom of heaven is at hand.
+    text:
+    Repent, for the kingdom of heaven is at hand.
     --
     tag: lent
     label: BLANK
     ref: psalm 51:9
-    text: Turn your face from my sins,
+    text:
+    Turn your face from my sins,
     and blot out all my misdeeds.
     --
     tag: lent
     label: BLANK
     ref: mark 8:34
-    text: If anyone would come after me, let him deny himself and take
+    text:
+    If anyone would come after me, let him deny himself and take
     up his cross and follow me.
     --
     tag: holy_week
     label: Holy Week
     ref: lamentations 1:12
-    text: Is it nothing to you, all you who pass by? Look and see
+    text:
+    Is it nothing to you, all you who pass by? Look and see
     if there is any sorrow like my sorrow, which was brought
     upon me, which the Lord inflicted on the day of his
     fierce anger.
@@ -81,14 +101,16 @@
     tag: easter
     label: Easter
     ref: colossians 3:1
-    text: If then you have been raised with Christ, seek the things
+    text:
+    If then you have been raised with Christ, seek the things
     that are above, where Christ is, seated at the right hand
     of God.
     --
     tag: ascension
     label: Ascension
     ref: hebrews 4:14, 16
-    text: Since then we have a great high priest who has passed through
+    text:
+    Since then we have a great high priest who has passed through
     the heavens, Jesus, the Son of God, let us hold fast our
     confession. Let us then with confidence draw near to the throne
     of grace, that we may receive mercy and find grace to help in
@@ -97,39 +119,45 @@
     tag: pentecost
     label: Pentecost
     ref: acts 1:8
-    text: You will receive power when the Holy Spirit has come upon
+    text:
+    You will receive power when the Holy Spirit has come upon
     you, and you will be my witnesses in Jerusalem and in all Judea
     and Samaria, and to the end of the earth.
     --
     tag: trinity
     label: Trinity Sunday
     ref: revelation 4:8
-    text: Holy, holy, holy, is the Lord God Almighty, who was and is and
+    text:
+    Holy, holy, holy, is the Lord God Almighty, who was and is and
     is to come!
     --
     tag: thanksgiving
     label: days of thanksgiving
     ref: proverbs 3:9-10
-    text: Honor the Lord with your wealth and with the firstfruits of all
+    text:
+    Honor the Lord with your wealth and with the firstfruits of all
     your produce; then your barns will be filled with plenty, and your
     vats will be bursting with wine.
     --
     tag: anytime
     label: At Any Time
     ref: habakkuk 2:20
-    text: The Lord is in his holy temple; let all the earth keep silence
+    text:
+    The Lord is in his holy temple; let all the earth keep silence
     before him.
     --
     tag: anytime
     label: BLANK
     ref: psalm 43:3
-    text: O send out your light and your truth, that they may lead me, and
+    text:
+    O send out your light and your truth, that they may lead me, and
     bring me to your holy hill, and to your dwelling.
     --
     tag: anytime
     label: BLANK
     ref: isaiah 57:15
-    text: Thus says the One who is high and lifted up, who inhabits
+    text:
+    Thus says the One who is high and lifted up, who inhabits
     eternity, whose name is Holy: “I dwell in the high and holy
     place, and also with him who is of a contrite and lowly spirit,
     to revive the spirit of the lowly, and to revive the heart of
@@ -138,18 +166,19 @@
     tag: anytime
     label: BLANK
     ref: john 4:23
-    text: The hour is coming, and is now here, when the true worshipers
+    text:
+    The hour is coming, and is now here, when the true worshipers
     will worship the Father in spirit and truth, for the Father is
     seeking such people to worship him. 
     --
 
-| Section
+|> Section
     confession of sin
 
-| Rubric
+|> Rubric
     The Officiant says to the People
 
-| Plain
+|> Plain
     Dearly beloved, the Scriptures teach us to acknowledge our
     many sins and offenses, not concealing them from our heavenly
     Father, but confessing them with humble and obedient hearts
@@ -162,16 +191,16 @@
     those things which are necessary for our life and our salvation.
     Therefore, draw near with me to the throne of heavenly grace.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     Let us humbly confess our sins to Almighty God.
 
-| Rubric
+|> Rubric
     Silence is kept. All kneeling, the Officiant and People say
 
-| Prayer
+|> Prayer
     Almighty and most merciful Father,
         we have erred and strayed from your ways like lost sheep.
     We have followed too much the devices and desires
@@ -189,10 +218,10 @@
         that we may now live a godly, righteous, and sober life,
         to the glory of your holy Name. Amen.
 
-| Rubric
+|> Rubric
     The Priest alone stands and says
 
-| Plain
+|> Plain
     Almighty God, the Father of our Lord Jesus Christ, desires
     not the death of sinners, but that they may turn from their 
     wickedness and live. He has empowered and commanded
@@ -204,10 +233,10 @@
     our lives may be pure and holy, and that at the last we may come
     to his eternal joy; through Jesus Christ our Lord. Amen.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     The Almighty and merciful Lord grant you absolution and
     remission of all your sins, true repentance, amendment of life,
     and the grace and consolation of his Holy Spirit. Amen.
@@ -216,13 +245,13 @@
     that we may be cleansed from all our sins, and serve you with a
     quiet mind; through Jesus Christ our Lord. Amen.
 
-| Section
+|> Section
     invitatory
 
-| Rubric
+|> Rubric
     All stand.
 
-| Versicals
+|> Versicals
     Officiant O Lord, open our lips;
     People And our mouth shall proclaim your praise.
     Officiant O God, make speed to save us;
@@ -232,34 +261,34 @@
     Officiant Praise the Lord.
     People The Lord’s Name be praised.
 
-| Rubric
+|> Rubric
     Then follows the Venite. Alternatively, the Jubilate may be used.
     One of these antiphons, or one from the seasonal antiphons provided at the end of
     the Office (pages 29-30), may be sung or said before and after the Invitatory Psalm.
 
-| Prayer
+|> Prayer
     The earth is the Lord’s for he made it: *
         O come, let us adore him.
 
-| Rubric 
+|> Rubric 
     or this
 
-| Prayer
+|> Prayer
     Worship the Lord in the beauty of holiness: *
         O come, let us adore him.
 
-| Rubric
+|> Rubric
     or this
 
-| Prayer
+|> Prayer
     The mercy of the Lord is everlasting: *
         O come, let us adore him.
 
-| PsalmTitle 
+|> PsalmTitle 
     venite
     O Come
 
-| Prayer
+|> Prayer
     O come, let us sing unto the Lord; *
         let us heartily rejoice in the strength of our salvation.
     Let us come before his presence with thanksgiving *
@@ -276,13 +305,13 @@
         and we are the people of his pasture,
         and the sheep of his hand.
 
-| Rubric
+|> Rubric
     The following verses may be omitted, except in Lent.
     Today, if you will hear his voice, harden not your hearts *
     as in the provocation, and as in the day of temptation in
     the wilderness,
 
-| Prayer
+|> Prayer
     When your fathers tested me, *
         and put me to the proof, though they had seen my works.
     Forty years long was I grieved with this generation, and said, *
@@ -291,17 +320,17 @@
     Of whom I swore in my wrath *
         that they should not enter into my rest.
 
-| Ref
+|> Ref
     psalm 95:1-7, 8-11
 
-| Rubric
+|> Rubric
     or this
 
-| PsalmTitle
+|> PsalmTitle
     jubilate
     Be Joyful
 
-| Prayer
+|> Prayer
     O be joyful in the Lord, all you lands; *
         serve the Lord with gladness,
         and come before his presence with a song.
@@ -314,18 +343,18 @@
     For the Lord is gracious, his mercy is everlasting, *
         and his truth endures from generation to generation.
 
-| Ref
+|> Ref
     psalm 100
 
-| Rubric
+|> Rubric
     During the first week of Easter, the Pascha Nostrum, without antiphons, is used
     in place of the Invitatory Psalm, and it may be used throughout Eastertide.
 
-| PsalmTitle
+|> PsalmTitle
     pascha nostrum
     Christ our Passover
 
-| Prayer
+|> Prayer
     Alleluia. Christ our Passover has been sacrificed for us; *
         therefore let us keep the feast,
     Not with the old leaven, the leaven of malice and evil, *
@@ -343,65 +372,65 @@
     For as in Adam all die, *
         so also in Christ shall all be made alive. Alleluia.
 
-| Ref
+|> Ref
     1 corinthians 5:7-8; romans 6:9-11; 1 corinthians 15:20-22
 
-| Rubric
+|> Rubric
     Then follows
     the psalm or psalms appointed
 
-| Lesson
+|> Lesson
     psalms
 
-| Rubric
+|> Rubric
     At the end of the Psalms the Gloria Patri (Glory be...) is sung or said
 
-| Prayer
+|> Prayer
     Glory be to the Father, and to the Son, and to the Holy Spirit; *
         as it was in the beginning, is now, and ever shall be,
         world without end. Amen.
 
-| Section
+|> Section
     the lessons
 
-| Rubric
+|> Rubric
     One or more Lessons, as appointed, are read, the Reader first saying
 
-| Lesson
+|> Lesson
     lesson1
 
-| Lesson
+|> Lesson
     lesson2
 
-| Plain
+|> Plain
     A Reading from _____________.
 
 
-| Rubric
+|> Rubric
     A citation giving chapter and verse may be added.
 
-|Rubric
+|> Rubric
     After each lesson the Reader may say
 
-| Versicals
+|> Versicals
     BLANK The Word of the Lord.
     People Thanks be to God.
 
-| Rubric
+|> Rubric
     Or the Reader may say
+|> Plain
+    Here ends the Reading.
 
-Here ends the Reading.
-
-| Rubric
+|> Rubric
     The following Canticles are normally sung or said after each of the lessons. The
     Officiant may also use a Canticle drawn from the Supplemental Canticles (pages
     79-88) or an appropriate song of praise.
 
-| PsalmTitle
+|> PsalmTitle
     te deum laudamus
     We Praise You, O God
 
-| Prayer
+|> Prayer
     We praise you, O God; we acclaim you as Lord; *
         all creation worships you, the Father everlasting.
     To you all angels, all the powers of heaven, *
@@ -428,10 +457,10 @@ Here ends the Reading.
     and bring us with your saints *
         to glory everlasting.
 
-| Rubric
+|> Rubric
     The following verses may be omitted
 
-| Prayer
+|> Prayer
     Save your people, Lord, and bless your inheritance; *
         govern and uphold them now and always.
     Day by day we bless you; *
@@ -444,15 +473,15 @@ Here ends the Reading.
         let us never be put to shame.
 
 
-| Rubric
+|> Rubric
     During Lent the Benedictus es, Domine usually replaces the Te Deum, and it may
     be used at other times.
 
-| PsalmTitle
+|> PsalmTitle
     benedictus es, domine
     A Song of Praise
 
-| Prayer
+|> Prayer
     Glory to you, Lord God of our fathers; *
         you are worthy of praise; glory to you.
     Glory to you for the radiance of your holy Name; *
@@ -466,14 +495,14 @@ Here ends the Reading.
     Glory to you, Father, Son, and Holy Spirit; *
         we will praise you and highly exalt you for ever.
 
-| Ref
+|> Ref
     song of the three young men, 29-34
 
-| PsalmTitle
+|> PsalmTitle
     benedictus
     The Song of Zechariah
 
-| Prayer
+|> Prayer
     Blessed be the Lord, the God of Israel; *
         he has come to his people and set them free.
     He has raised up for us a mighty savior, *
@@ -501,16 +530,16 @@ Here ends the Reading.
         as it was in the beginning, is now, and ever shall be,
         world without end. Amen.
 
-| Ref
+|> Ref
     luke 1:68-79
 
-| Section
+|> Section
     the apostles’ creed
 
-| Rubric
+|> Rubric
     Officiant and People together, all standing
 
-| Prayer
+|> Prayer
     I believe in God, the Father almighty,
         creator of heaven and earth.
     I believe in Jesus Christ, his only Son, our Lord.
@@ -530,33 +559,34 @@ Here ends the Reading.
         the resurrection of the body,
         and the life everlasting. Amen.
 
-| Section
+|> Section
     the prayers
 
-| Versicals
+|> Versicals
     Officiant The Lord be with you.
     People And with your spirit.
     Officiant Let us pray.
 
-| Rubric
+|> Rubric
     The People kneel or stand.
 
-| Plain
+|> Plain
     Lord, have mercy [upon us].
     Christ, have mercy [upon us].
     Lord, have mercy [upon us].
 
-| Rubric
+|> Rubric
     Officiant and People
 
-| Options
+|> Options
     tag: lords_prayer
     label: Lord's Prayer
     --
     selected: True
     tag: lords_prayer_traditional
     label: Traditional
-    text: 
+    text:
+    
     Our Father, who art in heaven
         hallowed be thy Name,
         thy kingdom come,
@@ -576,7 +606,8 @@ Here ends the Reading.
     selected: False
     tag: lords_prayer_modern
     label: Modern
-    text: 
+    text:
+    
     Our Father in heaven,
         hallowed be your Name,
         your kingdom come,
@@ -593,7 +624,7 @@ Here ends the Reading.
         now and for ever. Amen.
     --
 
-| Versicals
+|> Versicals
     Officiant O Lord, show your mercy upon us;
     People And grant us your salvation.
     Officiant O Lord, guide those who govern us;
@@ -609,24 +640,24 @@ Here ends the Reading.
     Officiant Create in us clean hearts, O God;
     People And take not your Holy Spirit from us.
 
-| Rubric
+|> Rubric
     The Officiant then prays one or more of the following Collects, always beginning
     with the Collect of the Day (the Collect of the Sunday or Principal Feast and of
     any of the weekdays following, or of the Holy Day being observed), found on
     pages 598-640. It is traditional to pray the Collects for Peace and Grace daily.
 
-| Rubric
+|> Rubric
     Alternatively, one may pray the Collects on a weekly rotation, using the
     suggestions in italics.
 
-| PsalmTitle
+|> PsalmTitle
     the collect of the day
     From the Collects of the Christian Year
 
-| CollectTitle
+|> CollectTitle
     a collect for strength to await christ’s return /Sunday/
 
-| Plain
+|> Plain
     O God our King, by the resurrection of your Son Jesus Christ
     on the first day of the week, you conquered sin, put death to
     flight, and gave us the hope of everlasting life: Redeem all our
@@ -635,10 +666,10 @@ Here ends the Reading.
     for the consummation of your kingdom on the last great Day;
     through Jesus Christ our Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for the renewal of life /Monday/
 
-| Plain
+|> Plain
     O God, the King eternal, whose light divides the day from the
     night and turns the shadow of death into the morning: Drive
     far from us all wrong desires, incline our hearts to keep your
@@ -647,50 +678,50 @@ Here ends the Reading.
     comes, rejoice to give you thanks; through Jesus Christ our
     Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for peace /Tuesday/
 
-| Plain
+|> Plain
     O God, the author of peace and lover of concord, to know you
     is eternal life and to serve you is perfect freedom: Defend us,
     your humble servants, in all assaults of our enemies; that we,
     surely trusting in your defense, may not fear the power of any
     adversaries, through the might of Jesus Christ our Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for grace /Wednesday/
 
-| Plain
+|> Plain
     O Lord, our heavenly Father, almighty and everlasting God, you
     have brought us safely to the beginning of this day: Defend us
     by your mighty power, that we may not fall into sin nor run into
     any danger; and that, guided by your Spirit, we may do what is
     righteous in your sight; through Jesus Christ our Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for guidance /Thursday/
 
-| Plain
+|> Plain
     Heavenly Father, in you we live and move and have our being:
     We humbly pray you so to guide and govern us by your Holy
     Spirit, that in all the cares and occupations of our life we may
     not forget you, but may remember that we are ever walking in
     your sight; through Jesus Christ our Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for endurance /Friday/
 
-| Plain
+|> Plain
     Almighty God, whose most dear Son went not up to joy but
     first he suffered pain, and entered not into glory before he was
     crucified: Mercifully grant that we, walking in the way of the
     Cross, may find it none other than the way of life and peace;
     through Jesus Christ your Son our Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for sabbath rest /Saturday/
 
-| Plain
+|> Plain
     Almighty God, who after the creation of the world rested from
     all your works and sanctified a day of rest for all your creatures:
     Grant that we, putting away all earthly anxieties, may be duly
@@ -698,15 +729,15 @@ Here ends the Reading.
     upon earth may be a preparation for the eternal rest promised to
     your people in heaven; through Jesus Christ our Lord. Amen.
 
-| Rubric
+|> Rubric
     Unless the Great Litany or the Eucharist is to follow, one of the following prayers
     for mission is added. If the Great Litany is used, it follows here, or after a hymn
     or anthem, and concludes the Office.
 
-| CollectTitle
+|> CollectTitle
     prayer for mission
 
-| Plain
+|> Plain
     Almighty and everlasting God, who alone works great marvels:
     Send down upon our clergy and the congregations committed
     to their charge the life-giving Spirit of your grace, shower
@@ -714,10 +745,10 @@ Here ends the Reading.
     them a zealous love of your Gospel; through Jesus Christ our
     Lord. Amen.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     O God, you have made of one blood all the peoples of the earth,
     and sent your blessed Son to preach peace to those who are far
     off and to those who are near: Grant that people everywhere
@@ -725,10 +756,10 @@ Here ends the Reading.
     fold; pour out your Spirit upon all flesh; and hasten the coming
     of your kingdom; through Jesus Christ our Lord. Amen.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     Lord Jesus Christ, you stretched out your arms of love on the
     hard wood of the Cross that everyone might come within the
     reach of your saving embrace: So clothe us in your Spirit that 
@@ -736,20 +767,20 @@ Here ends the Reading.
     not know you to the knowledge and love of you; for the honor
     of your Name. Amen.
 
-| Rubric
+|> Rubric
     The Officiant may invite the People to offer intercessions and thanksgivings.
     A hymn or anthem may be sung.
 
-| Rubric
+|> Rubric
     Before the close of the Office one or both of the following prayers may be used.
 
-| CollectTitle
+|> CollectTitle
     the general thanksgiving
 
-| Rubric
+|> Rubric
     Officiant and People
 
-| Plain
+|> Plain
     Almighty God, Father of all mercies,
     we your unworthy servants give you humble thanks
     for all your goodness and loving-kindness
@@ -770,10 +801,10 @@ Here ends the Reading.
     to whom, with you and the Holy Spirit,
     be honor and glory throughout all ages. Amen.
 
-| CollectTitle
+|> CollectTitle
     a prayer of st. john chrysostom
 
-| Plain    
+|> Plain    
     Almighty God, you have given us grace at this time, with one
     accord to make our common supplications to you; and you have
     promised through your well-beloved Son that when two or three
@@ -782,296 +813,322 @@ Here ends the Reading.
     us; granting us in this world knowledge of your truth, and in the
     age to come life everlasting. Amen.
 
-| Versicals
+|> Versicals
     Officiant Let us bless the Lord.
     People Thanks be to God.
 
-| Rubric
+|> Rubric
     From Easter Day through the Day of Pentecost, “Alleluia, alleluia” may be added
     to the preceding versicle and response.
 
-| Rubric
+|> Rubric
     The Officiant says one of these concluding sentences (and the People may be invited
     to join)
 
-| Quote
+|> Quote
     The grace of our Lord Jesus Christ, and the love of God, and the
     fellowship of the Holy Spirit, be with us all evermore.
     Amen. 
 
-| Ref
+|> Ref
     2 corinthians 13:14t
 
-| Quote
+|> Quote
     May the God of hope fill us with all joy and peace in believing
     through the power of the Holy Spirit. Amen. 
 
-| Ref
+|> Ref
     romans 15:13t
 
-| Quote
+|> Quote
     Glory to God whose power, working in us, can do infinitely
     more than we can ask or imagine: Glory to him from generation
     to generation in the Church, and in Christ Jesus for ever and
     ever. Amen. 
 
-| Ref
+|> Ref
     ephesians 3:20-21t
 
-| Section
+|> Section
     opening sentences of scripture
 
-| OpeningSentence
+|> OpeningSentence
     tag: advent
     label: Advent
     ref: isaiah 40:3
-    text: In the wilderness prepare the way of the Lord; make straight in
+    text:
+    In the wilderness prepare the way of the Lord; make straight in
     the desert a highway for our God. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: christmas
     label: Christmas
     ref: luke 2:10-11
-    text: Fear not, for behold, I bring you good news of great joy that will
+    text:
+    Fear not, for behold, I bring you good news of great joy that will
     be for all the people. For unto you is born this day in the city of
     David a Savior, who is Christ the Lord.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: epiphany
     label: Epiphany
     ref: malachi 1:11
-    text: From the rising of the sun to its setting my name will be great
+    text:
+    From the rising of the sun to its setting my name will be great
     among the nations, and in every place incense will be offered to
     my name, and a pure offering. For my name will be great among
     the nations, says the Lord of hosts.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: lent
     label: lent and other penitential occasions
     ref: matthew 3:2
-    text: Repent, for the kingdom of heaven is at hand.
+    text:
+    Repent, for the kingdom of heaven is at hand.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: lent
     label: BLANK
     ref: psalm 51:9
-    text: Turn your face from my sins,
+    text:
+    Turn your face from my sins,
     and blot out all my misdeeds.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: lent
     label: BLANK
     ref: mark 8:34
-    text: If anyone would come after me, let him deny himself and take
+    text:
+    If anyone would come after me, let him deny himself and take
     up his cross and follow me.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: holy_week
     label: Holy Week
     ref: lamentations 1:12
-    text: Is it nothing to you, all you who pass by? Look and see
+    text:
+    Is it nothing to you, all you who pass by? Look and see
     if there is any sorrow like my sorrow, which was brought
     upon me, which the Lord inflicted on the day of his
     fierce anger.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: easter
     label: Easter
     ref: colossians 3:1
-    text: If then you have been raised with Christ, seek the things
+    text:
+    If then you have been raised with Christ, seek the things
     that are above, where Christ is, seated at the right hand
     of God.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: ascension
     label: Ascension
     ref: hebrews 4:14, 16
-    text: Since then we have a great high priest who has passed through
+    text:
+    Since then we have a great high priest who has passed through
     the heavens, Jesus, the Son of God, let us hold fast our
     confession. Let us then with confidence draw near to the throne
     of grace, that we may receive mercy and find grace to help in
     time of need.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: pentecost
     label: Pentecost
     ref: acts 1:8
-    text: You will receive power when the Holy Spirit has come upon
+    text:
+    You will receive power when the Holy Spirit has come upon
     you, and you will be my witnesses in Jerusalem and in all Judea
     and Samaria, and to the end of the earth.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: trinity
     label: Trinity Sunday
     ref: revelation 4:8
-    text: Holy, holy, holy, is the Lord God Almighty, who was and is and
+    text:
+    Holy, holy, holy, is the Lord God Almighty, who was and is and
     is to come!
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: thanksgiving
     label: days of thanksgiving
     ref: proverbs 3:9-10
-    text: Honor the Lord with your wealth and with the firstfruits of all
+    text:
+    Honor the Lord with your wealth and with the firstfruits of all
     your produce; then your barns will be filled with plenty, and your
     vats will be bursting with wine.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: anytime
     label: at any time
     ref: habakkuk 2:20
-    text: The Lord is in his holy temple; let all the earth keep silence
+    text:
+    The Lord is in his holy temple; let all the earth keep silence
     before him.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: anytime
     label: BLANK
     ref: psalm 43:3
-    text: O send out your light and your truth, that they may lead me, and
+    text:
+    O send out your light and your truth, that they may lead me, and
     bring me to your holy hill, and to your dwelling.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: anytime
     label: BLANK
     ref: isaiah 57:15
-    text: Thus says the One who is high and lifted up, who inhabits
+    text:
+    Thus says the One who is high and lifted up, who inhabits
     eternity, whose name is Holy: “I dwell in the high and holy
     place, and also with him who is of a contrite and lowly spirit,
     to revive the spirit of the lowly, and to revive the heart of
     the contrite.”
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: anytime
     label: BLANK
     ref: john 4:23
-    text: The hour is coming, and is now here, when the true worshipers
+    text:
+    The hour is coming, and is now here, when the true worshipers
     will worship the Father in spirit and truth, for the Father is
     seeking such people to worship him. 
     --
 
 
-| Section
+|> Section
     seasonal antiphons
 
-| Antiphon
+|> Antiphon
     tag: advent
     label: Advent
-    text: Our King and Savior now draws near: *
+    text:
+    Our King and Savior now draws near: *
         O come, let us adore him.
     --
 
-| Antiphon
+|> Antiphon
     tag: christmas
     label: Christmas
-    text: 
+    text:
+    
     Alleluia, to us a child is born: *
         O come, let us adore him. Alleluia.
     --
 
-| Antiphon
+|> Antiphon
     tag: epiphany
     label: Epiphany
-    text: The Lord has shown forth his glory: *
+    text:
+    The Lord has shown forth his glory: *
         O come, let us adore him.
     --
 
-| Antiphon
+|> Antiphon
     tag: presentation
     label: presentation and annunciation
-    text: The Word was made flesh and dwelt among us: *
+    text:
+    The Word was made flesh and dwelt among us: *
         O come, let us adore him.
     --
 
-| Antiphon
+|> Antiphon
     tag: annunciation
     label: presentation and annunciation
-    text: The Word was made flesh and dwelt among us: *
+    text:
+    The Word was made flesh and dwelt among us: *
         O come, let us adore him.
     --
 
-| Antiphon
+|> Antiphon
     tag: lent
     label: Lent
-    text: The Lord is full of compassion and mercy: *
+    text:
+    The Lord is full of compassion and mercy: *
         O come, let us adore him.
     --
 
-| Antiphon
+|> Antiphon
     tag: easter
     label: Easter
-    text: Alleluia. The Lord is risen indeed: *
+    text:
+    Alleluia. The Lord is risen indeed: *
         O come, let us adore him. Alleluia.
     --
 
-| Antiphon
+|> Antiphon
     tag: ascension
     label: Ascension
-    text: Alleluia. Christ the Lord has ascended into heaven: *
+    text:
+    Alleluia. Christ the Lord has ascended into heaven: *
         O come, let us adore him. Alleluia.
     --
 
-| Antiphon
+|> Antiphon
     tag: pentecost
     label: Pentecost
-    text: Alleluia. The Spirit of the Lord renews the face of the earth: *
+    text:
+    Alleluia. The Spirit of the Lord renews the face of the earth: *
         O come, let us adore him. Alleluia.
     --
 
-| Antiphon
+|> Antiphon
     tag: trinity
     label: Trinity Sunday
-    text: Father, Son, and Holy Spirit, one God: *
+    text:
+    Father, Son, and Holy Spirit, one God: *
         O come, let us adore him.
     --
 
-| Antiphon
+|> Antiphon
     tag: all_saints
     label: All Saints
-    text: The Lord is glorious in his saints: *
+    text:The Lord is glorious in his saints: *
         O come, let us adore him.
     --
 
-| Section
+|> Section
     additional directions
 
-| Plain
+|> Plain
     The Confession and Apostles’ Creed may be omitted, provided each is
     said at least once during the course of the day.
 
-| Plain
+|> Plain
     The Gloria Patri (Glory be...) in the opening versicles may be said in
     unison. The following form of the Gloria Patri may alternatively be used:
 
-| Plain
+|> Plain
     Glory to the Father, and to the Son, and to the Holy Spirit:
     As it was in the beginning, is now, and will be for ever. Amen.
 
-| Plain
+|> Plain
     The Officiant and People may join in saying “Alleluia” (except in Lent)
     as an alternative to the versicles “Praise the Lord. The Lord’s Name be
     praised.”
 
-| Plain
+|> Plain
     If an offering is to be received, it is appropriate to do so during the hymn
     or anthem following the Collects.
 
-| Plain
+|> Plain
     A sermon may be preached after the lessons, after the hymn or anthem
     following the Collects, or after the conclusion of the Office.  
 
-| Finish
+|> Finish
     Morning Prayer

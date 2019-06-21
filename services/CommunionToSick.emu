@@ -1,36 +1,39 @@
-module CommunionToSick exposing (source)
+|> Metadata
+    maintainer = PASutcliffe+
+    title =  Communion to the Sick
+    description = ACNA Communion to the Sick
 
-source =
-    """| Begin
+|> Service
+    title = Communion to the Sick
+    description = 
+        This rite is used when the consecrated elements are brought from an earlier
+        celebration of Holy Communion. 
 
-| Title
-    communion of the sick
-
-| Rubric
+|> Rubric
     This rite is used when the consecrated elements are brought from an earlier
     celebration of Holy Communion.
 
-| Rubric
+|> Rubric
     The Minister says
 
-| Quote
+|> Quote
     Grace to you and peace from God our Father and the Lord
     Jesus Christ.
 
-| Ref
+|> Ref
     philippians 1:2
 
-| Rubric
+|> Rubric
     The Minister continues
 
-| Plain
+|> Plain
     Almighty God, to you all hearts are open, all desires known, and
     from you no secrets are hid: Cleanse the thoughts of our hearts
     by the inspiration of your Holy Spirit, that we may perfectly
     love you, and worthily magnify your holy Name; through Christ
     our Lord. *Amen*.
 
-| Options
+|> Options
     tag: c2s_psalms
     lable: A psalm may be prayed. Psalms 23, 62, 103, and 145 are particularly appropriate.
     --
@@ -59,17 +62,17 @@ source =
     To be added
     --
 
-| Rubric
+|> Rubric
     One of the following Gospel lessons is read, or the readings appropriate to the day.
 
-| Quote
+|> Quote
     God so loved the world, that he gave his only-begotten Son, that
     whoever believes in him should not perish but have eternal life.
 
-| Ref
+|> Ref
     john 3:16t
 
-| Quote
+|> Quote
     Jesus said, “I am the living bread that came down from
     heaven. If anyone eats of this bread, he will live forever.
     And the bread that I will give for the life of the world is my
@@ -77,14 +80,14 @@ source =
     Whoever feeds on my flesh and drinks my blood abides in me,
     and I in him.”
 
-| Ref
+|> Ref
     john 6:51, 55-56
 
-| Rubric
+|> Rubric
     Reflection on the Lessons may follow. Additional prayers may be offered.
     The Minister may say the Confession, and the sick person joins in as able.
 
-| Prayer
+|> Prayer
     Most merciful God,
         we confess that we have sinned against you
         in thought, word and deed,
@@ -97,33 +100,33 @@ source =
         that we may delight in your will, and walk in your ways,
         to the glory of your Name. Amen.
 
-| Rubric
+|> Rubric
     A Priest, if present, says
 
-| Plain
+|> Plain
     Almighty God, our heavenly Father, who in his great mercy has
     promised forgiveness of sins to all those who sincerely repent and with
     true faith turn to him, have mercy upon you, pardon and deliver you
     from all your sins, confirm and strengthen you in all goodness, and
     bring you to everlasting life; through Jesus Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     A Deacon or lay person prays
 
-| Plain
+|> Plain
     Grant to your faithful people, merciful Lord, pardon and peace;
     that we may be cleansed from all our sins, and serve you with a
     quiet mind; through Jesus Christ our Lord. *Amen*.
 
-| Versicals
+|> Versicals
     Minister The peace of the Lord be always with you.
     People And with your spirit.
     Minister Let us pray.
 
-| Rubric
+|> Rubric
     Minister and People
 
-| Options
+|> Options
     tag: lords_prayer
     label: Lord's Prayer
     --
@@ -167,10 +170,10 @@ source =
         now and for ever. Amen.
     --
 
-| Rubric
+|> Rubric
     Then may be said
 
-| Prayer
+|> Prayer
     Lamb of God, you take away the sin of the world;
         *have mercy on us.*
     Lamb of God, you take away the sin of the world;
@@ -178,29 +181,29 @@ source =
     Lamb of God, you take away the sin of the world;
         *grant us your peace.*
 
-| Rubric
+|> Rubric
     The minister may say
 
-| Plain
+|> Plain
     The Gifts of God for the People of God. Take them in
     remembrance that Christ died for you, and feed on him in your
     hearts by faith, with thanksgiving.
 
-| Rubric
+|> Rubric
     The Sacrament is then distributed with the following words
 
-| Plain
+|> Plain
     The Body of our Lord Jesus Christ, which was given for you,
     preserve your body and soul to everlasting life.
 
-| Plain
+|> Plain
     The Blood of our Lord Jesus Christ, which was shed for you,
     preserve your body and soul to everlasting life.
 
-| Rubric
+|> Rubric
     After Communion, the Minister says
 
-| Prayer
+|> Prayer
     Almighty and everliving God,
     we thank you for feeding us, in these holy mysteries,
         with the spiritual food of the most precious Body and Blood
@@ -220,37 +223,37 @@ source =
         to whom, with you and the Holy Spirit,
         be all honor and glory, now and for ever. Amen.
 
-| Rubric
+|> Rubric
     A Priest gives this blessing
 
-| Plain
+|> Plain
     The peace of God which passes all understanding keep your
     hearts and minds in the knowledge and love of God, and of his
     Son Jesus Christ our Lord; and the blessing of God Almighty,
     the Father, the Son, and the Holy Spirit, be among you, and
     remain with you always. *Amen*.
 
-| Rubric
+|> Rubric
     A Deacon or lay person says the following
 
-| Quote
+|> Quote
     The grace of our Lord Jesus Christ, and the love of God, and the
     fellowship of the Holy Spirit, be with us all evermore. Amen.
 
-| Ref
+|> Ref
     2 corinthians 13:14t
 
-| Versicals
+|> Versicals
     Minister Let us bless the Lord.
     People Thanks be to God.
 
-| Section
+|> Section
     additional prayers
 
-| CollectTitle
+|> CollectTitle
     for a sick person
 
-| Plain
+|> Plain
     O Father of mercies and God of all comfort, our only help in
     time of need: We humbly beseech you to behold, visit, and
     relieve your sick servant N. for whom our prayers are desired.
@@ -262,19 +265,19 @@ source =
     that finally he may dwell with you in life everlasting; through
     Jesus Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for recovery from sickness
 
-| Plain
+|> Plain
     O God, the strength of the weak and the comfort of sufferers:
     Mercifully accept our prayers, and grant to your servant N. the
     help of your power, that his sickness may be turned into health,
     and our sorrow into joy; through Jesus Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     O God of heavenly powers, by the might of your command you
     drive away from our bodies all sickness and infirmity: Be present
     in your goodness with your servant N., that his weakness may
@@ -282,18 +285,18 @@ source =
     renewed, he may bless your holy Name; through Jesus Christ
     our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for a sick child
 
-| Plain
+|> Plain
     Heavenly Father, watch with us over your child N., and grant
     that he may be restored to that perfect health which it is yours
     alone to give; through Jesus Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     Lord Jesus Christ, Good Shepherd of the sheep, you gather
     the lambs in your arms and carry them in your bosom: We
     commend to your loving care this child N. Relieve his pain,
@@ -301,49 +304,49 @@ source =
     and strength, and raise him up to a life of service to you. Hear
     us, we pray, for your dear Name’s sake. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     before an operation
 
-| Plain
+|> Plain
     Almighty God, our heavenly Father, graciously comfort your
     servant N. in his suffering, and bless the means used for his cure.
     Though at times he may be afraid, fill his heart with confidence
     that he may yet put his trust in you; through Jesus Christ our
     Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for strength and confidence
 
-| Plain
+|> Plain
     Heavenly Father, giver of life and health: Comfort and relieve
     your sick servant N., and give your power of healing to those
     who minister to his needs, that he may be strengthened in his
     weakness and have confidence in your loving care; through Jesus
     Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for the sanctification of illness
 
-| Plain
+|> Plain
     Sanctify, O Lord, the sickness of your servant N., that the sense
     of his weakness may add strength to his faith and seriousness to
     his repentance; and grant that he may live with you in everlasting
     life; through Jesus Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for health of body and soul
 
-| Plain
+|> Plain
     May God the Father bless you, God the Son heal you, God the
     Holy Spirit give you strength. May God the holy and undivided
     Trinity guard your body, save your soul, and bring you safely
     to his heavenly country; where he lives and reigns for ever and
     ever. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     thanksgiving for a beginning of recovery
 
-| Plain
+|> Plain
     O Lord, your compassions never fail, and your mercies are new
     every morning: We give you thanks for giving our brother N.
     both relief from pain and hope of health renewed. Continue
@@ -352,10 +355,10 @@ source =
     may so order his life that he may always think and do those
     things that please you; through Jesus Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for a sick person when there is little hope of recovery
 
-| Plain
+|> Plain
     O Father of mercies and God of all comfort, our only help
     in time of need; We fly to you for aid on behalf of this your
     servant, here lying in great weakness of body. Look graciously
@@ -366,19 +369,19 @@ source =
     mercy, and his pardon sealed in heaven; through your Son Jesus
     Christ, our Lord and Savior. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for trust in god
 
-| Plain
+|> Plain
     O God, the source of all health: So fill my heart with faith
     in your love, that with calm expectancy I may make room for
     your power to possess me, and gracefully accept your healing;
     through Jesus Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     in pain
 
-| Plain
+|> Plain
     Lord Jesus Christ, by your patience in suffering you hallowed
     earthly pain and gave us the example of obedience to your
     Father’s will: Be near me in my time of weakness and pain;
@@ -387,10 +390,10 @@ source =
     believe that what happens to me here is of little account if you
     hold me in eternal life, my Lord and my God. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     a prayer when taking medicine
 
-| Plain
+|> Plain
     Almighty God, in your goodness you created the earth and all
     its elements, and have given us skill to make medicines that heal
     and relieve our pain. All healing comes from you, and in you I
@@ -398,10 +401,10 @@ source =
     give comfort and bring healing to my body; through Jesus
     Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     for sleep
 
-| Plain
+|> Plain
     O heavenly Father, you give your children sleep for the
     refreshing of soul and body: Grant me this gift, I pray; keep
     me in that perfect peace which you have promised to those
@@ -409,10 +412,10 @@ source =
     presence, that in the hours of silence I may enjoy the blessed
     assurance of your love; through Jesus Christ our Lord. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     in the morning
 
-| Plain
+|> Plain
     This is another day, O Lord. I know not what it will bring forth,
     but make me ready, Lord, for whatever it may be. If I am to
     stand up, help me to stand bravely. If I am to sit still, help me to
@@ -420,39 +423,38 @@ source =
     am to do nothing, help me to do it gallantly. Make these words
     more than words, and give me the Spirit of Jesus. *Amen*.
 
-| Section
+|> Section
     scriptures for use by a sick person
 
-| Section
+|> Section
     For peseverance in suffering:
 
-| Prayer
+|> Prayer
     isaiah 53,
     1 peter 2:21-25,
     1 thessalonians 5:16-24,
     2 corinthians 12:7-10,
     romans 8:18-39
 
-| Section
+|> Section
     For hope for healing:
 
-| Prayer
+|> Prayer
     2 kings 5:1-14,
     james 5:13-20,
     luke 5:12-26,
     luke 13:10-17,
     acts 3:1-10
 
-| Section
+|> Section
     For the hope of eternity:
 
-| Prayer
+|> Prayer
     luke 2:25-35,
     john 14,
     1 corinthians 15:42-58,
     2 corinthians 4:7-18,
     1 thessalonians 4:13-18
 
-| Rubric
+|> Rubric
     See also the Selections of Psalms on page 269.
-"""

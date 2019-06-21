@@ -13,11 +13,11 @@ import Element.Region as Region
 import Html exposing (..)
 import Html.Attributes
 import Html.Parser
-import Markdown
+import Http
 import Platform.Sub as Sub exposing (batch)
 import Platform.Cmd as Cmd exposing (Cmd)
 import Mark
-import Mark.Default
+import Mark.Error exposing (Error)
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf)
@@ -36,42 +36,27 @@ This may seem a bit overwhelming, but 95% of it is copied directly from `Mark.De
 
 -}
 
-document : Mark.Document (Model -> Element.Element Msg)
+--  document : Mark.Document
+--          { body : List (Model -> Element.Element Msg)
+--          , metadata : { description : String, maintainer : String, title : String }
+--          }
 document =
-    let
-        defaultText =
-            Mark.Default.textWith
-                { code = Mark.Default.defaultTextStyle.code
-                , link = Mark.Default.defaultTextStyle.link
-                , inlines =
-                    [ Mark.inline "Drop"
-                        (\txt model ->
-                            Element.row [ Font.variant Font.smallCaps ]
-                                (List.map (\item -> Mark.Default.textFragment item model) txt)
-                        )
-                        |> Mark.inlineText
-                    ]
-                , replacements = Mark.Default.defaultTextStyle.replacements
-                }
-    in
-    Mark.document
-        (\children model ->
-            Element.textColumn
-                [ Element.spacing (scale model 18)
-                , Element.padding 10
-                , Element.centerX
-                , Element.width (Element.px model.width)
-                , scaleFont model 18
-                ]
-                (List.map (\child -> child model) children)
+    Mark.documentWith
+        (\meta body ->
+            { metadata = meta
+            , body = body
+                -- renderTitle model meta
+                --     :: body
+--                Html.node "style" [] [ Html.text stylesheet ]
+--                    :: Html.h1 [] meta.title
+--                    :: body
+            }
         )
-        (Mark.startWith
-            (\myTitle myContent ->
-                myTitle :: myContent
-            )
-            ( begining )
-            (Mark.manyOf
-                [ title defaultText
+        -- -- we have some required metadata that starts our document
+        { metadata = metadata
+        , body =
+            Mark.manyOf
+                [ service
                 , rubric
                 , quote
                 , reference
@@ -81,7 +66,7 @@ document =
                 , psalmTitle
                 , pageNumber
                 , MyParsers.section
-                , collectTitle defaultText
+                , collectTitle
                 , openingSentence
                 , toggle
                 , options
@@ -90,16 +75,9 @@ document =
                 , finish 
                 , seasonal
                 -- Toplevel Text
-                , Mark.map (\viewEls model -> 
-                    Element.paragraph 
-                        [ Font.alignLeft
-                        ] 
-                        (viewEls model)
-                    ) 
-                    defaultText
+            --    , Mark.map (Html.p []) Mark.text
                 ]
-            )
-        )
+        }
 
 emptyDivWithId : Model -> String -> Element.Element msg
 emptyDivWithId model s =
@@ -329,30 +307,30 @@ finish =
     )
     Mark.string
 
-begining : Mark.Block (Model -> Element.Element Msg)
-begining =
-    Mark.stub "Begin"
-    (\ model ->
-        Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
-        [ Element.row [Element.centerX, Element.spacing (scale model 200)]
-            [ Element.el [scaleFont model 18] (Element.text "Legereme")
-            , Element.image 
-                ( List.append (backgroundGradient model.color)
-                    [ Element.height (Element.px 36)
-                    , Element.width (Element.px 35)
-                    , Element.alignRight
-                    , Event.onClick ToggleMenu
-                    ]
-                )
-                { src = "https://legereme.com/pwa/menu.svg"
-                , description = "Toggle Menu"
-                }
-            ]
-        , menuOptions model
---            ]
-        ]
-    )
-
+-- begining : Mark.Block (Model -> Element.Element Msg)
+-- begining =
+--     Mark.stub "Begin"
+--     (\ model ->
+--         Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
+--         [ Element.row [Element.centerX, Element.spacing (scale model 200)]
+--             [ Element.el [scaleFont model 18] (Element.text "Legereme")
+--             , Element.image 
+--                 ( List.append (backgroundGradient model.color)
+--                     [ Element.height (Element.px 36)
+--                     , Element.width (Element.px 35)
+--                     , Element.alignRight
+--                     , Event.onClick ToggleMenu
+--                     ]
+--                 )
+--                 { src = "./menu.svg"
+--                 , description = "Toggle Menu"
+--                 }
+--             ]
+--         , menuOptions model
+-- --            ]
+--         ]
+--     )
+-- 
 backgroundGradient : String -> List (Element.Attribute msg)
 backgroundGradient s =
     let
@@ -399,30 +377,75 @@ clickOption request label =
     [ Event.onClick (Office request) ]
     ( Element.text label )
 
-title : Mark.Block (Model -> List (Element.Element msg)) 
-    -> Mark.Block (Model -> Element.Element msg)
-title titleText =
-    Mark.block "Title"
-        (\elements model ->
-            Element.column [ ]
-            [ Element.paragraph
-                [ Region.heading 1
-                , scaleFont model 32
-                , Font.center
-                , Element.width (Element.px model.width)
-                ]
-                (elements model)
-            , Element.paragraph 
-                [ Font.center, scaleFont model 18] 
-                [ Element.text model.today ]
-            , Element.paragraph
-                [ Font.center, scaleFont model 18]
-                [ Element.text ((model.season |> toTitleCase) ++ " " ++ model.week) 
-                , Element.el [Font.italic] (Element.text model.year)
-                ]
-            ]
+
+metadata : Mark.Block { description : String, maintainer : String, title : String }
+metadata =
+    Mark.record "Metadata"
+        (\maintainer title description ->
+            { maintainer = maintainer
+            , title = title
+            , description = description
+            }
         )
-        titleText
+        |> Mark.field "maintainer" Mark.string
+        |> Mark.field "title" Mark.string
+        |> Mark.field "description" Mark.string
+        |> Mark.toBlock
+
+service : Mark.Block (Model -> Element.Element Msg)
+service =
+    Mark.record "Service"
+        (\description title model ->
+            -- Element.paragraph [] [Element.text "HEADER GOES HERE"]
+            renderTitle model title description
+            --{ title = title
+            --, description = description |> collapseWhiteSpace 
+            --}
+        )
+        |> Mark.field "description" Mark.string
+        |> Mark.field "title" Mark.string
+        |> Mark.toBlock
+
+
+
+renderTitle : Model -> String -> String -> Element.Element Msg
+renderTitle model title description =
+    Element.column []
+    [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
+        [ Element.row [Element.centerX, Element.spacing (scale model 200)]
+            [ Element.el [scaleFont model 18] (Element.text "Legereme")
+            , Element.image 
+                ( List.append (backgroundGradient model.color)
+                    [ Element.height (Element.px 36)
+                    , Element.width (Element.px 35)
+                    , Element.alignRight
+                    , Event.onClick ToggleMenu
+                    ]
+                )
+                { src = "./menu.svg"
+                , description = "Toggle Menu"
+                }
+            ]
+        , menuOptions model
+        ]
+    , Element.column [ ]
+        [ Element.paragraph
+            [ Region.heading 1
+            , scaleFont model 32
+            , Font.center
+            , Element.width (Element.px model.width)
+            ]
+            [ Element.text title ]
+        , Element.paragraph 
+            [ Font.center, scaleFont model 18] 
+            [ Element.text model.today ]
+        , Element.paragraph
+            [ Font.center, scaleFont model 18]
+            [ Element.text ((model.season |> toTitleCase) ++ " " ++ model.week) 
+            , Element.el [Font.italic] (Element.text model.year)
+            ]
+        ]
+    ]
 
 
 toggle: Mark.Block (Model -> Element.Element Msg)
@@ -456,7 +479,7 @@ toggle =
             , Element.el [ Element.alignLeft ] (Element.text selectedText)
             ]    
         )
-        Mark.multiline
+        Mark.string
 
 options: Mark.Block (Model -> Element.Element Msg)
 options =
@@ -495,7 +518,7 @@ options =
 
             
         )
-        Mark.multiline
+        Mark.string
 
 
 seasonal : Mark.Block (Model -> Element.Element Msg)
@@ -529,7 +552,7 @@ seasonal =
         thisSeason
         
     )
-    Mark.multiline
+    Mark.string
     
 parseSeasonal : String -> ( String, List OpeningSentence )
 parseSeasonal everything =
@@ -570,14 +593,14 @@ openingSentence =
                     Element.textColumn [ Palette.maxWidth model ] 
                     [ Element.paragraph (Palette.openingSentenceTitle model)
                         [ Element.text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
-                    , Element.paragraph [] [Element.text (os.text |> collapseWhiteSpace)]
+                    , Element.paragraph [Palette.maxWidth model] [Element.text (os.text |> collapseWhiteSpace)]
                     , Element.paragraph (Palette.reference model) [ Element.text (os.ref |> toTitleCase) ]
                     ]
                 _ ->
                     Element.paragraph [] [Element.text "Opening Sentence Error"]
             
         )
-        Mark.multiline
+        Mark.string
 
 
 -- MODEL 
@@ -593,6 +616,12 @@ init  list =
     in
     
     ( firstModel, requestOffice "currentOffice" )
+    --( firstModel
+    --, Http.get
+    --    { url = "/services/morning_prayer.emu"
+    --    , expect = Http.expectString GotSrc
+    --    }
+    --)
 
 -- REQUEST PORTS
 
@@ -638,6 +667,7 @@ subscriptions model =
 
 type Msg 
     = NoOp
+    | GotSrc (Result Http.Error String)
     | UpdateOption Options
     | ClickOption String String Options
     | ClickToggle String String Options
@@ -658,6 +688,21 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
+
+        GotSrc result ->
+            case result of
+                Ok src ->
+                    ( { model | source = Just src }
+                    , Cmd.none
+                    )
+
+                Err err ->
+                    let
+                        _ =
+                            Debug.log "err" err
+                    in
+                    ( model, Cmd.none )
+
 
         UpdateOption opts ->
             let
@@ -705,8 +750,9 @@ update msg model =
                     , season = recvd |> requestedOfficeAt 4
                     , color = recvd |> requestedOfficeAt 5
                     , pageName = recvd |> requestedOfficeAt 6
-                    , source = recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n"
+                    , source = Just (recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n")
                     }
+
             in
             
             (newModel, requestLessons newModel.pageName )
@@ -803,22 +849,48 @@ view : Model -> Document Msg
 view model =
     { title = "Legereme"
     , body = 
-        [ case Mark.parse document model.source of
-            Ok element ->
-                Element.layout
-                    [ Font.family [ Font.typeface "EB Garamond" ]
-                    -- , pageWidth model
-                    , Element.centerX
-                    , Element.width (Element.px model.windowWidth)
-                    ]
-                    (element model) 
+        [ case model.source of
+            Nothing ->
+                Element.layout []
+                ( Element.paragraph [] [ Element.text "Source not received yet" ]
+                )
+            
+            Just source ->
+                case Mark.compile document source of
+                    Mark.Success thisService ->
+                        let
+                        -- convert List (model -> Element.Element msg) to List (Element.Element msg)
+                            rez = List.map (\fn -> fn model) thisService.body
+                        in
+                        Element.layout [] ( Element.column [] rez )
 
-            Err errors ->
-                Element.layout
-                    []
-                    (Element.text "Error parsing document!")
+                    -- Mark.Almost {resp, errors} ->
+                    Mark.Almost x ->
+                        -- this is the case where there has been an error,
+                        -- but it hs been caught by `Mark.onError` and is still rendeable
+                        -- let
+                        -- -- convert List (model -> Element.Element msg) to List (Element.Element msg)
+                        --     rez = List.map (\fn -> fn model) thisService.body
+                        -- in
+                        Element.layout [] ( Element.paragraph [] [ Element.text "ERRORS GO HERE" ] )
+                        -- Element.layout []
+                        -- ( Element.column [] 
+                        --    ( List.concat [(viewErrors errors), rez] )
+                        -- )
+
+                    Mark.Failure errors ->
+                        Element.layout []
+                        ( Element.column [] (viewErrors errors) )
         ]
     }
+
+
+viewErrors : List Error -> List (Element.Element Msg)
+viewErrors errors =
+    List.map
+        (Mark.Error.toHtml Mark.Error.Light)
+        errors
+    |> List.map Element.html
 
 main =
     Browser.document

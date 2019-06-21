@@ -8,7 +8,6 @@ import Element.Border as Border
 import Element.Input as Input
 import Element.Font as Font
 import Mark
-import Mark.Default
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt)
@@ -149,7 +148,19 @@ antiphon =
                     Element.paragraph [] [Element.text "Antiphon Error"]
 
         )
-        Mark.multiline
+        Mark.string
+
+title : Mark.Block (Model -> Element.Element msg)
+title =
+    Mark.block "Title"
+        (\str model ->
+            Element.paragraph 
+            [ Font.center
+            , scaleFont model 32
+            ]
+            [ Element.text str ]
+        )
+        Mark.string
 
 
 season : Mark.Block (model -> Element.Element msg)
@@ -177,14 +188,13 @@ pageNumber =
         )
         Mark.string
 
-collectTitle : Mark.Block (Model -> List (Element.Element msg))
-            -> Mark.Block (Model -> Element.Element msg)
-collectTitle thisText =
+collectTitle : Mark.Block (Model -> Element.Element msg)
+collectTitle =
     Mark.block "CollectTitle"
-        (\x model ->
-            Element.paragraph (Palette.collectTitle model) (x model)
+        (\str model ->
+            Element.paragraph (Palette.collectTitle model) [ Element.text str ]
         )
-        thisText
+        Mark.string
 
 section : Mark.Block (model -> Element.Element msg)
 section =
@@ -214,7 +224,7 @@ psalmTitle =
             , Element.el [ Font.italic ] (Element.text line2)
             ]
         )
-        Mark.multiline
+        Mark.string
 
 reference : Mark.Block (Model -> Element.Element msg)
 reference =
@@ -236,7 +246,7 @@ plain =
             ]
             [ Element.text (str |> collapseWhiteSpace)]
         )
-        Mark.multiline
+        Mark.string
 
 
 versicals : Mark.Block (Model -> Element.Element msg)
@@ -245,7 +255,7 @@ versicals =
         (\str model ->
             Element.column [] (listOfVersicals model str)
         )
-        Mark.multiline
+        Mark.string
 
 listOfVersicals : Model -> String -> List (Element.Element msg)
 listOfVersicals model str =
@@ -282,7 +292,7 @@ quote =
             ]
             [ Element.text (str |> collapseWhiteSpace)]
         )
-        Mark.multiline
+        Mark.string
 
 
 rubric : Mark.Block (Model -> Element.Element msg)
@@ -293,7 +303,7 @@ rubric =
             (Palette.rubric model)
             [ Element.text (str |> collapseWhiteSpace) ]
         )
-        Mark.multiline
+        Mark.string
 
 prayer : Mark.Block (Model -> Element.Element msg)
 prayer =
@@ -316,7 +326,7 @@ prayer =
             ]
             lns
         )
-        Mark.multiline
+        Mark.string
 
 collapseWhiteSpace : String -> String
 collapseWhiteSpace str =

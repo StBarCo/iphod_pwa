@@ -1,14 +1,25 @@
-| Begin
+|> Metadata
+    maintainer = PASutcliffe+
+    title =  Evening Prayer
+    description = ACNA Daily Evening Prayer
 
-| Title
-    Daily Evening prayer
+|> Service
+    title = Daily Evening Prayer
+    description = 
+        Daily Morning Prayer and Daily Evening Prayer are the
+        established rites (offices) by which, both corporately and
+        individually, God’s people annually encounter the whole of the
+        Holy Scriptures, daily confess their sins and praise Almighty
+        God, and offer timely thanksgivings, petitions, and intercessions.
+        The prayer book tradition has historically expected clergy to pray
+        the Daily Office morning and evening each day. 
 
-|Rubric
+|> Rubric
     The Officiant may begin Evening Prayer by reading an opening sentence of
     Scripture. One of the following, or a sentence from among those provided at the
     end of the Office (pages 54-56), is customary.
 
-| Seasonal
+|> Seasonal
     ofType: opening_sentence
     --
     tag: proper
@@ -147,13 +158,13 @@
     he is at my right hand, therefore I shall not fall. 
     --
 
-| Section
+|> Section
     confession of sin
 
-| Rubric
+|> Rubric
     The Officiant says to the People
 
-| Plain
+|> Plain
     Dearly beloved, the Scriptures teach us to acknowledge our
     many sins and offenses, not concealing them from our heavenly
     Father, but confessing them with humble and obedient hearts
@@ -166,16 +177,16 @@
     those things which are necessary for our life and our salvation.
     Therefore, draw near with me to the throne of heavenly grace.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     Let us humbly confess our sins to Almighty God.
 
-| Rubric
+|> Rubric
     Silence is kept. All kneeling, the Officiant and People say
 
-| Prayer
+|> Prayer
     Almighty and most merciful Father,
         we have erred and strayed from your ways like lost sheep.
     We have followed too much the devices and desires
@@ -193,10 +204,10 @@
         that we may now live a godly, righteous, and sober life,
         to the glory of your holy Name. Amen.
 
-| Rubric
+|> Rubric
     The Priest alone stands and says
 
-| Plain
+|> Plain
     Almighty God, the Father of our Lord Jesus Christ, desires
     not the death of sinners, but that they may turn from their 
     wickedness and live. He has empowered and commanded
@@ -208,29 +219,29 @@
     our lives may be pure and holy, and that at the last we may come
     to his eternal joy; through Jesus Christ our Lord. Amen.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     The Almighty and merciful Lord grant you absolution and
     remission of all your sins, true repentance, amendment of life,
     and the grace and consolation of his Holy Spirit. Amen.
 
-| Rubric
+|> Rubric
     A Deacon or layperson remains kneeling and prays
 
-| Plain
+|> Plain
     Grant to your faithful people, merciful Lord, pardon and peace;
     that we may be cleansed from all our sins, and serve you with a
     quiet mind; through Jesus Christ our Lord. Amen.
 
-| Section
+|> Section
     the invitatory
 
-| Rubric
+|> Rubric
     All stand.
 
-| Versicals
+|> Versicals
     Officiant O Lord, open our lips;
     People And our mouth shall proclaim your praise.
     Officiant O God, make speed to save us;
@@ -240,14 +251,14 @@
     Officiant Praise the Lord.
     People The Lord’s Name be praised.
 
-| Rubric
+|> Rubric
     The following or some other suitable hymn or Psalm may be sung or said.
 
-| PsalmTitle
+|> PsalmTitle
     phos hilaron
     O Gladsome Light
 
-| Prayer
+|> Prayer
     O gladsome light,
         pure brightness of the everliving Father in heaven, *
     O Jesus Christ, holy and blessed!
@@ -258,60 +269,60 @@
         O Son of God, O Giver of Life,
         and to be glorified through all the worlds.
 
-| Rubric
+|> Rubric
     Then follows
     the psalm or psalms appointed
 
-| Lesson
+|> Lesson
     psalms
 
-| Rubric
+|> Rubric
     At the end of the Psalms the Gloria Patri (Glory be...) is sung or said
 
-| Prayer
+|> Prayer
     Glory be to the Father, and to the Son, and to the Holy Spirit; *
         as it was in the beginning, is now, and ever shall be,
         world without end. Amen.
 
-| Section
+|> Section
     the lessons
 
-| Rubric
+|> Rubric
     One or more Lessons, as appointed, are read, the Reader first saying
 
-| Lesson
+|> Lesson
     lesson1
 
-| Lesson
+|> Lesson
     lesson2
 
-| Plain
+|> Plain
     A Reading from _____________.
 
-| Rubric
+|> Rubric
     A citation giving chapter and verse may be added.
     After each Lesson the Reader may say
 
-| Versicals
+|> Versicals
     -- The Word of the Lord.
     People Thanks be to God.
 
-| Rubric
+|> Rubric
     Or the Reader may say
 
-| Plain
+|> Plain
     Here ends the Reading.
 
-| Rubric
+|> Rubric
     The following Canticles are normally sung or said after each of the lessons. The
     Officiant may also use a Canticle drawn from the Supplemental Canticles (pages
     79-88) or an appropriate song of praise.
 
-| PsalmTitle
+|> PsalmTitle
     magnificat
     The Song of Mary
 
-| Prayer
+|> Prayer
     My soul magnifies the Lord, *
         and my spirit rejoices in God my Savior;
     For he has regarded *
@@ -334,14 +345,14 @@
         as it was in the beginning, is now, and ever shall be,
         world without end. Amen. 
         
-| Ref
+|> Ref
     luke 1:46-55
 
-| PsalmTitle
+|> PsalmTitle
     nunc dimittis
     The Song of Simeon
 
-| Prayer
+|> Prayer
     Lord, now let your servant depart in peace, *
         according to your word.
     For my eyes have seen your salvation, *
@@ -352,16 +363,16 @@
         as it was in the beginning, is now, and ever shall be, world
         without end. Amen. 
         
-| Ref
+|> Ref
     luke 2:29-32
 
-| Section
+|> Section
     the apostles’ creed
 
-|Rubric
+|>Rubric
     Officiant and People together, all standing
 
-| Prayer
+|> Prayer
     I believe in God, the Father almighty,
         creator of heaven and earth.
     I believe in Jesus Christ, his only Son, our Lord.
@@ -381,26 +392,26 @@
         the resurrection of the body,
         and the life everlasting. Amen.
 
-| Section
+|> Section
     the prayers
 
-| Versicals
+|> Versicals
     Officiant The Lord be with you.
     People And with your spirit.
     Officiant Let us pray.
 
-| Rubric
+|> Rubric
     The People kneel or stand.
 
-| Plain
+|> Plain
     Lord, have mercy [upon us].
     Christ, have mercy [upon us].
     Lord, have mercy [upon us].
 
-| Rubric
+|> Rubric
     Officiant and People
 
-| Options
+|> Options
     tag: lords_prayer
     label: Lord's Prayer
     --
@@ -444,10 +455,10 @@
         now and for ever. Amen.
     --
 
-| Rubric
+|> Rubric
     Then follows one of these sets of Suffrages
 
-| Versicals
+|> Versicals
     Officiant O Lord, show your mercy upon us;
     People And grant us your salvation.
     Officiant O Lord, guide those who govern us;
@@ -463,10 +474,10 @@
     Officiant Create in us clean hearts, O God;
     People And take not your Holy Spirit from us.
 
-| Rubric
+|> Rubric
     or this
 
-| Prayer
+|> Prayer
     That this evening may be holy, good, and peaceful,
         We entreat you, O Lord.
     That your holy angels may lead us in paths of peace and goodwill,
@@ -483,7 +494,7 @@
     one another and all our life to Christ,
         We entreat you, O Lord. 
 
-| Rubric
+|> Rubric
     The Officiant then prays one or more of the following Collects, always beginning
     with the Collect of the Day (the Collect of the Sunday or Principal Feast and of
     any of the weekdays following, or of the Holy Day being observed) found on pages
@@ -491,24 +502,24 @@
     daily. Alternatively, one may pray the Collects on a weekly rotation, using the
     suggestions in italics.
 
-| PsalmTitle
+|> PsalmTitle
     the collect of the day
     From the Collects of the Christian Year
 
-| CollectTitle
+|> CollectTitle
     a collect for resurrection hope /Sunday/
 
-| Plain
+|> Plain
     Lord God, whose Son our Savior Jesus Christ triumphed over
     the powers of death and prepared for us our place in the new
     Jerusalem: Grant that we, who have this day given thanks for his
     resurrection, may praise you in that City of which he is the light,
     and where he lives and reigns for ever and ever. *Amen*.
 
-| CollectTitle
-    a collect for peace Monday
+|> CollectTitle
+    a collect for peace /Monday/
 
-| Plain
+|> Plain
     O God, the source of all holy desires, all good counsels, and
     all just works: Give to your servants that peace which the
     world cannot give, that our hearts may be set to obey your
@@ -516,19 +527,19 @@
     our enemies, may pass our time in rest and quietness; through
     the merits of Jesus Christ our Savior. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     a collect for aid against perils /Tuesday/
 
 
-| Plain
+|> Plain
     Lighten our darkness, we beseech you, O Lord; and by your
     great mercy defend us from all perils and dangers of this night;
     for the love of your only Son, our Savior Jesus Christ. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     a collect for protection /Wednesday/
 
-| Plain
+|> Plain
     O God, the life of all who live, the light of the faithful, the
     strength of those who labor, and the repose of the dead: We
     thank you for the blessings of the day that is past, and humbly
@@ -536,83 +547,83 @@
     safety to the morning hours; through him who died and rose
     again for us, your Son our Savior Jesus Christ. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     a collect for the presence of christ /Thursday/
 
-| Plain
+|> Plain
     Lord Jesus, stay with us, for evening is at hand and the day
     is past; be our companion in the way, kindle our hearts, and
     awaken hope, that we may know you as you are revealed in
     Scripture and the breaking of bread. Grant this for the sake of
     your love. *Amen*.
 
-| CollectTitle
+|> CollectTitle
     a collect for faith /Friday/
 
-| Plain
+|> Plain
     Lord Jesus Christ, by your death you took away the sting of
     death: Grant to us your servants so to follow in faith where you
     have led the way, that we may at length fall asleep peacefully in
     you and wake up in your likeness; for your tender mercies’ sake.
     *Amen*.
 
-| CollectTitle
+|> CollectTitle
     a collect for the eve of worship /Saturday/
 
-| Plain
+|> Plain
     O God, the source of eternal light: Shed forth your unending
     day upon us who watch for you, that our lips may praise you,
     our lives may bless you, and our worship on the morrow give
     you glory; through Jesus Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     Unless the Great Litany or the Eucharist is to follow, one of the following prayers
     for mission is added. If the Great Litany is used, it follows here, or after a hymn
     or anthem, and concludes the Office.
 
-| Section
+|> Section
     prayer for mission
 
-| Plain
+|> Plain
     O God and Father of all, whom the whole heavens adore:
     Let the whole earth also worship you, all nations obey you, all
     tongues confess and bless you, and men, women, and children
     everywhere love you and serve you in peace; through Jesus
     Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     Keep watch, dear Lord, with those who work, or watch, or weep
     this night, and give your angels charge over those who sleep.
     Tend the sick, Lord Christ; give rest to the weary, bless the
     dying, soothe the suffering, pity the afflicted, shield the joyous;
     and all for your love’s sake. *Amen*.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     O God, you manifest in your servants the signs of your
     presence: Send forth upon us the Spirit of love, that in
     companionship with one another your abounding grace may
     increase among us; through Jesus Christ our Lord. *Amen*.
 
-| Rubric
+|> Rubric
     The Officiant may invite the People to offer intercessions and thanksgivings.
     A hymn or anthem may be sung.
 
-| Rubric
+|> Rubric
     Before the close of the Office one or both of the following prayers may be used.
 
-| Section
+|> Section
     the general thanksgiving
 
-| Rubric
+|> Rubric
     Officiant and People
 
-| Prayer
+|> Prayer
     Almighty God, Father of all mercies,
         we your unworthy servants give you humble thanks
         for all your goodness and loving-kindness
@@ -632,10 +643,10 @@
         to whom, with you and the Holy Spirit,
         be honor and glory throughout all ages. Amen.
 
-| Section
+|> Section
     a prayer of st. john chrysostom
 
-| Plain
+|> Plain
     Almighty God, you have given us grace at this time, with one
     accord to make our common supplications to you; and you have
     promised through your well-beloved Son that when two or three
@@ -644,46 +655,46 @@
     us; granting us in this world knowledge of your truth, and in the
     age to come life everlasting. Amen.
 
-| Versicals
+|> Versicals
     Officiant Let us bless the Lord.
     People Thanks be to God.
 
-| Rubric
+|> Rubric
     From Easter Day through the Day of Pentecost, “Alleluia, alleluia” may be added
     to the preceding versicle and response.
 
-| Rubric
+|> Rubric
     The Officiant says one of these concluding sentences (and the People may be
     invited to join)
 
-| Quote
+|> Quote
     The grace of our Lord Jesus Christ, and the love of God, and
     the fellowship of the Holy Spirit, be with us all evermore.
     Amen. 
     
-| Ref
+|> Ref
     2 corinthians 13:14t
 
-| Quote
+|> Quote
     May the God of hope fill us with all joy and peace in believing
     through the power of the Holy Spirit. Amen. 
     
-| Ref
+|> Ref
     romans 15:13t
 
-| Quote
+|> Quote
     Glory to God whose power, working in us, can do infinitely
     more than we can ask or imagine: Glory to him from generation
     to generation in the Church, and in Christ Jesus for ever and
     ever. Amen. 
     
-| Ref
+|> Ref
     ephesians 3:20-21t
 
-| Section
+|> Section
     opening sentences of scripture
 
-| OpeningSentence
+|> OpeningSentence
     tag: advent
     label: Advent
     ref: mark 13:35-36
@@ -694,7 +705,7 @@
     find you asleep.
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: christmas
     label: Chriatmas
     ref: mark 13:35-36
@@ -704,7 +715,7 @@
     with them as their God. revelation 21:3
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: epiphany
     label: Ephiphany
     ref: isaiah 60:3
@@ -713,7 +724,7 @@
     your rising. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: lent
     label: lent and other penitential occasions
     ref: 1 john 1:8-9
@@ -724,7 +735,7 @@
     all unrighteousness. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: lent
     label: lent and other penitential occasions
     ref: daniel 9:9
@@ -735,7 +746,7 @@
     rebelled against him. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: holy_week
     label: Holy Week
     ref: isaiah 53:6
@@ -745,7 +756,7 @@
     all. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: easter
     label: Easter
     ref: 1 corinthians 15:57
@@ -754,7 +765,7 @@
     Jesus Christ. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: ascension
     label: Ascension
     ref: hebrews 9:24
@@ -765,7 +776,7 @@
     on our behalf. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: pentecost
     label: Pentecost
     ref: revelation 22:17
@@ -776,7 +787,7 @@
     without price. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: pentecost
     label: Pentecost
     ref: psalm 46:4
@@ -785,7 +796,7 @@
     the holy dwelling place of the Most High. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: trinity
     label: Trinity Sunday
     ref: isaiah 6:3
@@ -794,7 +805,7 @@
     his glory! 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: thanksgiving
     label: days of thanksgiving
     ref: proverbs 3:19-20
@@ -804,7 +815,7 @@
     and the clouds drop down the dew. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: anytime
     label: at any time
     ref: psalm 96:9
@@ -813,7 +824,7 @@
     let the whole earth stand in awe of him. 
     --
 
-| OpeningSentence
+|> OpeningSentence
     tag: anytime
     label: at any time
     ref: psalm 16:8-9
@@ -823,30 +834,30 @@
     I have set the Lord always before me;
     he is at my right hand, therefore I shall not fall. 
 
-| Section
+|> Section
     additional directions
 
-| Plain
+|> Plain
     The Confession and Apostles’ Creed may be omitted, provided each is
     said at least once during the course of the day.
 
-| Plain
+|> Plain
     The Gloria Patri (Glory be...) in the opening versicles may be said in
     unison. The following form of the Gloria Patri may alternatively be used:
 
-| Plain
+|> Plain
     Glory to the Father, and to the Son, and to the Holy Spirit:
     As it was in the beginning, is now, and will be for ever. Amen.
 
-| Plain
+|> Plain
     The Officiant and People may join in saying “Alleluia” (except in Lent)
     as an alternative to the versicles “Praise the Lord. The Lord’s Name be
     praised.”
 
-| Plain    
+|> Plain    
     If an offering is to be received, it is appropriate to do so during the hymn
     or anthem following the Collects.
 
-| Plain
+|> Plain
     A sermon may be preached after the lessons, after the hymn or anthem
     following the Collects, or after the conclusion of the Office.
