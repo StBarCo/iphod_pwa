@@ -1,30 +1,32 @@
-| Begin
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = Compline
+    description =
+        A service of evening prayers
 
-| Title
-    Compline
-
-| Rubric
+|> Rubric
     The Officiant begins
 
-| Plain
+|> Plain
     The Lord Almighty grant us a peaceful night
     and a perfect end. Amen.
 
-| Versicals
+|> Versicals
     Officiant Our help is in the Name of the Lord;
     People The maker of heaven and earth.
 
 
-| Rubric
+|> Rubric
     The Officiant continues
 
-| Plain
+|> Plain
     Let us humbly confess our sins to Almighty God.
 
-| Rubric
+|> Rubric
     Silence may be kept. The Officiant and People then say
 
-| Prayer
+|> Prayer
     Almighty God and Father, we confess to you,
     to one another, and to the whole company of heaven,
     that we have sinned, through our own fault,
@@ -36,23 +38,23 @@
     raise us up to serve you in newness of life,
     to the glory of your Name. Amen.
 
-| Rubric
+|> Rubric
     The Officiant alone says
 
-| Plain
+|> Plain
     May Almighty God grant us forgiveness of all our sins,
     and the grace and comfort of the Holy Spirit. Amen.
 
-| Versicals
+|> Versicals
     Officiant O God, make speed to save us;
     People O Lord, make haste to help us.
     Officiant Glory be to the Father, and to the Son, and to the Holy Spirit;
     People As it was in the beginning, is now, and ever shall be, world without end. Amen.
 
-| Rubric
+|> Rubric
     Except in Lent, add Alleluia.
 
-| Options
+|> Options
     tag: compline_psalms
     Label: One or more of the following, or some other suitable Psalm, is sung or said.
     --
@@ -148,36 +150,37 @@
         and sing praises unto the Lord. 
     4 The Lord who made heaven and earth *
         give you blessing out of Zion.
+    --
 
-| Rubric
+|> Rubric
     At the end of the Psalms the Gloria Patri (Glory be...) is sung or said
 
-| Prayer
+|> Prayer
     Glory be to the Father, and to the Son, and to the Holy Spirit;
         as it was in the beginning, is now, and ever shall be,
         world without end. Amen.
 
-| Rubric
+|> Rubric
     One of the following, or some other suitable passage of Scripture, is read
 
-| Quote
+|> Quote
     You, O Lord, are in the midst of us, and we are called by your
     name; do not leave us. 
     
-| Ref
+|> Ref
     jeremiah 14:9
 
-| Quote
+|> Quote
     Come to me, all who labor and are heavy laden, and
     I will give you rest. Take my yoke upon you, and learn
     from me, for I am gentle and lowly in heart, and you will find
     rest for your souls. For my yoke is easy, and my burden
     is light. 
     
-| Rubric
+|> Rubric
     matthew 11:28-30
 
-| Quote
+|> Quote
     Now may the God of peace who brought again from the dead
     our Lord Jesus, the great shepherd of the sheep, by the blood
     of the eternal covenant, equip you with everything good that
@@ -185,42 +188,42 @@
     his sight, through Jesus Christ, to whom be glory forever and
     ever. Amen. 
     
-| Rubric
+|> Rubric
     hebrews 13:20-21
 
-| Quote
+|> Quote
     Be sober-minded; be watchful. Your adversary the devil prowls
     around like a roaring lion, seeking someone to devour. Resist
     him, firm in your faith. 
     
-| Ref
+|> Ref
     1 peter 5:8-9
 
-| Rubric
+|> Rubric
     At the end of the reading is said
 
-| Versicals
+|> Versicals
     -- The Word of the Lord.
     People Thanks be to God.
 
-| Rubric
+|> Rubric
     A period of silence may follow. A suitable hymn may be sung.
 
-| Versicals
+|> Versicals
     Officiant Into your hands, O Lord, I commend my spirit;
     People For you have redeemed me, O Lord, O God of truth.
     Officiant Keep me, O Lord, as the apple of your eye;
     People Hide me under the shadow of your wings.
 
-| Plain
+|> Plain
     Lord, have mercy [upon us].
     Christ, have mercy [upon us].
     Lord, have mercy [upon us].
 
-| Rubric
+|> Rubric
     Officiant and People
 
-| Options
+|> Options
     tag: lords_prayer
     label: Lord's Prayer
     --
@@ -264,22 +267,22 @@
         now and for ever. Amen.
     --
 
-| Versicals
+|> Versicals
     Officiant O Lord, hear our prayer;
     People And let our cry come to you.
     Officiant Let us pray.
 
-| Rubric
+|> Rubric
     The Officiant then says one or more of the following Collects. Other appropriate
     Collects may also be used.
 
-| Plain
+|> Plain
     Visit this place, O Lord, and drive far from it all snares of the
     enemy; let your holy angels dwell with us to preserve us in
     peace; and let your blessing be upon us always; through Jesus
     Christ our Lord. Amen.
 
-| Plain
+|> Plain
     Lighten our darkness, we beseech you, O Lord; and by your
     great mercy defend us from all perils and dangers of this night;
     for the love of your only Son, our Savior Jesus Christ. Amen.
@@ -288,60 +291,60 @@
     chances of this life may rest in your eternal changelessness;
     through Jesus Christ our Lord. Amen.
 
-| Plain
+|> Plain
     Look down, O Lord, from your heavenly throne, illumine this
     night with your celestial brightness, and from the children of
     light banish the deeds of darkness; through Jesus Christ our
     Lord. Amen.
 
-| CollectTitle
+|> CollectTitle
     a collect for /saturdays/
 
-| Plain
+|> Plain
     We give you thanks, O God, for revealing your Son Jesus
     Christ to us by the light of his resurrection: Grant that as we
     sing your glory at the close of this day, our joy may abound in
     the morning as we celebrate the Paschal mystery; through Jesus
     Christ our Lord. Amen.
 
-| Rubric
+|> Rubric
     One of the following prayers may be added
 
-| Plain
+|> Plain
     Keep watch, dear Lord, with those who work, or watch, or weep
     this night, and give your angels charge over those who sleep.
     Tend the sick, Lord Christ; give rest to the weary, bless the
     dying, soothe the suffering, pity the afflicted, shield the joyous;
     and all for your love’s sake. Amen.
 
-| Rubric
+|> Rubric
     or this
 
-| Plain
+|> Plain
     O God, your unfailing providence sustains the world we live in
     and the life we live: Watch over those, both night and day, who
     work while others sleep, and grant that we may never forget that
     our common life depends upon each other’s toil; through Jesus
     Christ our Lord. Amen.
 
-| Rubric
+|> Rubric
     Silence may be kept, and other intercessions and thanksgivings may be offered.
 
-| Rubric
+|> Rubric
     The Officiant and People say or sing the Song of Simeon with this Antiphon
 
-| Prayer
+|> Prayer
     Guide us waking, O Lord, and guard us sleeping; that awake
     we may watch with Christ, and asleep we may rest in peace.
 
-| Rubric
+|> Rubric
     In Easter Season, add Alleluia, alleluia, alleluia.
 
-| PsalmTitle
+|> PsalmTitle
     nunc dimittis
     The Song of Simeon
 
-| Prayer
+|> Prayer
     Lord, now let your servant depart in peace, *
         according to your word.
     For my eyes have seen your salvation, *
@@ -352,40 +355,40 @@
         as it was in the beginning, is now, and ever shall be,
         world without end. Amen. 
         
-| Ref    
+|> Ref    
     luke 2:29-32
 
-| Prayer
+|> Prayer
     Guide us waking, O Lord, and guard us sleeping; that awake
     we may watch with Christ, and asleep we may rest in peace.
 
-| Rubric
+|> Rubric
     In Easter Season, add Alleluia, alleluia, alleluia.
 
-| Versicals
+|> Versicals
     Officiant Let us bless the Lord.
     People Thanks be to God.
 
-| Rubric
+|> Rubric
     The Officiant concludes with the following
 
-| Quote
+|> Quote
     The almighty and merciful Lord, Father, Son, and Holy Spirit,
     bless us and keep us, this night and evermore. Amen.
 
-| Section
+|> Section
     additional directions
 
-| Plain
+|> Plain
     A Bishop or Priest, if present, may pronounce absolution after the
     confession.
 
-| Plain
+|> Plain
     For those saying Compline every day, particularly in families or other
     communities, additional short Scriptural readings may be desired. Some
     appropriate readings include:
 
-| Prayer
+|> Prayer
     isaiah 26:3-4
     isaiah 30:15
     matthew 6:31-34
@@ -394,6 +397,6 @@
     1 thessalonians 5:23
     ephesians 4:26-27
 
-| Rubric
+|> Rubric
     Either version of the Lord’s Prayer may be ended with, “deliver us from
     evil. Amen.” omitting the concluding doxology.

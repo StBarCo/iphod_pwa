@@ -1,12 +1,11 @@
-module TimeOfDeath exposing (source)
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = Ministry to the Dying
+    description = 
+        absolution and formal blessings, are reserved to Bishops and Priests. 
 
-source =
-    """| Begin
-
-| Title
-    Ministry to the Dying
-
-| Toggle
+|> Toggle
     tag: cm2d
     label: BLANK
     --
@@ -32,31 +31,31 @@ source =
     O death, where is your victory?
     O death, where is your sting?’
 
-| Rubric
+|> Rubric
     The Officiant begins
 
-| Quote
+|> Quote
     Peace be to this house [or place], and to all who dwell in it.
 
-| Ref
+|> Ref
     luke 10:5t
 
-| Quote
+|> Quote
     The Officiant continues with the following prayer
 
-| Plain
+|> Plain
     Almighty God, look on this your servant, lying in great weakness,
     and comfort /him/ with the promise of life everlasting, given in the
     resurrection of your Son Jesus Christ our Lord. Amen.
 
-| Section
+|> Section
     litany at the time of death
 
-| Rubric
+|> Rubric
     The following may be said. When possible, it is desirable that those present join in
     the responses.
 
-| Prayer
+|> Prayer
     O God the Father,
         *Have mercy on your servant.*
     O God the Son,
@@ -80,10 +79,10 @@ source =
     That it may please you to raise /him/ up at the last day,
         *We beseech you to hear us, good Lord.*
 
-| Rubric
+|> Rubric
     The following or some other suitable anthem may be sung or said
 
-| Prayer
+|> Prayer
     Son of God, we beseech you to hear us.
         Son of God, we beseech you to hear us.
     O Lamb of God, you take away the sin of the world;
@@ -95,22 +94,22 @@ source =
     O Christ, hear us
         O Christ, hear us.
 
-| Prayer
+|> Prayer
     Lord, have mercy [upon us].
     *Christ, have mercy [upon us].*
     Lord, have mercy [upon us].
 
-| Rubric
+|> Rubric
     Officiant and People say together
 
-| Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --
     selected: True
     tag: lords_prayer_traditional
     label: Traditional
-    text: 
+    text:
     Our Father, who art in heaven
         hallowed be thy Name,
         thy kingdom come,
@@ -130,7 +129,7 @@ source =
     selected: False
     tag: lords_prayer_modern
     label: Modern
-    text: 
+    text:
     Our Father in heaven,
         hallowed be your Name,
         your kingdom come,
@@ -147,46 +146,46 @@ source =
         now and for ever. Amen.
     --
 
-| Versicals
+|> Versicals
     Officiant O Lord, show your mercy upon us;
     People As we put our trust in you.
 
-| Rubric
+|> Rubric
     The Officiant prays
 
-| Plain
+|> Plain
     Let us pray.
 
-| Plain
+|> Plain
     O Sovereign Lord Christ, deliver your servant, N., from all evil,
     and set /him/ free from every bond; that he may rest with all your
     saints in the eternal habitations; where with the Father and the
     Holy Spirit you live and reign, one God, for ever and ever. *Amen*.
 
-| Rubric
+|> Rubric
     The Officiant may invite those present to offer words of thanksgiving,
     reconciliation, or farewell. The Officiant may conclude with words of comfort.
 
-| Section
+|> Section
     commendation at the time of death
 
-| Rubric
+|> Rubric
     Here a Priest may anoint the dying person with oil.
 
-| Rubric
+|> Rubric
     The Priest says
 
-| Prayer
+|> Prayer
     Depart, O Christian soul, out of this world;
     In the Name of God the Father Almighty who created you;
     In the Name of Jesus Christ who redeemed you;
     In the Name of the Holy Spirit who sanctifies you.
     May your rest be this day in peace, and your dwelling place in the Paradise of God.
 
-| CollectTitle
+|> CollectTitle
     a commendatory prayer
 
-| Plain
+|> Plain
     Into your hands, O merciful Savior, we commend your servant
     N. Acknowledge, we humbly beseech you, a sheep of your own
     fold, a lamb of your own flock, a sinner of your own redeeming.
@@ -194,14 +193,14 @@ source =
     everlasting peace, and into the glorious company of the saints in
     light. *Amen*.
 
-| Rubric
+|> Rubric
     The Officiant and People may say
 
-| PsalmTitle
+|> PsalmTitle
     nunc dimittis
     The Song of Simeon
 
-| Prayer
+|> Prayer
     Lord, now let your servant depart in peace, *
         according to your word.
     For my eyes have seen your salvation, *
@@ -210,39 +209,39 @@ source =
         and to be the glory of your people Israel.
     Glory be to the Father, and to the Son, and to the Holy Spirit; *
         as it was in the beginning, is now, and ever shall be,
-        world without end. Amen. 
-        
-| Ref
+        world without end. Amen.
+
+|> Ref
     luke 2:29-32
 
-| CollectTitle
+|> CollectTitle
     closing prayer
 
-| Rubric
+|> Rubric
     The Officiant prays
 
-| Plain
+|> Plain
     May his soul and the souls of all the faithful departed, through
     the mercy of God, rest in peace. *Amen*.
 
-| Section
+|> Section
     additional directions
 
-| Plain
+|> Plain
     This rite is designed to be flexible in length. It may be adjusted according
     to the circumstances and condition of the dying person. Different
     portions of the rite may be used at different times, provided the order
     of the various elements is retained. In cases of great urgency, the
     Commendation at the Time of Death may be used alone. In the absence
     of a member of the clergy, this service may be led by any Christian.
-| Plain
+|> Plain
     The minister may inquire of the dying person as to his or her desire
     to be reconciled to both God and neighbor. If the dying person feels
-    troubled in conscience with any matter, the minister should offer the rite 
+    troubled in conscience with any matter, the minister should offer the rite
     of Reconciliation of a Penitent. On evidence of repentance, the minister
     shall give assurance of God’s mercy and forgiveness.
 
-| Plain
+|> Plain
     If desired, Holy Communion may be administered using the rite for
     Communion of the Sick. It is appropriate for others present to receive
     the Sacrament as well. If the dying person cannot receive both the
@@ -250,5 +249,4 @@ source =
     one kind only. If he or she desires to receive, but by reason of extreme
     sickness is unable to consume either element, the minister is to assure
     the person that all the benefits of Holy Communion are conveyed, even
-    though the elements are not received with the mouth. 
-    """
+    though the elements are not received with the mouth.

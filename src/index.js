@@ -24,12 +24,12 @@ import Pouchdb from 'pouchdb';
 var pdb = Pouchdb;
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
-var service = new Pouchdb('service')
+var service = new Pouchdb('service_dev')
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var dbOpts = {live: true, retry: true}
   , remoteIphod =      "https://legereme.com/couchdb/iphod"
-  , remoteService =    "https://legereme.com/couchdb/service"
+  , remoteService =    "https://legereme.com/couchdb/service_dev"
   , remotePsalms =     "https://legereme.com/couchdb/psalms"
   , remoteLectionary = "https://legereme.com/couchdb/lectionary"
   , default_prefs = {
@@ -44,34 +44,43 @@ var dbOpts = {live: true, retry: true}
   }
 
 function sync() {
-  iphod.replicate.to(remoteIphod, dbOpts, syncError);
+  // iphod.replicate.to(remoteIphod, dbOpts, syncError);
   iphod.replicate.from(remoteIphod, dbOpts, syncError);
-  service.replicate.to(remoteService, dbOpts, syncError);
+  // service.replicate.to(remoteService, dbOpts, syncError);
   service.replicate.from(remoteService, dbOpts, syncError);
-  psalms.replicate.to(remotePsalms, dbOpts, syncError);
+  // psalms.replicate.to(remotePsalms, dbOpts, syncError);
   psalms.replicate.from(remotePsalms, dbOpts, syncError);
-  lectionary.replicate.to(remoteLectionary, dbOpts, syncError);
+  // lectionary.replicate.to(remoteLectionary, dbOpts, syncError);
   lectionary.replicate.from(remoteLectionary, dbOpts, syncError);
 }
 
 function syncError() {console.log("SYNC ERROR")};
 
-sync();
+// NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
+var isOnline = navigator.onLine; 
+window.addEventListener('online', updateOnlineIndicator() );
+window.addEventListener('offline', updateOnlineIndicator() );
+function updateOnlineIndicator() {
+  isOnline = navigator.onLine;
+}
+
+if (isOnline) sync();
 
 function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
+  console.log("GET SERVICE: ", named)
   var dbName = 
     { deacons_mass: "deacons_mass"
-    , morning_prayer: "mp"
+    , morning_prayer: "morning_prayer"
     , midday: "midday"
     , evening_prayer: "evening_prayer"
     , compline: "compline"
-    , family: "family"
+    , family: "family_prayers"
     , reconciliation: "reconciliation"
-    , toTheSick: "toTheSick"
-    , communionToSick: "communionToSick"
-    , timeOfDeath: "timeOfDeath"
+    , toTheSick: "ministry_to_sick"
+    , communionToSick: "communion_to_sick"
+    , timeOfDeath: "ministry_to_dying"
     , vigil: "vigil"
     }[named];
   service.get(dbName).then(  function(resp) {

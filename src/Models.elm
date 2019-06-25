@@ -175,11 +175,11 @@ initCalendarDay =
 
 
 type alias Model =
-    { windowWidth: Int
-    , width: Int
-    , pageTitle: String
-    , pageName: String
-    , source: String
+    { windowWidth : Int
+    , width : Int
+    , pageTitle : String
+    , pageName : String
+    , source : Maybe String
     , requestLesson : String
     , currentAlt : String
     , today : String -- date string
@@ -189,7 +189,7 @@ type alias Model =
     , season : String
     , color : String
     , showCalendar : Bool
-    , options: List Options
+    , options : List Options
     , calendar : List CalendarDay
     , showMenu : Bool
     , lessons : Lessons
@@ -203,7 +203,7 @@ initModel =
     , width = 355 -- iphone minus 20
     , pageTitle     = "Legereme"
     , pageName      = "currentOffice"
-    , source        = "| Begin"
+    , source        = Nothing
     , requestLesson = ""
     , currentAlt    = ""
     , today         = ""

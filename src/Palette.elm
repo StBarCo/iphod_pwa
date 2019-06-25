@@ -1,7 +1,7 @@
 module Palette exposing (..)
 
 import Html.Attributes
-import Element exposing (Attribute, rgb255, rgba255, paddingEach, padding, spacing, px, width)
+import Element exposing (Attribute, rgb255, rgba255, paddingEach, padding, paddingXY, spacing, px, width, moveLeft)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Input as Input
@@ -9,13 +9,24 @@ import Element.Font as Font
 import Models exposing(..)
 
 darkRed = rgb255 100 0 0
-darkBlue = rgb255 0 0 200
+darkBlue = rgb255 13 44 117
 darkGrey = rgb255 80 80 80 
 foggy = rgb255 250 250 250
 litGreen = rgb255 16 104 16
 litWhite = rgb255 255 226 12
 litPurple = rgb255 109 8 168
 litRed = rgb255 188 5 33
+
+edges : { top: Int, right: Int, bottom: Int, left: Int }
+edges = { top = 0, right = 0, bottom = 0, left = 0 }
+
+fixedPosition : Element.Attribute msg
+fixedPosition =
+    Html.Attributes.style "position" "fixed" |> Element.htmlAttribute
+
+zIndex : Int -> Element.Attribute msg
+zIndex z =
+    Html.Attributes.style "z-index" (z |> String.fromInt) |> Element.htmlAttribute
 
 scale: Model -> Int -> Int
 scale model n =
@@ -36,6 +47,10 @@ scaleWidth model n =
 --maxWidth : Model -> Attribute msg
 --maxWidth model =
 --    scaleWidth model (model.width - 25)
+
+adjustWidth : Model -> Int -> Attribute msg
+adjustWidth model adj =
+    width (px (model.width + adj) )
 
 maxWidth : Model -> Attribute msg
 maxWidth model =
@@ -87,32 +102,21 @@ class name =
             --     _ = Debug.log "UNRECOGNIZED CLASS NAME:" name
             -- in
             []
+
+antiphon : Model -> List (Attribute msg)
+antiphon model =
+    [ maxWidth model 
+    , paddingEach { edges | top = 10, left = 10 }
+    ]
             
-
-reference : Model -> List (Attribute msg)
-reference model =
-    [ scaleFont model 14
+antiphonTitle : Model -> List (Attribute msg)
+antiphonTitle model =
+    [ paddingEach { edges | top = 10 }
     , Font.italic
-    , Font.color darkRed
-    , Font.alignLeft
-    --, paddingEach { top= 0, right= 10, bottom= 0, left= 0}
-    ]
-
-rubric : Model -> List (Attribute msg)
-rubric model =        
-    [ scaleFont model 14
-    , Font.italic
-    , Font.color darkRed
-    , Font.alignLeft
-    , paddingEach { top= 0, right= 0, bottom= 0, left= 0}
-    , spacing 0
-    , maxWidth model
-    ]
-radioRow : Model -> List (Attribute msg)
-radioRow model =
-    [ padding 10
-    , spacing 10
-    ]
+    , Font.color darkBlue
+    , Font.variant Font.smallCaps
+    , outdent "3rem"
+    ] 
 
 button : Model -> List (Attribute msg)
 button model =
@@ -125,22 +129,55 @@ button model =
     , Font.color foggy
     ]
 
+collectTitle : Model -> List (Attribute msg)
+collectTitle model =
+    [ paddingEach { edges | top = 10, left = 10, bottom = 2 }
+    , Font.variant Font.smallCaps
+    , Font.color darkBlue
+    , scaleFont model 16
+    , maxWidth model
+    ]
+
+lesson : Model -> List (Attribute msg)
+lesson model =
+    [ paddingXY 10 0 ]
+
 lessonTitle : Model -> List (Attribute msg)
 lessonTitle model =
     [ Font.color darkBlue
     , Font.variant Font.smallCaps
-    , scaleFont model 18
-    , paddingEach { top = 10, right = 0, bottom = 5, left = 0}
+    , scaleFont model 16
+    , paddingEach { top = 10, right = 0, bottom = 5, left = 10}
     ]
 
-antiphonTitle : Model -> List (Attribute msg)
-antiphonTitle model =
-    [ Font.center
+menu : Model -> List (Attribute msg)
+menu model =
+    [ pageWidth model
+    , Element.paddingXY 0 0
+    , fixedPosition
+    , zIndex 9
+    ]
+
+officeTitle : Model -> List (Attribute msg)
+officeTitle model = 
+    [ paddingEach { edges | top = 65 }
+    , Element.centerX
+    ]
+
+openingSentenceTitle : Model -> List (Attribute msg)
+openingSentenceTitle model =
+    [ paddingEach {edges | top = 10, bottom = 2, left = 10}
     , Font.italic
     , Font.color darkBlue
     , Font.variant Font.smallCaps
-    , outdent "3rem"
+    , maxWidth model
     ] 
+
+openingSentence : Model -> List (Attribute msg)
+openingSentence model =
+    [ maxWidth model
+    , paddingXY 10 0
+    ]                                       
 
 pageNumber : Model -> List (Attribute msg)
 pageNumber model =
@@ -148,24 +185,72 @@ pageNumber model =
     , Font.italic
     , Font.color darkRed
     , Font.alignLeft
-    --, paddingEach { top= 0, right= 10, bottom= 10, left= 0}
     , hide
+    ]
+
+plain : Model -> List (Attribute msg)
+plain model =
+    [ Font.alignLeft
+    , Element.paddingEach { top= 10, right = 10, bottom = 10, left= 10}
+    , maxWidth model
+    ]
+
+prayer : Model -> List (Attribute msg)
+prayer model =
+    [ Element.paddingEach { top = 0, right = 0, bottom = 0, left = 10}
     ]
 
 psalmTitle : Model -> List (Attribute msg)
 psalmTitle model =
     [ Font.variant Font.smallCaps
     , Font.color darkBlue
-    , scaleFont model 18
+    , scaleFont model 16
+    , paddingEach { edges | top = 0, bottom = 2, left = 10 }
     ]
 
-collectTitle : Model -> List (Attribute msg)
-collectTitle model =
-    [ Font.center
-    , Font.variant Font.smallCaps
-    , Font.color darkBlue
-    , scaleFont model 18
+quote : Model -> List (Attribute msg)
+quote model =
+    [ paddingXY 10 0
+    , maxWidth model
     ]
+
+radioRow : Model -> List (Attribute msg)
+radioRow model =
+    [ padding 10
+    , spacing 10
+    , maxWidth model
+    ]
+
+reference : Model -> List (Attribute msg)
+reference model =
+    [ scaleFont model 12
+    , Font.italic
+    , Font.color darkRed
+    , paddingEach { top= 0, right= 10, bottom= 10, left= 10}
+    , maxWidth model
+    ]
+
+rubric : Model -> List (Attribute msg)
+rubric model =        
+    [ scaleFont model 12
+    , Font.italic
+    , Font.color darkRed
+    , Font.alignLeft
+    , paddingEach { edges | top = 5, bottom = 10, left = 10 }
+    , spacing 0
+    , maxWidth model
+    ]
+
+section : Model -> List (Attribute msg)
+section model =
+    [ Font.variant Font.smallCaps
+    , paddingEach { edges | top = 10, bottom = 2, left = 10 }
+    , Font.color darkBlue
+    ]
+
+versicals : Model -> List (Attribute msg)
+versicals model =
+    [ paddingXY 10 0]
 
 versicalSpeaker : Model -> List (Attribute msg)
 versicalSpeaker model =
@@ -183,29 +268,3 @@ versicalSays model =
     , Element.padding 0
     , Element.width( Element.px (scale model (model.width - 110)) )
     ] 
-
-openingSentenceTitle : Model -> List (Attribute msg)
-openingSentenceTitle model =
-    [ Font.center
-    , Font.italic
-    , Font.color darkBlue
-    , Font.variant Font.smallCaps
-    ] 
-
-openingSentence : Model -> List (Attribute msg)
-openingSentence model =
-    [ Font.alignRight
-    , Font.italic
-    , Font.variant Font.smallCaps
-    , Font.color darkRed
-    , scaleFont model 18
-    --, width (px (model.width - 100))
-    ]                                       
-
-menu : Model -> List (Attribute msg)
-menu model =
-    [ spacing 10
-    , padding 10
-    , maxWidth model
-    ]
-

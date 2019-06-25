@@ -13,16 +13,16 @@ import Element.Region as Region
 import Html exposing (..)
 import Html.Attributes
 import Html.Parser
-import Markdown
+import Http
 import Platform.Sub as Sub exposing (batch)
 import Platform.Cmd as Cmd exposing (Cmd)
 import Mark
-import Mark.Default
+import Mark.Error exposing (Error)
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
-import String.Extra exposing (toTitleCase)
+import String.Extra exposing (toTitleCase, toSentence)
 import MyParsers exposing (..)
 import Palette exposing (scale, scaleFont, pageWidth, indent, outdent, show, hide)
 import Models exposing (..)
@@ -36,43 +36,27 @@ This may seem a bit overwhelming, but 95% of it is copied directly from `Mark.De
 
 -}
 
-document : Mark.Document (Model -> Element.Element Msg)
+--  document : Mark.Document
+--          { body : List (Model -> Element.Element Msg)
+--          , metadata : { description : String, maintainer : String, title : String }
+--          }
 document =
-    let
-        defaultText =
-            Mark.Default.textWith
-                { code = Mark.Default.defaultTextStyle.code
-                , link = Mark.Default.defaultTextStyle.link
-                , inlines =
-                    [ Mark.inline "Drop"
-                        (\txt model ->
-                            Element.row [ Font.variant Font.smallCaps ]
-                                (List.map (\item -> Mark.Default.textFragment item model) txt)
-                        )
-                        |> Mark.inlineText
-                    ]
-                , replacements = Mark.Default.defaultTextStyle.replacements
-                }
-    in
-    Mark.document
-        (\children model ->
-            Element.textColumn
-                [ Element.spacing (scale model 18)
-                , Element.padding 10
-                , Element.centerX
-                , Element.width (Element.px model.width)
-                , scaleFont model 18
-                ]
-                (List.map (\child -> child model) children)
+    Mark.documentWith
+        (\meta body ->
+            { metadata = meta
+            , body = (renderHeader meta.title meta.description) :: body
+                -- renderTitle model meta
+                --     :: body
+--                Html.node "style" [] [ Html.text stylesheet ]
+--                    :: Html.h1 [] meta.title
+--                    :: body
+            }
         )
-        (Mark.startWith
-            (\myTitle myContent ->
-                myTitle :: myContent
-            )
-            ( begining )
-            (Mark.manyOf
-                [ title defaultText
-                , rubric
+        -- -- we have some required metadata that starts our document
+        { metadata = service
+        , body =
+            Mark.manyOf
+                [ rubric
                 , quote
                 , reference
                 , prayer
@@ -81,25 +65,19 @@ document =
                 , psalmTitle
                 , pageNumber
                 , MyParsers.section
-                , collectTitle defaultText
+                , collectTitle
                 , openingSentence
                 , toggle
-                , options
+                , optionalPrayer
+                , optionalPsalms
                 , antiphon 
                 , lesson
                 , finish 
                 , seasonal
                 -- Toplevel Text
-                , Mark.map (\viewEls model -> 
-                    Element.paragraph 
-                        [ Font.alignLeft
-                        ] 
-                        (viewEls model)
-                    ) 
-                    defaultText
+            --    , Mark.map (Html.p []) Mark.text
                 ]
-            )
-        )
+        }
 
 emptyDivWithId : Model -> String -> Element.Element msg
 emptyDivWithId model s =
@@ -118,7 +96,7 @@ showMenu model =
 
 menuOptions : Model -> Element.Element Msg
 menuOptions model =
-    Element.column [ showMenu model, scaleFont model 18 ]
+    Element.column [ showMenu model, scaleFont model 16 ]
         --[ clickOption "calendar" "Calendar"
         [ clickOption "morning_prayer" "Morning Prayer"
         , clickOption "midday" "Midday Prayer"
@@ -182,7 +160,7 @@ showPsalms model thisLesson =
     )
 
 psalmLine : Int -> String -> List (Element.Element Msg)
-psalmLine n str =
+psalmLine lineNumber str =
     let
         lns = str |> String.split "\n"
         hebrew = lns |> List.head |> Maybe.withDefault ""
@@ -194,7 +172,7 @@ psalmLine n str =
         psSection = if hebrew |> String.isEmpty
             then Element.none
             else
-                Element.paragraph [Element.paddingXY 0 10]
+                Element.paragraph [Element.paddingXY 10 10]
                 [ Element.el 
                     [ outdent "3rem"]
                     (Element.text hebrew)
@@ -210,7 +188,7 @@ psalmLine n str =
             [ Font.color Palette.darkRed
             , Element.padding 5
             ]
-            ( Element.text ( String.fromInt n ) )
+            ( Element.text ( String.fromInt lineNumber ) )
         , Element.el [] (Element.text ln1)
         ]
     , Element.paragraph [ indent "4rem"] 
@@ -233,7 +211,7 @@ showLesson model thisLesson =
                 |> parseLine
         in
         
-        Element.column []
+        Element.column ( Palette.lesson model )
         [ Element.paragraph (Palette.lessonTitle model) [Element.text l.ref]
         , Element.paragraph [ Palette.maxWidth model] vss
         ]
@@ -258,8 +236,8 @@ parseLine str =
 
         Err msg ->
             [ Element.paragraph []
-                [ Element.el [Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
-                , Element.el [Font.color Palette.darkBlue] (Element.text str)
+                [ Element.el [ Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
+                , Element.el [ Font.color Palette.darkBlue] (Element.text str)
                 ]
             ]
 
@@ -303,6 +281,9 @@ newElement ofType attrs withTheseEls =
                 [ getFirstEl withTheseEls ]
             )
             :: ( withTheseEls |> List.drop 1 )
+        "br" ->
+            ( Html.br [] [] |> Element.html )
+            :: ( withTheseEls |> List.drop 1 )
 
         _ -> 
             ( Element.paragraph [Font.color Palette.darkRed] [Element.text ("Don't know tag: " ++ ofType)] )
@@ -328,30 +309,6 @@ finish =
         Element.none
     )
     Mark.string
-
-begining : Mark.Block (Model -> Element.Element Msg)
-begining =
-    Mark.stub "Begin"
-    (\ model ->
-        Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
-        [ Element.row [Element.centerX, Element.spacing (scale model 200)]
-            [ Element.el [scaleFont model 18] (Element.text "Legereme")
-            , Element.image 
-                ( List.append (backgroundGradient model.color)
-                    [ Element.height (Element.px 36)
-                    , Element.width (Element.px 35)
-                    , Element.alignRight
-                    , Event.onClick ToggleMenu
-                    ]
-                )
-                { src = "https://legereme.com/pwa/menu.svg"
-                , description = "Toggle Menu"
-                }
-            ]
-        , menuOptions model
---            ]
-        ]
-    )
 
 backgroundGradient : String -> List (Element.Attribute msg)
 backgroundGradient s =
@@ -399,19 +356,52 @@ clickOption request label =
     [ Event.onClick (Office request) ]
     ( Element.text label )
 
-title : Mark.Block (Model -> List (Element.Element msg)) 
-    -> Mark.Block (Model -> Element.Element msg)
-title titleText =
-    Mark.block "Title"
-        (\elements model ->
-            Element.column [ ]
+
+service : Mark.Block { description : String, maintainer : String, contact: String, title : String }
+service =
+    Mark.record "Service"
+        (\maintainer contact title description ->
+            { maintainer = maintainer
+            , contact = contact
+            , title = title
+            , description = description
+            }
+        )
+        |> Mark.field "maintainer" Mark.string
+        |> Mark.field "contact" Mark.string
+        |> Mark.field "title" Mark.string
+        |> Mark.field "description" Mark.string
+        |> Mark.toBlock
+
+
+renderHeader : String -> String -> (Model -> Element.Element Msg)
+renderHeader title description =
+    (\model ->
+        Element.column []
+        [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
+            [ Element.row [Element.paddingXY 20 0]
+                [ Element.image 
+                    ( List.append (backgroundGradient model.color)
+                        [ Element.height (Element.px 36)
+                        , Element.width (Element.px 35)
+                        , Event.onClick ToggleMenu
+                        ]
+                    )
+                    { src = "./menu.svg"
+                    , description = "Toggle Menu"
+                    }
+                , Element.el [scaleFont model 18, Element.paddingXY 30 20] (Element.text "Legereme")
+                ]
+            , menuOptions model
+            ]
+        , Element.column ( Palette.officeTitle model )
             [ Element.paragraph
                 [ Region.heading 1
                 , scaleFont model 32
                 , Font.center
                 , Element.width (Element.px model.width)
                 ]
-                (elements model)
+                [ Element.text title ]
             , Element.paragraph 
                 [ Font.center, scaleFont model 18] 
                 [ Element.text model.today ]
@@ -421,8 +411,8 @@ title titleText =
                 , Element.el [Font.italic] (Element.text model.year)
                 ]
             ]
-        )
-        titleText
+        ]
+    )
 
 
 toggle: Mark.Block (Model -> Element.Element Msg)
@@ -451,52 +441,105 @@ toggle =
                         ) ""
             in
             Element.column []
-            [ Element.el [] (Element.text opts.label)
+            [ Element.el [ Palette.maxWidth model ] (Element.text opts.label)
             , Element.row [ Element.spacing 10, Element.padding 10 ] btns
-            , Element.el [ Element.alignLeft ] (Element.text selectedText)
+            , Element.el [ Element.alignLeft, Palette.maxWidth model ] (Element.text selectedText)
             ]    
         )
-        Mark.multiline
+        Mark.string
 
-options: Mark.Block (Model -> Element.Element Msg)
-options =
-    Mark.block "Options"
+optionButtons : Model -> String -> { btns: List (Element.Element Msg), label: String, text: String }
+optionButtons model everything =
+    let
+        t = everything |> stringToOptions
+        opts = case ( thisOptions t.tag model.options ) of
+            Just o -> o
+            Nothing -> 
+                let
+                    _ = update (UpdateOption t)
+                in 
+                t
+
+        btns = opts.options |> List.map(\o ->
+            Input.button 
+             (Palette.button model)
+             -- opts.tag == the options group tag
+             -- o.tag == the selected option tag
+             { onPress = Just (ClickOption opts.tag o.tag opts) 
+             , label = (Element.text o.label)
+             }
+            )
+        selectedText = opts.options
+            |> List.foldl (\o acc ->
+                if o.selected == "True" then acc ++ o.text else acc
+            ) ""
+    in
+    { btns = btns, label = opts.label, text = selectedText }
+
+
+optionalPrayer : Mark.Block (Model -> Element.Element Msg)
+optionalPrayer =
+    Mark.block "OptionalPrayer"
         (\everything model ->
             let
-                t = everything |> stringToOptions
-                opts = case ( thisOptions t.tag model.options ) of
-                    Just o -> o
-                    Nothing -> 
-                        let
-                            _ = update (UpdateOption t)
-                        in 
-                        t
-
-                btns = opts.options |> List.map(\o ->
-                    Input.button 
-                     (Palette.button model)
-                     -- opts.tag == the options group tag
-                     -- o.tag == the selected option tag
-                     { onPress = Just (ClickOption opts.tag o.tag opts) 
-                     , label = (Element.text o.label)
-                     }
-                    )
-                selectedText = opts.options
-                    |> List.foldl (\o acc ->
-                        if o.selected == "True" then acc ++ o.text else acc
-                    ) ""
+                opts = optionButtons model everything
             in
 
-            Element.column [] 
+            Element.column [Element.paddingXY 10 0, Palette.maxWidth model] 
             [ Element.paragraph [] [Element.text opts.label]
-            , Element.wrappedRow [ Element.spacing 10, Element.padding 10] btns
-            , Element.el [ Element.alignLeft ] (Element.text selectedText)
+            , Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
+            , Element.el [ Element.alignLeft, Palette.maxWidth model ] (Element.text opts.text)
             ]
-
-            
         )
-        Mark.multiline
+        Mark.string
 
+optionalPsalms : Mark.Block (Model -> Element.Element Msg)
+optionalPsalms =
+    Mark.block "OptionalPsalms"
+    (\everything model ->
+        let
+            opts = optionButtons model everything
+            lns = parsePsalm opts.text
+        in
+        
+        Element.column [Element.paddingXY 10 0, Palette.maxWidth model] 
+        [ Element.paragraph [] [Element.text opts.label]
+        , Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
+        , lns
+        ]
+    )
+    Mark.string
+
+parsePsalm: String -> Element.Element Msg
+parsePsalm ps =
+    let
+       lns = ps 
+            |> String.lines 
+            |> List.map (\l -> stringToPsalmLine l )
+
+    in
+    Element.column [] lns
+
+stringToPsalmLine : String -> Element.Element Msg
+stringToPsalmLine vs =
+    let
+        words = vs |> String.words
+        vsNum = words 
+                |> List.head |> Maybe.withDefault ""
+                |> String.toInt
+        lns = case vsNum of
+            Nothing -> 
+                Element.paragraph [] [ Element.text (words |> toSentence ) ]
+            Just n ->
+                Element.paragraph []
+                [ Element.el [ Font.color Palette.darkRed, Element.paddingXY 5 0] ( Element.text (n |> String.fromInt ))
+                , Element.el [] 
+                    ( Element.text 
+                        ( words |> List.tail |> Maybe.withDefault [] |> toSentence )
+                    )
+                ]
+    in
+    lns
 
 seasonal : Mark.Block (Model -> Element.Element Msg)
 seasonal =
@@ -518,18 +561,18 @@ seasonal =
                         then Element.paragraph (Palette.rubric model) [Element.text "or this"]
                         else Element.paragraph (Palette.openingSentenceTitle model) [Element.text os.label]
                       )
-                    , Element.paragraph [] [Element.text os.text]
+                    , Element.paragraph (Palette.openingSentence model) [Element.text os.text]
                     , Element.paragraph (Palette.reference model) [Element.text os.ref]
                     ]
                 )
         in
 
         Element.textColumn
-        []
+        [ Palette.maxWidth model]
         thisSeason
         
     )
-    Mark.multiline
+    Mark.string
     
 parseSeasonal : String -> ( String, List OpeningSentence )
 parseSeasonal everything =
@@ -570,14 +613,14 @@ openingSentence =
                     Element.textColumn [ Palette.maxWidth model ] 
                     [ Element.paragraph (Palette.openingSentenceTitle model)
                         [ Element.text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
-                    , Element.paragraph [] [Element.text (os.text |> collapseWhiteSpace)]
+                    , Element.paragraph (Palette.openingSentence model) [Element.text (os.text |> collapseWhiteSpace)]
                     , Element.paragraph (Palette.reference model) [ Element.text (os.ref |> toTitleCase) ]
                     ]
                 _ ->
                     Element.paragraph [] [Element.text "Opening Sentence Error"]
             
         )
-        Mark.multiline
+        Mark.string
 
 
 -- MODEL 
@@ -587,12 +630,18 @@ init  list =
     let
         ht = list |> List.head |> Maybe.withDefault 0
         winWd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone = 375
-        wd = min winWd 500
+        wd = min winWd 800
         x = Element.classifyDevice { height = ht, width = wd}
-        firstModel = { initModel | width = wd - 20, windowWidth = winWd }
+        firstModel = { initModel | width = wd, windowWidth = winWd }
     in
     
     ( firstModel, requestOffice "currentOffice" )
+    --( firstModel
+    --, Http.get
+    --    { url = "/services/morning_prayer.emu"
+    --    , expect = Http.expectString GotSrc
+    --    }
+    --)
 
 -- REQUEST PORTS
 
@@ -638,6 +687,7 @@ subscriptions model =
 
 type Msg 
     = NoOp
+    | GotSrc (Result Http.Error String)
     | UpdateOption Options
     | ClickOption String String Options
     | ClickToggle String String Options
@@ -658,6 +708,17 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
+
+        GotSrc result ->
+            case result of
+                Ok src ->
+                    ( { model | source = Just src }
+                    , Cmd.none
+                    )
+
+                Err err ->
+                    ( model, Cmd.none )
+
 
         UpdateOption opts ->
             let
@@ -705,8 +766,9 @@ update msg model =
                     , season = recvd |> requestedOfficeAt 4
                     , color = recvd |> requestedOfficeAt 5
                     , pageName = recvd |> requestedOfficeAt 6
-                    , source = recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n"
+                    , source = Just (recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n")
                     }
+
             in
             
             (newModel, requestLessons newModel.pageName )
@@ -803,22 +865,52 @@ view : Model -> Document Msg
 view model =
     { title = "Legereme"
     , body = 
-        [ case Mark.parse document model.source of
-            Ok element ->
-                Element.layout
-                    [ Font.family [ Font.typeface "EB Garamond" ]
-                    -- , pageWidth model
-                    , Element.centerX
-                    , Element.width (Element.px model.windowWidth)
-                    ]
-                    (element model) 
+        [ case model.source of
+            Nothing ->
+                Element.layout []
+                ( Element.paragraph [] [ Element.text "Source not received yet" ]
+                )
+            
+            Just source ->
+                case Mark.compile document source of
+                    Mark.Success thisService ->
+                        let
+                        -- convert List (model -> Element.Element msg) to List (Element.Element msg)
+                            rez = List.map (\fn -> fn model) thisService.body
+                        in
+                        Element.layout 
+                        [ Html.Attributes.style "overflow" "hidden" |> Element.htmlAttribute
+                        , Palette.scaleFont model 14
+                        ] 
+                        ( Element.column [ ] rez )
 
-            Err errors ->
-                Element.layout
-                    []
-                    (Element.text "Error parsing document!")
+                    -- Mark.Almost {resp, errors} ->
+                    Mark.Almost x ->
+                        -- this is the case where there has been an error,
+                        -- but it hs been caught by `Mark.onError` and is still rendeable
+                        -- let
+                        -- -- convert List (model -> Element.Element msg) to List (Element.Element msg)
+                        --     rez = List.map (\fn -> fn model) thisService.body
+                        -- in
+                        Element.layout [] ( Element.paragraph [] [ Element.text "ERRORS GO HERE" ] )
+                        -- Element.layout []
+                        -- ( Element.column [] 
+                        --    ( List.concat [(viewErrors errors), rez] )
+                        -- )
+
+                    Mark.Failure errors ->
+                        Element.layout []
+                        ( Element.column [] (viewErrors errors) )
         ]
     }
+
+
+viewErrors : List Error -> List (Element.Element Msg)
+viewErrors errors =
+    List.map
+        (Mark.Error.toHtml Mark.Error.Light)
+        errors
+    |> List.map Element.html
 
 main =
     Browser.document

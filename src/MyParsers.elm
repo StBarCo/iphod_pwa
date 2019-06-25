@@ -8,11 +8,10 @@ import Element.Border as Border
 import Element.Input as Input
 import Element.Font as Font
 import Mark
-import Mark.Default
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt)
-import String.Extra exposing (toTitleCase)
+import String.Extra exposing (toTitleCase, toSentence)
 import Palette exposing(scaleFont, pageWidth, maxWidth, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 
@@ -138,7 +137,7 @@ antiphon =
                     in
                     
                     Element.textColumn 
-                    [ maxWidth model ]
+                    ( Palette.antiphon model )
                     ([ Element.el (Palette.antiphonTitle model)
                         ( Element.text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
                     , line1
@@ -149,7 +148,19 @@ antiphon =
                     Element.paragraph [] [Element.text "Antiphon Error"]
 
         )
-        Mark.multiline
+        Mark.string
+
+title : Mark.Block (Model -> Element.Element msg)
+title =
+    Mark.block "Title"
+        (\str model ->
+            Element.paragraph 
+            [ Font.center
+            , scaleFont model 32
+            ]
+            [ Element.text str ]
+        )
+        Mark.string
 
 
 season : Mark.Block (model -> Element.Element msg)
@@ -177,28 +188,25 @@ pageNumber =
         )
         Mark.string
 
-collectTitle : Mark.Block (Model -> List (Element.Element msg))
-            -> Mark.Block (Model -> Element.Element msg)
-collectTitle thisText =
+collectTitle : Mark.Block (Model -> Element.Element msg)
+collectTitle =
     Mark.block "CollectTitle"
-        (\x model ->
-            Element.paragraph (Palette.collectTitle model) (x model)
+        (\str model ->
+            Element.paragraph (Palette.collectTitle model) [ Element.text (str |> toTitleCase) ]
         )
-        thisText
+        Mark.string
 
-section : Mark.Block (model -> Element.Element msg)
+section : Mark.Block (Model -> Element.Element msg)
 section =
     Mark.block "Section"
         (\str model -> 
             Element.paragraph
-            [ Font.alignLeft
-            , Font.variant Font.smallCaps
-            ]
+            ( Palette.section model )
             [ Element.text (str |> toTitleCase) ]
         )
         Mark.string
 
-psalmTitle :Mark.Block (model -> Element.Element msg)
+psalmTitle :Mark.Block (Model -> Element.Element msg)
 psalmTitle = 
     Mark.block "PsalmTitle"
         (\str model ->
@@ -207,14 +215,13 @@ psalmTitle =
                 line1 = lines |> List.head |> Maybe.withDefault "" |> toTitleCase
                 line2 = lines |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
             in
-            Element.column
-            [ Element.centerX
-            ]
+            Element.paragraph
+            ( Palette.psalmTitle model )
             [ Element.el [] (Element.text line1)
-            , Element.el [ Font.italic ] (Element.text line2)
+            , Element.el [ Font.italic, Element.paddingXY 20 0 ] (Element.text line2)
             ]
         )
-        Mark.multiline
+        Mark.string
 
 reference : Mark.Block (Model -> Element.Element msg)
 reference =
@@ -226,26 +233,24 @@ reference =
         )
         Mark.string
 
-plain : Mark.Block (model -> Element.Element msg)
+plain : Mark.Block (Model -> Element.Element msg)
 plain =
     Mark.block "Plain"
         (\str model ->
             Element.paragraph
-            [ Font.alignLeft
-            , Element.paddingEach { top= 0, right = 10, bottom = 0, left= 0}
-            ]
+            ( Palette.plain model )
             [ Element.text (str |> collapseWhiteSpace)]
         )
-        Mark.multiline
+        Mark.string
 
 
 versicals : Mark.Block (Model -> Element.Element msg)
 versicals =
     Mark.block "Versicals"
         (\str model ->
-            Element.column [] (listOfVersicals model str)
+            Element.column ( Palette.versicals model ) (listOfVersicals model str)
         )
-        Mark.multiline
+        Mark.string
 
 listOfVersicals : Model -> String -> List (Element.Element msg)
 listOfVersicals model str =
@@ -272,17 +277,15 @@ makeVersical model str =
         ]
     
 
-quote : Mark.Block (model -> Element.Element msg)
+quote : Mark.Block (Model -> Element.Element msg)
 quote =
     Mark.block "Quote"
         (\str model ->
             Element.paragraph
-            [ Font.alignLeft
-            , Element.paddingEach { top= 0, right = 10, bottom = 0, left= 0}
-            ]
+            ( Palette.quote model )
             [ Element.text (str |> collapseWhiteSpace)]
         )
-        Mark.multiline
+        Mark.string
 
 
 rubric : Mark.Block (Model -> Element.Element msg)
@@ -293,7 +296,7 @@ rubric =
             (Palette.rubric model)
             [ Element.text (str |> collapseWhiteSpace) ]
         )
-        Mark.multiline
+        Mark.string
 
 prayer : Mark.Block (Model -> Element.Element msg)
 prayer =
@@ -310,13 +313,9 @@ prayer =
                     )
             in
             
-            Element.column
-            [ Font.alignLeft
-            , Element.paddingEach { top = 0, right = 0, bottom = 0, left = 0} 
-            ]
-            lns
+            Element.column (Palette.prayer model) lns
         )
-        Mark.multiline
+        Mark.string
 
 collapseWhiteSpace : String -> String
 collapseWhiteSpace str =
