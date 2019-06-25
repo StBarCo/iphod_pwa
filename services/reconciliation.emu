@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Reconciliation of Penitents
-    description = ACNA Reconciliation of Penitents
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Reconciliation of Penitents
     description =
         Absolution and formal blessings, are reserved to Bishops and Priests. 

@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Communion to the Sick
-    description = ACNA Communion to the Sick
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Communion to the Sick
     description = 
         This rite is used when the consecrated elements are brought from an earlier
@@ -33,7 +30,7 @@
     love you, and worthily magnify your holy Name; through Christ
     our Lord. *Amen*.
 
-|> Options
+|> OptionalPsalms
     tag: c2s_psalms
     lable: A psalm may be prayed. Psalms 23, 62, 103, and 145 are particularly appropriate.
     --
@@ -126,7 +123,7 @@
 |> Rubric
     Minister and People
 
-|> Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --

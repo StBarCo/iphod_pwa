@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Prayers for a Vigil
-    description = ACNA Prayers for a Vigil
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Prayers for a Vigil
     description =
         absolution and formal blessings, are reserved to Bishops and Priests. 
@@ -25,7 +22,7 @@
 |> Rubric
     A psalm may be prayed.
 
-|> Options
+|> OptionalPsalms
     tag: v_psalms
     label: Psalms 23 and 121 are particularly appropriate.
     --
@@ -176,7 +173,7 @@
 |> Rubric
     Minister and People say together
 
-|> Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --

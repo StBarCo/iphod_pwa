@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Ministry to the Dying
-    description = ACNA Ministry to the Dying
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Ministry to the Dying
     description = 
         absolution and formal blessings, are reserved to Bishops and Priests. 
@@ -105,7 +102,7 @@
 |> Rubric
     Officiant and People say together
 
-|> Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --

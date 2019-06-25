@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Evening Prayer
-    description = ACNA Daily Evening Prayer
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Daily Evening Prayer
     description = 
         Daily Morning Prayer and Daily Evening Prayer are the
@@ -411,7 +408,7 @@
 |> Rubric
     Officiant and People
 
-|> Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --

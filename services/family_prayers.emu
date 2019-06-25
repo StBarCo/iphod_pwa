@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Family Prayers
-    description = ACNA Family Prayers
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Family Prayers
     description =
         These devotions follow the basic structure of the Daily Office
@@ -51,7 +48,7 @@
 |> Ref
     psalm 51:15
 
-|> Options
+|> OptionalPsalms
     tag: fpmp_psalm
     label: Psalm 51:10-1, alternately Psalm 5:1-3
     --
@@ -154,7 +151,7 @@
 |> Rubric
     Prayers may be offered for ourselves and others.
 
-|> Options
+|> OptionalPrayer
     tag: fpmp_lords_prayer
     label: Lord's Prayer
     --
@@ -300,7 +297,7 @@
 |> Rubric
     Prayers may be offered for ourselves and others.
 
-|> Options
+|> OptionalPrayer
     tag: fpmidday_lords_prayer
     label: Lord's Prayer
     --
@@ -455,7 +452,7 @@
     A hymn or canticle may be used; the Apostles’ Creed (page 75) may be said.
     Prayers may be offered for ourselves and others.
 
-|> Options
+|> OptionalPrayer
     tag: fpee_lords_prayer
     label: Lord's Prayer
     --
@@ -548,7 +545,7 @@
 |> Ref
     isaiah 26:3-4t
 
-|Rubric
+|> Rubric
     or this
 
 |> Quote
@@ -597,7 +594,7 @@
     Prayers may be offered for ourselves and others. It is appropriate that prayers of
     thanksgiving for the blessings of the day, and penitence for our sins, be included.
 
-|> Options
+|> OptionalPrayer
     tag: fpmp_lords_prayer
     label: Lord's Prayer
     --

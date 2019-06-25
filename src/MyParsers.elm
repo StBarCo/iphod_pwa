@@ -11,7 +11,7 @@ import Mark
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt)
-import String.Extra exposing (toTitleCase)
+import String.Extra exposing (toTitleCase, toSentence)
 import Palette exposing(scaleFont, pageWidth, maxWidth, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 
@@ -137,7 +137,7 @@ antiphon =
                     in
                     
                     Element.textColumn 
-                    [ maxWidth model ]
+                    ( Palette.antiphon model )
                     ([ Element.el (Palette.antiphonTitle model)
                         ( Element.text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
                     , line1
@@ -192,23 +192,21 @@ collectTitle : Mark.Block (Model -> Element.Element msg)
 collectTitle =
     Mark.block "CollectTitle"
         (\str model ->
-            Element.paragraph (Palette.collectTitle model) [ Element.text str ]
+            Element.paragraph (Palette.collectTitle model) [ Element.text (str |> toTitleCase) ]
         )
         Mark.string
 
-section : Mark.Block (model -> Element.Element msg)
+section : Mark.Block (Model -> Element.Element msg)
 section =
     Mark.block "Section"
         (\str model -> 
             Element.paragraph
-            [ Font.alignLeft
-            , Font.variant Font.smallCaps
-            ]
+            ( Palette.section model )
             [ Element.text (str |> toTitleCase) ]
         )
         Mark.string
 
-psalmTitle :Mark.Block (model -> Element.Element msg)
+psalmTitle :Mark.Block (Model -> Element.Element msg)
 psalmTitle = 
     Mark.block "PsalmTitle"
         (\str model ->
@@ -217,11 +215,10 @@ psalmTitle =
                 line1 = lines |> List.head |> Maybe.withDefault "" |> toTitleCase
                 line2 = lines |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
             in
-            Element.column
-            [ Element.centerX
-            ]
+            Element.paragraph
+            ( Palette.psalmTitle model )
             [ Element.el [] (Element.text line1)
-            , Element.el [ Font.italic ] (Element.text line2)
+            , Element.el [ Font.italic, Element.paddingXY 20 0 ] (Element.text line2)
             ]
         )
         Mark.string
@@ -236,14 +233,12 @@ reference =
         )
         Mark.string
 
-plain : Mark.Block (model -> Element.Element msg)
+plain : Mark.Block (Model -> Element.Element msg)
 plain =
     Mark.block "Plain"
         (\str model ->
             Element.paragraph
-            [ Font.alignLeft
-            , Element.paddingEach { top= 0, right = 10, bottom = 0, left= 0}
-            ]
+            ( Palette.plain model )
             [ Element.text (str |> collapseWhiteSpace)]
         )
         Mark.string
@@ -253,7 +248,7 @@ versicals : Mark.Block (Model -> Element.Element msg)
 versicals =
     Mark.block "Versicals"
         (\str model ->
-            Element.column [] (listOfVersicals model str)
+            Element.column ( Palette.versicals model ) (listOfVersicals model str)
         )
         Mark.string
 
@@ -282,14 +277,12 @@ makeVersical model str =
         ]
     
 
-quote : Mark.Block (model -> Element.Element msg)
+quote : Mark.Block (Model -> Element.Element msg)
 quote =
     Mark.block "Quote"
         (\str model ->
             Element.paragraph
-            [ Font.alignLeft
-            , Element.paddingEach { top= 0, right = 10, bottom = 0, left= 0}
-            ]
+            ( Palette.quote model )
             [ Element.text (str |> collapseWhiteSpace)]
         )
         Mark.string
@@ -320,11 +313,7 @@ prayer =
                     )
             in
             
-            Element.column
-            [ Font.alignLeft
-            , Element.paddingEach { top = 0, right = 0, bottom = 0, left = 0} 
-            ]
-            lns
+            Element.column (Palette.prayer model) lns
         )
         Mark.string
 

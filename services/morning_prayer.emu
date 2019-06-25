@@ -1,11 +1,8 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title = Daily Morning Prayer
-    description = ACNA Daily Morning Prayer
-
 |> Service
-    title: Daily Morning Prayer
-    description:
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = Daily Morning Prayer
+    description =
         Daily Morning Prayer and Daily Evening Prayer are the
         established rites (offices) by which, both corporately and
         individually, God’s people annually encounter the whole of the
@@ -570,7 +567,7 @@
 |> Rubric
     The People kneel or stand.
 
-|> Plain
+|> Prayer
     Lord, have mercy [upon us].
     Christ, have mercy [upon us].
     Lord, have mercy [upon us].
@@ -578,7 +575,7 @@
 |> Rubric
     Officiant and People
 
-|> Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --
@@ -650,8 +647,10 @@
     Alternatively, one may pray the Collects on a weekly rotation, using the
     suggestions in italics.
 
-|> PsalmTitle
+|> Section
     the collect of the day
+
+|> CollectTitle
     From the Collects of the Christian Year
 
 |> CollectTitle
@@ -1098,7 +1097,8 @@
 |> Antiphon
     tag: all_saints
     label: All Saints
-    text:The Lord is glorious in his saints: *
+    text:
+    The Lord is glorious in his saints: *
         O come, let us adore him.
     --
 

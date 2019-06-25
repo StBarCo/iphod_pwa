@@ -1,9 +1,6 @@
-|> Metadata
-    maintainer = PASutcliffe+
-    title =  Compline
-    description = ACNA Compline
-
 |> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
     title = Compline
     description =
         A service of evening prayers
@@ -153,6 +150,7 @@
         and sing praises unto the Lord. 
     4 The Lord who made heaven and earth *
         give you blessing out of Zion.
+    --
 
 |> Rubric
     At the end of the Psalms the Gloria Patri (Glory be...) is sung or said

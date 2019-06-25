@@ -56,7 +56,15 @@ function sync() {
 
 function syncError() {console.log("SYNC ERROR")};
 
-sync();
+// NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
+var isOnline = navigator.onLine; 
+window.addEventListener('online', updateOnlineIndicator() );
+window.addEventListener('offline', updateOnlineIndicator() );
+function updateOnlineIndicator() {
+  isOnline = navigator.onLine;
+}
+
+if (isOnline) sync();
 
 function get_service(named) {
   // have to map offices here
@@ -231,8 +239,6 @@ app.ports.requestOffice.subscribe( function(request) {
       Calendar.get_calendar( now, app.ports.receivedCalendar );
       break;
     default: 
-      console.log("REQUEST OFFICE: ", request)
-
       get_service(request);
   };
 });
