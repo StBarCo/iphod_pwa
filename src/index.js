@@ -69,7 +69,6 @@ if (isOnline) sync();
 function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
-  console.log("GET SERVICE: ", named)
   var dbName = 
     { deacons_mass: "deacons_mass"
     , morning_prayer: "morning_prayer"

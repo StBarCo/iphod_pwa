@@ -22,7 +22,7 @@ import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
-import String.Extra exposing (toTitleCase, toSentence)
+import String.Extra exposing (toTitleCase, toSentence, countOccurrences)
 import MyParsers exposing (..)
 import Palette exposing (scale, scaleFont, pageWidth, indent, outdent, show, hide)
 import Models exposing (..)
@@ -135,7 +135,7 @@ showPsalms model thisLesson =
     thisLesson.content |> List.map (\l ->
         let
             pss = l.vss 
-                |> List.map (\v -> psalmLine v.vs v.text )
+                |> List.map (\v -> psalmLine model v.vs v.text )
                 |> List.concat
             nameTitle = l.ref |> String.split "\n"
             thisName = nameTitle |> List.head |> Maybe.withDefault "" |> toTitleCase
@@ -159,42 +159,58 @@ showPsalms model thisLesson =
         )
     )
 
-psalmLine : Int -> String -> List (Element.Element Msg)
-psalmLine lineNumber str =
+psalmLine : Model -> Int -> String -> List (Element.Element Msg)
+psalmLine model lineNumber str =
     let
         lns = str |> String.split "\n"
+        -- lns |> List.head never return Nothing (in this case) 
+        -- even if it's `Just ""`
+        -- so a default is set and later check for empty String
         hebrew = lns |> List.head |> Maybe.withDefault ""
-        psTitle = lns |> getAt 1 |> Maybe.withDefault ""
+        psTitle = lns |> getAt 1
         ln1 = lns   |> getAt 2
                     |> Maybe.withDefault "" 
                     |> String.replace "&#42;" "*"
         ln2 = lns |> getAt 3 |> Maybe.withDefault ""
-        psSection = if hebrew |> String.isEmpty
-            then Element.none
-            else
-                Element.paragraph [Element.paddingXY 10 10]
-                [ Element.el 
-                    [ outdent "3rem"]
-                    (Element.text hebrew)
-                , Element.el [Font.italic, Element.paddingXY 20 0] (Element.text psTitle)
-                ]
 
     in
-    -- all the weird margin-left stuff is for outdenting
-    [ Element.paragraph [indent "3rem"]
-        [ psSection
-        , Element.el [outdent "3rem"] Element.none
-        , Element.el 
-            [ Font.color Palette.darkRed
-            , Element.padding 5
+    if hebrew |> String.isEmpty
+        then
+            [ renderPsLine1 model lineNumber ln1
+            , renderPsLine2 model ln2
             ]
-            ( Element.text ( String.fromInt lineNumber ) )
-        , Element.el [] (Element.text ln1)
+        else
+            [ renderPsSection model psTitle hebrew
+            , renderPsLine1 model lineNumber ln1
+            , renderPsLine2 model ln2
+            ]
+
+renderPsSection : Model -> Maybe String -> String -> Element.Element Msg
+renderPsSection model title sectionName =
+    Element.paragraph [ Element.paddingXY 10 10, Palette.maxWidth model ]
+    [ Element.el [] (Element.text sectionName)
+    , Element.el 
+        [Font.italic, Element.paddingXY 20 0] 
+        (Element.text (title |> Maybe.withDefault "") )
+    ]
+
+renderPsLine1 : Model -> Int -> String -> Element.Element Msg
+renderPsLine1 model lineNumber ln1 =
+    Element.paragraph [ indent "3rem", Palette.maxWidth model ]
+    [ Element.el [outdent "3rem"] Element.none
+    , Element.el 
+        [ Font.color Palette.darkRed
+        , Element.padding 5
         ]
-    , Element.paragraph [ indent "4rem"] 
-        [ Element.el [ outdent "2rem"] Element.none 
-        , Element.text ln2 
-        ]
+        ( Element.text (String.fromInt lineNumber) )
+    , Element.el [] (Element.text ln1)
+    ]
+
+renderPsLine2 : Model -> String -> Element.Element Msg
+renderPsLine2 model ln2 =
+    Element.paragraph [ indent "4rem" , Palette.maxWidth model ]
+    [ Element.el [ outdent "2rem"] Element.none
+    , Element.text ln2
     ]
 
 showLesson : Model -> Lesson -> List (Element.Element Msg)
@@ -219,10 +235,21 @@ showLesson model thisLesson =
     
 fixPTags : String -> String
 fixPTags str =
-    -- let's try removing all the p tags
-    str
-    |> String.replace "<p>" " "
-    |> String.replace "</p>" " "
+    let
+        firstOpenedPTag = str |> String.indexes "<p" |> List.head |> Maybe.withDefault 0
+        firstClosedPTag = str |> (String.indexes "</p") |> List.head |> Maybe.withDefault 0
+        openedPTags = str |> countOccurrences "<p"
+        closedPTags = str |> countOccurrences "</p"
+    in
+
+    if firstClosedPTag < firstOpenedPTag then
+        fixPTags ("<p>" ++ str)
+    else if openedPTags > closedPTags then
+        fixPTags (str ++ "</p>")
+    else if closedPTags > openedPTags then
+        fixPTags ("<p>" ++ str)
+    else
+        str
     
 
 parseLine : String -> List (Element.Element Msg)
@@ -499,47 +526,40 @@ optionalPsalms =
     (\everything model ->
         let
             opts = optionButtons model everything
-            lns = parsePsalm opts.text
+            lns = parsePsalm model opts.text
         in
         
         Element.column [Element.paddingXY 10 0, Palette.maxWidth model] 
-        [ Element.paragraph [] [Element.text opts.label]
-        , Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
-        , lns
-        ]
+        (  Element.paragraph [] [Element.text opts.label]
+        :: Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
+        :: parsePsalm model opts.text
+        )
     )
     Mark.string
 
-parsePsalm: String -> Element.Element Msg
-parsePsalm ps =
-    let
-       lns = ps 
-            |> String.lines 
-            |> List.map (\l -> stringToPsalmLine l )
+parsePsalm: Model -> String -> List ( Element.Element Msg )
+parsePsalm model ps =
+    ps 
+    |> String.lines 
+    |> List.map (\l -> stringToPsalmLine model l )
 
-    in
-    Element.column [] lns
-
-stringToPsalmLine : String -> Element.Element Msg
-stringToPsalmLine vs =
+stringToPsalmLine : Model -> String -> Element.Element Msg
+stringToPsalmLine model vs =
+    -- if the first word of the line is digits
+    -- consider it to be a verse number
+    -- thus the first line of the verse
+    -- else the second
     let
         words = vs |> String.words
         vsNum = words 
                 |> List.head |> Maybe.withDefault ""
                 |> String.toInt
-        lns = case vsNum of
-            Nothing -> 
-                Element.paragraph [] [ Element.text (words |> toSentence ) ]
-            Just n ->
-                Element.paragraph []
-                [ Element.el [ Font.color Palette.darkRed, Element.paddingXY 5 0] ( Element.text (n |> String.fromInt ))
-                , Element.el [] 
-                    ( Element.text 
-                        ( words |> List.tail |> Maybe.withDefault [] |> toSentence )
-                    )
-                ]
     in
-    lns
+    case vsNum of
+        Nothing -> 
+            renderPsLine2 model vs
+        Just n ->
+            renderPsLine1 model n (words |> List.tail |> Maybe.withDefault [] |> toSentence)
 
 seasonal : Mark.Block (Model -> Element.Element Msg)
 seasonal =
