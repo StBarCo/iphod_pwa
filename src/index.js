@@ -24,7 +24,7 @@ import Pouchdb from 'pouchdb';
 var pdb = Pouchdb;
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
-var service = new Pouchdb('service')
+var service = new Pouchdb('service_dev')
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var dbOpts = {live: true, retry: true}
