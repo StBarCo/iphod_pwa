@@ -1,9 +1,9 @@
 {
-  "short_name": "Elm App",
-  "name": "Create Elm App Sample",
+  "short_name": "BCP2019",
+  "name": "ACNA BCP2019 Offices",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "favicon.png",
       "sizes": "192x192",
       "type": "image/png"
     }
