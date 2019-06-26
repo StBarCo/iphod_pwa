@@ -406,7 +406,7 @@ renderHeader title description =
     (\model ->
         Element.column []
         [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
-            [ Element.row [Element.paddingXY 20 0]
+            [ Element.row [Element.paddingXY 20 0, Palette.maxWidth model]
                 [ Element.image 
                     ( List.append (backgroundGradient model.color)
                         [ Element.height (Element.px 36)
@@ -418,6 +418,13 @@ renderHeader title description =
                     , description = "Toggle Menu"
                     }
                 , Element.el [scaleFont model 18, Element.paddingXY 30 20] (Element.text "Legereme")
+                , Element.el 
+                    [ scaleFont model 14
+                    , Font.color Palette.darkRed
+                    , Font.alignRight
+                    , Palette.adjustWidth model -230
+                    ]
+                    (Element.text model.online)
                 ]
             , menuOptions model
             ]
@@ -684,6 +691,7 @@ port receivedCalendar : (List CalendarDay -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
 port receivedLesson : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
+port onlineStatus : (String -> msg) -> Sub msg
 -- port receivedPsalms : (String -> msg) -> Sub msg
 -- port receivedLesson1 : (String -> msg) -> Sub msg
 -- port receivedLesson2 : (String -> msg) -> Sub msg
@@ -698,6 +706,7 @@ subscriptions model =
         , receivedOffice UpdateOffice
         , receivedLesson UpdateLesson
         , newWidth NewWidth
+        , onlineStatus UpdateOnlineStatus
 --        , receivedPsalms UpdatePsalms
 --        , receivedLesson1 UpdateLesson1
 --        , receivedLesson2 UpdateLesson2
@@ -714,6 +723,7 @@ type Msg
     | UpdateCalendar  (List CalendarDay)
     | UpdateOffice (List String)
     | UpdateLesson String
+    | UpdateOnlineStatus String
     | UpdateOpeningSentences (List OpeningSentence)
     | DayClick CalendarDay
     | Office String
@@ -796,6 +806,9 @@ update msg model =
 
         UpdateLesson s ->
             (addNewLesson s model, Cmd.none)
+
+        UpdateOnlineStatus s ->
+            ( {model | online = s}, Cmd.none )
 
         UpdateOpeningSentences l ->
             ( {model | openingSentences = l}, Cmd.none)

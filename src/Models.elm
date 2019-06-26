@@ -194,6 +194,7 @@ type alias Model =
     , showMenu : Bool
     , lessons : Lessons
     , openingSentences : List OpeningSentence
+    , online : String
     }
     
 
@@ -218,5 +219,6 @@ initModel =
     , showMenu      = False
     , lessons       = initLessons
     , openingSentences = []
+    , online        = ""
     }
 
