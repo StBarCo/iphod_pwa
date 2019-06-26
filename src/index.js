@@ -27,11 +27,15 @@ var iphod = new Pouchdb('iphod')
 var service = new Pouchdb('service_dev')
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
-var dbOpts = {live: true, retry: true}
-  , remoteIphod =      "https://legereme.com/couchdb/iphod"
-  , remoteService =    "https://legereme.com/couchdb/service_dev"
-  , remotePsalms =     "https://legereme.com/couchdb/psalms"
-  , remoteLectionary = "https://legereme.com/couchdb/lectionary"
+var dbOpts = {}
+  , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
+  , remoteServiceURL =    "https://legereme.com/couchdb/service_dev"
+  , remotePsalmsURL =     "https://legereme.com/couchdb/psalms"
+  , remoteLectionaryURL = "https://legereme.com/couchdb/lectionary"
+  , remoteIphod = new Pouchdb(remoteIphodURL)
+  , remoteService = new Pouchdb(remoteServiceURL)
+  , remotePsalms = new Pouchdb(remotePsalmsURL)
+  , remoteLectionary = new Pouchdb(remoteLectionaryURL)
   , default_prefs = {
       _id: 'preferences'
     , ot: 'ESV'
@@ -43,28 +47,56 @@ var dbOpts = {live: true, retry: true}
     , current: 'ESV'
   }
 
-function sync() {
-  // iphod.replicate.to(remoteIphod, dbOpts, syncError);
-  iphod.replicate.from(remoteIphod, dbOpts, syncError);
-  // service.replicate.to(remoteService, dbOpts, syncError);
-  service.replicate.from(remoteService, dbOpts, syncError);
-  // psalms.replicate.to(remotePsalms, dbOpts, syncError);
-  psalms.replicate.from(remotePsalms, dbOpts, syncError);
-  // lectionary.replicate.to(remoteLectionary, dbOpts, syncError);
-  lectionary.replicate.from(remoteLectionary, dbOpts, syncError);
-}
+//function sync() {
+//  // iphod.replicate.to(remoteIphod, dbOpts, syncError);
+//  iphod.replicate.from(remoteIphodURL, dbOpts, syncError);
+//  // service.replicate.to(remoteService, dbOpts, syncError);
+//  service.replicate.from(remoteServiceURL, dbOpts, syncError);
+//  // psalms.replicate.to(remotePsalms, dbOpts, syncError);
+//  psalms.replicate.from(remotePsalmsURL, dbOpts, syncError);
+//  // lectionary.replicate.to(remoteLectionary, dbOpts, syncError);
+//  lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError);
+//}
 
-function syncError() {console.log("SYNC ERROR")};
+function syncError() {};
 
 // NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
 var isOnline = navigator.onLine; 
-window.addEventListener('online', updateOnlineIndicator() );
-window.addEventListener('offline', updateOnlineIndicator() );
+// window.addEventListener('online', updateOnlineIndicator() );  // only on Firefox
+// window.addEventListener('offline', updateOnlineIndicator() );  // only on Firefox
 function updateOnlineIndicator() {
   isOnline = navigator.onLine;
+  app.ports.onlineStatus.send( isOnline ? "" : "off line")
+  return isOnline
 }
 
-if (isOnline) sync();
+// if (isOnline) sync();
+
+function service_response(named, resp) {
+  var now = moment()
+  , today = now.format("dddd, MMMM Do YYYY")
+  , day = [ "Sunday", "Monday", "Tuesday"
+          , "Wednesday", "Thursday", "Friday"
+          , "Saturday"
+          ][now.weekday()]
+  , season = LitYear.toSeason(now)
+  , iphodKey = season.season + season.week + season.year
+  ;
+  iphod.get(iphodKey).then( function(euResp){
+    var serviceHeader = [
+          today
+        , day
+        , season.week.toString()
+        , season.year
+        , season.season
+        , euResp.colors[0]
+        , named
+      ]
+
+    request_lessons(named);
+    app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
+  })
+}
 
 function get_service(named) {
   // have to map offices here
@@ -83,32 +115,41 @@ function get_service(named) {
     , vigil: "vigil"
     }[named];
   service.get(dbName).then(  function(resp) {
-    var now = moment()
-      , today = now.format("dddd, MMMM Do YYYY")
-      , day = [ "Sunday", "Monday", "Tuesday"
-              , "Wednesday", "Thursday", "Friday"
-              , "Saturday"
-              ][now.weekday()]
-      , season = LitYear.toSeason(now)
-      , iphodKey = season.season + season.week + season.year
+    service_response(named, resp)
+    if ( updateOnlineIndicator() ) {
+      app.ports.onlineStatus.send( "syncing");
+      service.replicate.from(remoteServiceURL, dbOpts, syncError)
+      .on("complete", function(info) {
+        updateOnlineIndicator()
+      })
+      .on("paused", function(err) {
+        updateOnlineIndicator();
+      })
+      .on("active", function(info) {
+        app.port.onlineStatus.send("syncing")
+      })
+      .on("error", function(err) {
+        app.ports.onlineStatus.send("sync error")
+      })
+    }
     ;
-    iphod.get(iphodKey).then( function(euResp){
-      var serviceHeader = [
-            today
-          , day
-          , season.week.toString()
-          , season.year
-          , season.season
-          , euResp.colors[0]
-          , named
-        ]
 
-      request_lessons(named);
-      app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
-    })
-  }).catch( function(err) {
-    console.log("GET SERVICE ERROR: ", err);
-  });
+  })
+  .catch( function(err) {
+    if ( updateOnlineIndicator() ) {
+      get_service_from_master(dbName);
+    }
+    else { console.log("GET SERVICE ERROR: ", err); }
+  })
+  }
+
+function get_service_from_master(serv) {
+  remoteService.get(serv).then (function(resp) {
+    service_response(serv, resp)
+  })
+  .catch( function(err) {
+    console.log("FAILED TO GET " + serv + " FROM MASTER: ", err)
+  })
 }
 
 function get_preferences(do_this_too) {
@@ -314,43 +355,58 @@ function insertLesson(lesson, office) {
     , mpepRef = "mpep" + moment().format("MMDD")
     ;
   lectionary.get(mpepRef)
-    .then(  function(resp) {
-      var thisReading = resp[mpep + lesson.substr(-1)]
-        , refs = thisReading.map(  function(r)  { return r.read })
-        , styles = thisReading.map( function(r) { return r.style})
-        , keys = BibleRef.dbKeys(refs)
-        //, refTitles = keys.map( function(r) { return BibleRef.lessonTitleFromKeys(r) } )
-        , allPromises = []
-        ;
-      keys.forEach(  function(k) {
-        allPromises.push( iphod.allDocs(
-          { include_docs: true
-          , startkey: k.from
-          , endkey: k.to
-          }
-        ))
-      });
-      return Promise.all( allPromises )
-        .then(  function(resp) {
-          var thisLesson = [];
-          resp.forEach( function(r, i) {
-            thisLesson[i] =
-              { ref: refs[i]
-              , style: styles[i]
-              , vss: r.rows.map( function(el) { return el.doc } )
-              }
-          })
-          app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) )
-        })
-    })
+    .then(  function(resp) { lesson_response(mpep, lesson, resp) })
     .catch(  function(err) { 
       console.log("FAILED GETTING MPEP REFS: ", err)
     })
 }
 
-function insertGospel(office) {
-  console.log("INSERT GOSPEL: ", office);
+function lesson_response(mpep, lesson, resp) {
+  var thisReading = resp[mpep + lesson.substr(-1)]
+  , refs = thisReading.map(  function(r)  { return r.read })
+  , styles = thisReading.map( function(r) { return r.style})
+  , keys = BibleRef.dbKeys(refs)
+  //, refTitles = keys.map( function(r) { return BibleRef.lessonTitleFromKeys(r) } )
+  , allPromises = []
+  ;
+  keys.forEach( function(k) {
+    allPromises.push( iphod.allDocs(
+      { include_docs: true
+      , startkey: k.from
+      , endkey: k.to
+      }
+    ))
+  });
+  return Promise.all( allPromises )
+    .then(  function(resp) {
+      var thisLesson = [];
+      resp.forEach( function(r, i) {
+        thisLesson[i] =
+          { ref: refs[i]
+          , style: styles[i]
+          , vss: r.rows.map( function(el) { return el.doc } )
+          }
+      })
+      app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) );
+      iphod.replicate.from(remoteIphodURL, dbOpts, syncError)
+      .on("complete", function(info) { updateOnlineIndicator() })
+      .on("paused", function(err) { updateOnlineIndicator() })
+      .on("active", function(info) { app.port.onlineStatus.send("syncing") })
+      .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+      psalms.replicate.from(remotePsalmsURL, dbOpts, syncError)
+      .on("complete", function(info) { updateOnlineIndicator() })
+      .on("paused", function(err) { updateOnlineIndicator() })
+      .on("active", function(info) { app.port.onlineStatus.send("syncing") })
+      .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+      lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError)
+      .on("complete", function(info) { updateOnlineIndicator() })
+      .on("paused", function(err) { updateOnlineIndicator() })
+      .on("active", function(info) { app.port.onlineStatus.send("syncing") })
+      .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+    })
 }
+
+function insertGospel(office) {}
 
 function insertCollect(office) {
     var now = moment()
@@ -371,9 +427,7 @@ function insertCollect(office) {
 
 }
 
-function insertProper(office) {
-  console.log("INSERT PROPER: ", office)
-}
+function insertProper(office) {}
 
 function insertPsalms(office) {
   var now = moment()
@@ -411,8 +465,6 @@ function insertPsalms(office) {
             }
           )
         }) // end of resp.forEach
-        // console.log("PSALMS-> ", resp)
-        // showPsalms(resp);
         app.ports.receivedLesson.send( JSON.stringify({lesson: "psalms", content: thisLesson}) )
 
       })
