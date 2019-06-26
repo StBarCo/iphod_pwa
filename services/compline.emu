@@ -54,7 +54,7 @@
 |> Rubric
     Except in Lent, add Alleluia.
 
-|> Options
+|> OptionalPsalms
     tag: compline_psalms
     Label: One or more of the following, or some other suitable Psalm, is sung or said.
     --
@@ -223,7 +223,7 @@
 |> Rubric
     Officiant and People
 
-|> Options
+|> OptionalPrayer
     tag: lords_prayer
     label: Lord's Prayer
     --
