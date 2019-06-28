@@ -148,6 +148,7 @@ function get_service(named) {
   })
   .catch( function(err) {
     if ( updateOnlineIndicator() ) {
+      console.log("NOTHING LOCAL, TRY REMOTE: ", dbName)
       get_service_from_master(dbName);
     }
     else { console.log("GET SERVICE ERROR: ", err); }
@@ -156,6 +157,7 @@ function get_service(named) {
 
 function get_service_from_master(serv) {
   remoteService.get(serv).then (function(resp) {
+    console.log("GOT SERVICE FROM MASTER")
     service_response(serv, resp)
   })
   .catch( function(err) {
