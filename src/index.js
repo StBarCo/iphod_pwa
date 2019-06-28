@@ -142,25 +142,6 @@ function get_service(named) {
     }[named];
   service.get(dbName).then(  function(resp) {
     service_response(named, resp);
-    //if ( updateOnlineIndicator() ) {
-    //  app.ports.onlineStatus.send( "syncing");
-    //  service.replicate.from(remoteServiceURL, dbOpts, syncError)
-    //  .on("complete", function(info) {
-    //    console.log("SYNC COMPLETE: ", info)
-    //    updateOnlineIndicator()
-    //  })
-    //  .on("paused", function(err) {
-    //    updateOnlineIndicator();
-    //  })
-    //  .on("active", function(info) {
-    //    app.port.onlineStatus.send("syncing")
-    //  })
-    //  .on("error", function(err) {
-    //    app.ports.onlineStatus.send("sync error")
-    //  })
-    //}
-    ;
-
   })
   .catch( function(err) {
     if ( updateOnlineIndicator() ) {
@@ -415,21 +396,10 @@ function lesson_response(mpep, lesson, resp) {
           }
       })
       app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) );
-      // iphod.replicate.from(remoteIphodURL, dbOpts, syncError)
-      // .on("complete", function(info) { updateOnlineIndicator() })
-      // .on("paused", function(err) { updateOnlineIndicator() })
-      // .on("active", function(info) { app.port.onlineStatus.send("syncing") })
-      // .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
-      // psalms.replicate.from(remotePsalmsURL, dbOpts, syncError)
-      // .on("complete", function(info) { updateOnlineIndicator() })
-      // .on("paused", function(err) { updateOnlineIndicator() })
-      // .on("active", function(info) { app.port.onlineStatus.send("syncing") })
-      // .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
-      // lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError)
-      // .on("complete", function(info) { updateOnlineIndicator() })
-      // .on("paused", function(err) { updateOnlineIndicator() })
-      // .on("active", function(info) { app.port.onlineStatus.send("syncing") })
-      // .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+    })
+    .catch( function(err) {
+      app.ports.onlineStatus.send( "lesson failer" )
+      console.log("LESSON ERROR: ", err)
     })
 }
 
