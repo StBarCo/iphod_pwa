@@ -219,6 +219,6 @@ initModel =
     , showMenu      = False
     , lessons       = initLessons
     , openingSentences = []
-    , online        = ""
+    , online        = "loading"
     }
 

@@ -10,10 +10,16 @@ window.app = Elm.Main.init({
 registerServiceWorker();
 
 import $ from 'jquery';
+window.onload = ( function() {
+  app.ports.onlineStatus.send( "All Ready");
+})
 // 
 // // var popper = require('popper.js');
 // // var bootstrap = require('bootstrap');
 var moment = require('moment');
+// var Bowser = require('bowser');
+// console.log("BROWSER: ", Bowser.getParser(window.navigator.userAgent) )
+
 // var markdown = require('markdown').markdown;
 var LitYear = require( "./js/lityear.js" ).LitYear;
 var Calendar = require('./js/calendar.js').Calendar;
@@ -47,21 +53,39 @@ var dbOpts = {}
     , current: 'ESV'
   }
 
-//function sync() {
-//  // iphod.replicate.to(remoteIphod, dbOpts, syncError);
-//  iphod.replicate.from(remoteIphodURL, dbOpts, syncError);
-//  // service.replicate.to(remoteService, dbOpts, syncError);
-//  service.replicate.from(remoteServiceURL, dbOpts, syncError);
-//  // psalms.replicate.to(remotePsalms, dbOpts, syncError);
-//  psalms.replicate.from(remotePsalmsURL, dbOpts, syncError);
-//  // lectionary.replicate.to(remoteLectionary, dbOpts, syncError);
-//  lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError);
-//}
+function sync() {
+  app.ports.onlineStatus.send("syncing iphod")
+  iphod.replicate.from(remoteIphodURL, dbOpts, syncError)
+    .on("complete", function(info) { updateOnlineIndicator() })
+    .on("paused", function(err) { updateOnlineIndicator(); })
+    .on("active", function(info) { app.port.onlineStatus.send("syncing iphod") })
+    .on("error", function(err) { app.ports.onlineStatus.send("iphod sync error") })
+  app.ports.onlineStatus.send("syncing services");
+  service.replicate.from(remoteServiceURL, dbOpts, syncError)
+  .on("complete", function(info) { updateOnlineIndicator() })
+  .on("paused", function(err) { updateOnlineIndicator(); })
+  .on("active", function(info) { app.port.onlineStatus.send("syncing services") })
+  .on("error", function(err) { app.ports.onlineStatus.send("services sync error") })
+  app.ports.onlineStatus.send("syncing psalms");
+  psalms.replicate.from(remotePsalmsURL, dbOpts, syncError)
+  .on("complete", function(info) { updateOnlineIndicator() })
+  .on("paused", function(err) { updateOnlineIndicator(); })
+  .on("active", function(info) { app.port.onlineStatus.send("syncing psalms") })
+  .on("error", function(err) { app.ports.onlineStatus.send("psalms sync error") })
+  app.ports.onlineStatus.send("syncing lectionary");
+  lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError)
+  .on("complete", function(info) { updateOnlineIndicator() })
+  .on("paused", function(err) { updateOnlineIndicator(); })
+  .on("active", function(info) { app.port.onlineStatus.send("syncing lectionary") })
+  .on("error", function(err) { app.ports.onlineStatus.send("lectionary sync error") })
+}
 
 function syncError() {};
 
 // NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
 var isOnline = navigator.onLine; 
+
+
 // window.addEventListener('online', updateOnlineIndicator() );  // only on Firefox
 // window.addEventListener('offline', updateOnlineIndicator() );  // only on Firefox
 function updateOnlineIndicator() {
@@ -98,9 +122,11 @@ function service_response(named, resp) {
   })
 }
 
+
 function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
+  if (named === "sync") { return sync()}
   var dbName = 
     { deacons_mass: "deacons_mass"
     , morning_prayer: "morning_prayer"
@@ -115,23 +141,24 @@ function get_service(named) {
     , vigil: "vigil"
     }[named];
   service.get(dbName).then(  function(resp) {
-    service_response(named, resp)
-    if ( updateOnlineIndicator() ) {
-      app.ports.onlineStatus.send( "syncing");
-      service.replicate.from(remoteServiceURL, dbOpts, syncError)
-      .on("complete", function(info) {
-        updateOnlineIndicator()
-      })
-      .on("paused", function(err) {
-        updateOnlineIndicator();
-      })
-      .on("active", function(info) {
-        app.port.onlineStatus.send("syncing")
-      })
-      .on("error", function(err) {
-        app.ports.onlineStatus.send("sync error")
-      })
-    }
+    service_response(named, resp);
+    //if ( updateOnlineIndicator() ) {
+    //  app.ports.onlineStatus.send( "syncing");
+    //  service.replicate.from(remoteServiceURL, dbOpts, syncError)
+    //  .on("complete", function(info) {
+    //    console.log("SYNC COMPLETE: ", info)
+    //    updateOnlineIndicator()
+    //  })
+    //  .on("paused", function(err) {
+    //    updateOnlineIndicator();
+    //  })
+    //  .on("active", function(info) {
+    //    app.port.onlineStatus.send("syncing")
+    //  })
+    //  .on("error", function(err) {
+    //    app.ports.onlineStatus.send("sync error")
+    //  })
+    //}
     ;
 
   })
@@ -388,21 +415,21 @@ function lesson_response(mpep, lesson, resp) {
           }
       })
       app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) );
-      iphod.replicate.from(remoteIphodURL, dbOpts, syncError)
-      .on("complete", function(info) { updateOnlineIndicator() })
-      .on("paused", function(err) { updateOnlineIndicator() })
-      .on("active", function(info) { app.port.onlineStatus.send("syncing") })
-      .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
-      psalms.replicate.from(remotePsalmsURL, dbOpts, syncError)
-      .on("complete", function(info) { updateOnlineIndicator() })
-      .on("paused", function(err) { updateOnlineIndicator() })
-      .on("active", function(info) { app.port.onlineStatus.send("syncing") })
-      .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
-      lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError)
-      .on("complete", function(info) { updateOnlineIndicator() })
-      .on("paused", function(err) { updateOnlineIndicator() })
-      .on("active", function(info) { app.port.onlineStatus.send("syncing") })
-      .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+      // iphod.replicate.from(remoteIphodURL, dbOpts, syncError)
+      // .on("complete", function(info) { updateOnlineIndicator() })
+      // .on("paused", function(err) { updateOnlineIndicator() })
+      // .on("active", function(info) { app.port.onlineStatus.send("syncing") })
+      // .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+      // psalms.replicate.from(remotePsalmsURL, dbOpts, syncError)
+      // .on("complete", function(info) { updateOnlineIndicator() })
+      // .on("paused", function(err) { updateOnlineIndicator() })
+      // .on("active", function(info) { app.port.onlineStatus.send("syncing") })
+      // .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
+      // lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError)
+      // .on("complete", function(info) { updateOnlineIndicator() })
+      // .on("paused", function(err) { updateOnlineIndicator() })
+      // .on("active", function(info) { app.port.onlineStatus.send("syncing") })
+      // .on("error", function(err) { app.ports.onlineStatus.send("sync error") })
     })
 }
 

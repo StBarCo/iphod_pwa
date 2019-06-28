@@ -108,6 +108,8 @@ menuOptions model =
         , clickOption "communionToSick" "Communion to Sick"
         , clickOption "timeOfDeath" "Time of Death"
         , clickOption "vigil" "Prayer for a Vigil"
+        , Element.paragraph [] [Element.text "--"]
+        , clickOption "sync" "Install Database"
         ]
     
 
@@ -901,8 +903,7 @@ view model =
         [ case model.source of
             Nothing ->
                 Element.layout []
-                ( Element.paragraph [] [ Element.text "Source not received yet" ]
-                )
+                ((renderHeader "Getting Service" "Patience is a virtue") model)
             
             Just source ->
                 case Mark.compile document source of
