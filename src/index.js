@@ -140,7 +140,10 @@ function get_service(named) {
     , timeOfDeath: "ministry_to_dying"
     , vigil: "vigil"
     }[named];
+
+  console.log("GET SERVICE -- ", dbName);
   service.get(dbName).then(  function(resp) {
+    console.log("GOT SERVICE -- ", named)
     service_response(named, resp);
   })
   .catch( function(err) {
