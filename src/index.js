@@ -98,30 +98,46 @@ function updateOnlineIndicator() {
 
 function service_response(named, resp) {
   var now = moment()
-  , today = now.format("dddd, MMMM Do YYYY")
+  , season = LitYear.toSeason(now)
+  , iphodKey = season.season + season.week + season.year
+  , serviceHeader = []
+  ;
+  iphod.get(iphodKey).then( function(euResp){
+    service_header_response(now, season, named, resp, euResp)
+  })
+  .catch( function(err) {
+    if ( updateOnlineIndicator() ) {
+      remoteIphod.get(iphodKey).then (function(euResp) {
+        service_header_response(now, season, named, resp, euResp);
+      })
+      .catch( function(err) {
+        console.log("ERROR GETTING REMOTE IPHOD: ", err)
+      })
+
+    }
+    console.log("ERROR GETTING LECTIONARY: ", err)
+  })
+}
+
+function service_header_response(now, season, named, resp, euResp) {
+  var today = now.format("dddd, MMMM Do YYYY")
   , day = [ "Sunday", "Monday", "Tuesday"
           , "Wednesday", "Thursday", "Friday"
           , "Saturday"
           ][now.weekday()]
-  , season = LitYear.toSeason(now)
-  , iphodKey = season.season + season.week + season.year
-  ;
-  iphod.get(iphodKey).then( function(euResp){
-    var serviceHeader = [
-          today
-        , day
-        , season.week.toString()
-        , season.year
-        , season.season
-        , euResp.colors[0]
-        , named
-      ]
+  , serviceHeader = [ 
+      today
+    , day
+    , season.week.toString()
+    , season.year
+    , season.season
+    , euResp.colors[0]
+    , named
+  ]
+  request_lessons(named);
+  app.ports.receivedOffice.send(serviceHeader.concat(resp.service))  
 
-    request_lessons(named);
-    app.ports.receivedOffice.send(serviceHeader.concat(resp.service))
-  })
 }
-
 
 function get_service(named) {
   // have to map offices here
@@ -141,25 +157,15 @@ function get_service(named) {
     , vigil: "vigil"
     }[named];
 
-  console.log("GET SERVICE -- ", dbName);
-  service.get(dbName).then(  function(resp) {
-    console.log("GOT SERVICE -- ", named)
-    service_response(named, resp);
-  })
+  service.get(dbName).then(  function(resp) { service_response(named, resp) })
   .catch( function(err) {
-    if ( updateOnlineIndicator() ) {
-      console.log("NOTHING LOCAL, TRY REMOTE: ", dbName)
-      get_service_from_master(dbName);
-    }
+    if ( updateOnlineIndicator() ) { get_service_from_master(dbName) }
     else { console.log("GET SERVICE ERROR: ", err); }
   })
   }
 
 function get_service_from_master(serv) {
-  remoteService.get(serv).then (function(resp) {
-    console.log("GOT SERVICE FROM MASTER")
-    service_response(serv, resp)
-  })
+  remoteService.get(serv).then (function(resp) { service_response(serv, resp) })
   .catch( function(err) {
     console.log("FAILED TO GET " + serv + " FROM MASTER: ", err)
   })
@@ -346,7 +352,7 @@ app.ports.requestReference.subscribe(  function(request) {
   })
 })
 
-app.ports.requestLessons.subscribe(  function(request) {
+  app.ports.requestLessons.subscribe(  function(request) {
   request_lessons(request);
 })
 
@@ -355,9 +361,9 @@ function request_lessons(request) {
     insertPsalms( request )
     insertLesson( "lesson1", request )
     insertLesson( "lesson2", request )
-    insertGospel( request )
-    insertCollect( request )
-    insertProper( request )
+    // insertGospel( request )
+    // insertCollect( request )
+    // insertProper( request )
   }
   // otherwise, don't do anything
 }
@@ -370,6 +376,11 @@ function insertLesson(lesson, office) {
   lectionary.get(mpepRef)
     .then(  function(resp) { lesson_response(mpep, lesson, resp) })
     .catch(  function(err) { 
+      if ( updateOnlineIndicator() ){
+        remoteLectionary.get(mpepRef)
+        .then( function(resp) { lesson_response(mpep, lesson, resp)})
+        .catch (function(err) { console.log("FAILED GETTING REMOTE LECTIONARY: ", err)});
+      }
       console.log("FAILED GETTING MPEP REFS: ", err)
     })
 }
@@ -439,40 +450,47 @@ function insertPsalms(office) {
     , thesePsalms = psalmRefs.map(  function(p) { return "acna" + p[0] } )
     , allPromises = []
     ;
-    thesePsalms.forEach(  function(p) {
-      allPromises.push( psalms.get(p) );
-    })
+    thesePsalms.forEach(  function(p) { allPromises.push( psalms.get(p) ) });
     Promise.all( allPromises )
-      .then(  function(resp) {
-        // A lesson has 1 or more readings
-        // a reading has 1 or more verses
-        var thisLesson = [] // all the lessons from this response
-        resp.forEach( function(r,i) {
-          var vss = []; // all the verses for this reading
-          var [chap, from, to] = psalmRefs[i]
-          for(var j = from; j <= to; j++) { // add these verses to the reading
-            if (r[j] === undefined) { break; }
-            vss.push(
-              { book: "PSA"
-              , chap: chap
-              , vs: j
-              , vss: [r[j].hebrew, r[j].title, r[j].first, r[j].second].join("\n")
-              }
-            )
-          }
-          thisLesson.push ( // add this reading to the lesson
-            { ref: r.name + "\n" + (r.title ? r.title : "") //some titles are undefined
-            , style: "req"
-            , vss: vss
-            }
-          )
-        }) // end of resp.forEach
-        app.ports.receivedLesson.send( JSON.stringify({lesson: "psalms", content: thisLesson}) )
-
-      })
+      .then(  function(resp) { psalm_response(psalmRefs, resp) })
       .catch(  function(err) {
+        if (updateOnlineIndicator() ) {
+          allPromises = [];
+          thesePsalms.forEach( function(p) { allPromises.push( remotePsalms.get(p) ) });
+          Promise.all( allPromises )
+          .then( function(resp) { psalm_response(psalmRefs, resp) })
+          .catch( function(err) { console.log("PROBLEM GETTING REMOTE PSALMS: " + err) });
+        }
         console.log("PROBLEM GETTING PSALMS: " + err);
       })
+}
+
+function psalm_response(psalmRefs, resp) {
+  // A lesson has 1 or more readings
+  // a reading has 1 or more verses
+  var thisLesson = [] // all the lessons from this response
+  resp.forEach( function(r,i) {
+    var vss = []; // all the verses for this reading
+    var [chap, from, to] = psalmRefs[i]
+    for(var j = from; j <= to; j++) { // add these verses to the reading
+      if (r[j] === undefined) { break; }
+      vss.push(
+        { book: "PSA"
+        , chap: chap
+        , vs: j
+        , vss: [r[j].hebrew, r[j].title, r[j].first, r[j].second].join("\n")
+        }
+      )
+    }
+    thisLesson.push ( // add this reading to the lesson
+      { ref: r.name + "\n" + (r.title ? r.title : "") //some titles are undefined
+      , style: "req"
+      , vss: vss
+      }
+    )
+  }) // end of resp.forEach
+  app.ports.receivedLesson.send( JSON.stringify({lesson: "psalms", content: thisLesson}) )
+
 }
 
 
