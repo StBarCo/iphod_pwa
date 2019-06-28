@@ -56,7 +56,7 @@
 
 |> OptionalPsalms
     tag: compline_psalms
-    Label: One or more of the following, or some other suitable Psalm, is sung or said.
+    label: One or more of the following, or some other suitable Psalm, is sung or said.
     --
     selected: False
     tag: ps_4
@@ -84,7 +84,7 @@
     tag: ps_31
     label: Psalm 31
     text:
-    psalm 31:1-6 /In te, Domine, speravi/
+    Psalm 31:1-6 /In te, Domine, speravi/
     1 In you, O Lord, have I put my trust; *
         let me never be put to confusion;
         deliver me in your righteousness.
@@ -103,7 +103,7 @@
     tag: ps_91
     label: Psalm 91
     text:
-    psalm 91 /Qui habitat/
+    Psalm 91 /Qui habitat/
     1 Whoever dwells under the defense of the Most High *
         shall abide under the shadow of the Almighty.
     2 I will say unto the Lord, “You are my refuge and my stronghold, *
@@ -141,7 +141,7 @@
     tag: ps_134
     label: Psalm 134
     text:
-    psalm 134 /Ecce nunc/
+    Psalm 134 /Ecce nunc/
     1 Behold now, praise the Lord, *
         all you servants of the Lord,
     2 You that stand by night in the house of the Lord, *
@@ -168,7 +168,7 @@
     name; do not leave us. 
     
 |> Ref
-    jeremiah 14:9
+    Jeremiah 14:9
 
 |> Quote
     Come to me, all who labor and are heavy laden, and
@@ -177,8 +177,8 @@
     rest for your souls. For my yoke is easy, and my burden
     is light. 
     
-|> Rubric
-    matthew 11:28-30
+|> Ref
+    Matthew 11:28-30
 
 |> Quote
     Now may the God of peace who brought again from the dead
@@ -188,8 +188,8 @@
     his sight, through Jesus Christ, to whom be glory forever and
     ever. Amen. 
     
-|> Rubric
-    hebrews 13:20-21
+|> Ref
+    Hebrews 13:20-21
 
 |> Quote
     Be sober-minded; be watchful. Your adversary the devil prowls
@@ -197,7 +197,7 @@
     him, firm in your faith. 
     
 |> Ref
-    1 peter 5:8-9
+    1 Peter 5:8-9
 
 |> Rubric
     At the end of the reading is said
@@ -356,7 +356,7 @@
         world without end. Amen. 
         
 |> Ref    
-    luke 2:29-32
+    Luke 2:29-32
 
 |> Prayer
     Guide us waking, O Lord, and guard us sleeping; that awake
@@ -389,13 +389,13 @@
     appropriate readings include:
 
 |> Prayer
-    isaiah 26:3-4
-    isaiah 30:15
-    matthew 6:31-34
-    2 corinthians 4:6
-    1 thessalonians 5:9-10
-    1 thessalonians 5:23
-    ephesians 4:26-27
+    Isaiah 26:3-4
+    Isaiah 30:15
+    Matthew 6:31-34
+    2 Corinthians 4:6
+    1 Thessalonians 5:9-10
+    1 Thessalonians 5:23
+    Ephesians 4:26-27
 
 |> Rubric
     Either version of the Lord’s Prayer may be ended with, “deliver us from

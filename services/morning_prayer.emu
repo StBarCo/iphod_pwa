@@ -22,21 +22,21 @@
     --
     tag: proper
     label: At Any Time
-    ref: philippians 1:2
+    ref: Philippians 1:2
     text:
     Grace to you and peace from God our Father and the Lord
     Jesus Christ.
     --    
     tag: proper
     label: BLANK
-    ref: psalm 122:1
+    ref: Psalm 122:1
     text:
     I was glad when they said unto me, “We will go into the house
     of the Lord.” 
     --
     tag: proper
     label: BLANK
-    ref: psalm 19:14
+    ref: Psalm 19:14
     text:
     Let the words of my mouth and the meditation of my heart
     be always acceptable in your sight, O Lord, my rock and my
@@ -44,14 +44,14 @@
     --
     tag: advent
     label: Advent
-    ref: isaiah 40:3
+    ref: Isaiah 40:3
     text:
     In the wilderness prepare the way of the Lord; make straight in
     the desert a highway for our God. 
     --
     tag: christmas
     label: Christmas
-    ref: luke 2:10-11
+    ref: Luke 2:10-11
     text:
     Fear not, for behold, I bring you good news of great joy that will
     be for all the people. For unto you is born this day in the city of
@@ -59,7 +59,7 @@
     --
     tag: epiphany
     label: Epiphany
-    ref: malachi 1:11
+    ref: Malachi 1:11
     text:
     From the rising of the sun to its setting my name will be great
     among the nations, and in every place incense will be offered to
@@ -68,27 +68,27 @@
     --
     tag: lent
     label: lent and other penitential occasions
-    ref: matthew 3:2
+    ref: Matthew 3:2
     text:
     Repent, for the kingdom of heaven is at hand.
     --
     tag: lent
     label: BLANK
-    ref: psalm 51:9
+    ref: Psalm 51:9
     text:
     Turn your face from my sins,
     and blot out all my misdeeds.
     --
     tag: lent
     label: BLANK
-    ref: mark 8:34
+    ref: Mark 8:34
     text:
     If anyone would come after me, let him deny himself and take
     up his cross and follow me.
     --
     tag: holy_week
     label: Holy Week
-    ref: lamentations 1:12
+    ref: Lamentations 1:12
     text:
     Is it nothing to you, all you who pass by? Look and see
     if there is any sorrow like my sorrow, which was brought
@@ -97,7 +97,7 @@
     --
     tag: easter
     label: Easter
-    ref: colossians 3:1
+    ref: Colossians 3:1
     text:
     If then you have been raised with Christ, seek the things
     that are above, where Christ is, seated at the right hand
@@ -105,7 +105,7 @@
     --
     tag: ascension
     label: Ascension
-    ref: hebrews 4:14, 16
+    ref: Hebrews 4:14, 16
     text:
     Since then we have a great high priest who has passed through
     the heavens, Jesus, the Son of God, let us hold fast our
@@ -115,7 +115,7 @@
     --
     tag: pentecost
     label: Pentecost
-    ref: acts 1:8
+    ref: Acts 1:8
     text:
     You will receive power when the Holy Spirit has come upon
     you, and you will be my witnesses in Jerusalem and in all Judea
@@ -123,14 +123,14 @@
     --
     tag: trinity
     label: Trinity Sunday
-    ref: revelation 4:8
+    ref: Revelation 4:8
     text:
     Holy, holy, holy, is the Lord God Almighty, who was and is and
     is to come!
     --
     tag: thanksgiving
     label: days of thanksgiving
-    ref: proverbs 3:9-10
+    ref: Proverbs 3:9-10
     text:
     Honor the Lord with your wealth and with the firstfruits of all
     your produce; then your barns will be filled with plenty, and your
@@ -138,21 +138,21 @@
     --
     tag: anytime
     label: At Any Time
-    ref: habakkuk 2:20
+    ref: Habakkuk 2:20
     text:
     The Lord is in his holy temple; let all the earth keep silence
     before him.
     --
     tag: anytime
     label: BLANK
-    ref: psalm 43:3
+    ref: Psalm 43:3
     text:
     O send out your light and your truth, that they may lead me, and
     bring me to your holy hill, and to your dwelling.
     --
     tag: anytime
     label: BLANK
-    ref: isaiah 57:15
+    ref: Isaiah 57:15
     text:
     Thus says the One who is high and lifted up, who inhabits
     eternity, whose name is Holy: “I dwell in the high and holy
@@ -162,7 +162,7 @@
     --
     tag: anytime
     label: BLANK
-    ref: john 4:23
+    ref: John 4:23
     text:
     The hour is coming, and is now here, when the true worshipers
     will worship the Father in spirit and truth, for the Father is
@@ -322,13 +322,13 @@
         that they should not enter into my rest.
 
 |> Ref
-    psalm 95:1-7, 8-11
+    Psalm 95:1-7, 8-11
 
 |> Rubric
     or this
 
 |> PsalmTitle
-    jubilate
+    Jubilate
     Be Joyful
 
 |> Prayer
@@ -345,14 +345,14 @@
         and his truth endures from generation to generation.
 
 |> Ref
-    psalm 100
+    Psalm 100
 
 |> Rubric
     During the first week of Easter, the Pascha Nostrum, without antiphons, is used
     in place of the Invitatory Psalm, and it may be used throughout Eastertide.
 
 |> PsalmTitle
-    pascha nostrum
+    Pascha Nostrum
     Christ our Passover
 
 |> Prayer
@@ -374,7 +374,7 @@
         so also in Christ shall all be made alive. Alleluia.
 
 |> Ref
-    1 corinthians 5:7-8; romans 6:9-11; 1 corinthians 15:20-22
+    1 Corinthians 5:7-8; Romans 6:9-11; 1 Corinthians 15:20-22
 
 |> Rubric
     Then follows
@@ -397,15 +397,25 @@
 |> Rubric
     One or more Lessons, as appointed, are read, the Reader first saying
 
+|> Plain
+    A Reading from _____________.
+
 |> Lesson
     lesson1
 
-|> Lesson
-    lesson2
+|> Versicals
+    BLANK The Word of the Lord.
+    People Thanks be to God.
 
 |> Plain
     A Reading from _____________.
 
+|> Lesson
+    lesson2
+
+|> Versicals
+    BLANK The Word of the Lord.
+    People Thanks be to God.
 
 |> Rubric
     A citation giving chapter and verse may be added.
@@ -479,7 +489,7 @@
     be used at other times.
 
 |> PsalmTitle
-    benedictus es, domine
+    Benedictus es, Domine
     A Song of Praise
 
 |> Prayer
@@ -497,10 +507,10 @@
         we will praise you and highly exalt you for ever.
 
 |> Ref
-    song of the three young men, 29-34
+    Song of the Three Young Men, 29-34
 
 |> PsalmTitle
-    benedictus
+    Benedictus
     The Song of Zechariah
 
 |> Prayer
@@ -532,10 +542,10 @@
         world without end. Amen.
 
 |> Ref
-    luke 1:68-79
+    Luke 1:68-79
 
 |> Section
-    the apostles’ creed
+    The Apostles’ Creed
 
 |> Rubric
     Officiant and People together, all standing
@@ -561,7 +571,7 @@
         and the life everlasting. Amen.
 
 |> Section
-    the prayers
+    The Prayers
 
 |> Versicals
     Officiant The Lord be with you.
@@ -834,14 +844,14 @@
     Amen. 
 
 |> Ref
-    2 corinthians 13:14t
+    2 Corinthians 13:14t
 
 |> Quote
     May the God of hope fill us with all joy and peace in believing
     through the power of the Holy Spirit. Amen. 
 
 |> Ref
-    romans 15:13t
+    Romans 15:13t
 
 |> Quote
     Glory to God whose power, working in us, can do infinitely
@@ -850,7 +860,7 @@
     ever. Amen. 
 
 |> Ref
-    ephesians 3:20-21t
+    Ephesians 3:20-21t
 
 |> Section
     opening sentences of scripture
@@ -858,7 +868,7 @@
 |> OpeningSentence
     tag: advent
     label: Advent
-    ref: isaiah 40:3
+    ref: Isaiah 40:3
     text:
     In the wilderness prepare the way of the Lord; make straight in
     the desert a highway for our God. 
@@ -867,7 +877,7 @@
 |> OpeningSentence
     tag: christmas
     label: Christmas
-    ref: luke 2:10-11
+    ref: Luke 2:10-11
     text:
     Fear not, for behold, I bring you good news of great joy that will
     be for all the people. For unto you is born this day in the city of
@@ -877,7 +887,7 @@
 |> OpeningSentence
     tag: epiphany
     label: Epiphany
-    ref: malachi 1:11
+    ref: Malachi 1:11
     text:
     From the rising of the sun to its setting my name will be great
     among the nations, and in every place incense will be offered to
@@ -888,7 +898,7 @@
 |> OpeningSentence
     tag: lent
     label: lent and other penitential occasions
-    ref: matthew 3:2
+    ref: Matthew 3:2
     text:
     Repent, for the kingdom of heaven is at hand.
     --
@@ -896,7 +906,7 @@
 |> OpeningSentence
     tag: lent
     label: BLANK
-    ref: psalm 51:9
+    ref: Psalm 51:9
     text:
     Turn your face from my sins,
     and blot out all my misdeeds.
@@ -905,7 +915,7 @@
 |> OpeningSentence
     tag: lent
     label: BLANK
-    ref: mark 8:34
+    ref: Mark 8:34
     text:
     If anyone would come after me, let him deny himself and take
     up his cross and follow me.
@@ -914,7 +924,7 @@
 |> OpeningSentence
     tag: holy_week
     label: Holy Week
-    ref: lamentations 1:12
+    ref: Lamentations 1:12
     text:
     Is it nothing to you, all you who pass by? Look and see
     if there is any sorrow like my sorrow, which was brought
@@ -925,7 +935,7 @@
 |> OpeningSentence
     tag: easter
     label: Easter
-    ref: colossians 3:1
+    ref: Colossians 3:1
     text:
     If then you have been raised with Christ, seek the things
     that are above, where Christ is, seated at the right hand
@@ -935,7 +945,7 @@
 |> OpeningSentence
     tag: ascension
     label: Ascension
-    ref: hebrews 4:14, 16
+    ref: Hebrews 4:14, 16
     text:
     Since then we have a great high priest who has passed through
     the heavens, Jesus, the Son of God, let us hold fast our
@@ -947,7 +957,7 @@
 |> OpeningSentence
     tag: pentecost
     label: Pentecost
-    ref: acts 1:8
+    ref: Acts 1:8
     text:
     You will receive power when the Holy Spirit has come upon
     you, and you will be my witnesses in Jerusalem and in all Judea
@@ -957,7 +967,7 @@
 |> OpeningSentence
     tag: trinity
     label: Trinity Sunday
-    ref: revelation 4:8
+    ref: Revelation 4:8
     text:
     Holy, holy, holy, is the Lord God Almighty, who was and is and
     is to come!
@@ -966,7 +976,7 @@
 |> OpeningSentence
     tag: thanksgiving
     label: days of thanksgiving
-    ref: proverbs 3:9-10
+    ref: Proverbs 3:9-10
     text:
     Honor the Lord with your wealth and with the firstfruits of all
     your produce; then your barns will be filled with plenty, and your
@@ -976,7 +986,7 @@
 |> OpeningSentence
     tag: anytime
     label: at any time
-    ref: habakkuk 2:20
+    ref: Habakkuk 2:20
     text:
     The Lord is in his holy temple; let all the earth keep silence
     before him.
@@ -985,7 +995,7 @@
 |> OpeningSentence
     tag: anytime
     label: BLANK
-    ref: psalm 43:3
+    ref: Psalm 43:3
     text:
     O send out your light and your truth, that they may lead me, and
     bring me to your holy hill, and to your dwelling.
@@ -994,7 +1004,7 @@
 |> OpeningSentence
     tag: anytime
     label: BLANK
-    ref: isaiah 57:15
+    ref: Isaiah 57:15
     text:
     Thus says the One who is high and lifted up, who inhabits
     eternity, whose name is Holy: “I dwell in the high and holy
@@ -1006,7 +1016,7 @@
 |> OpeningSentence
     tag: anytime
     label: BLANK
-    ref: john 4:23
+    ref: John 4:23
     text:
     The hour is coming, and is now here, when the true worshipers
     will worship the Father in spirit and truth, for the Father is
@@ -1029,7 +1039,6 @@
     tag: christmas
     label: Christmas
     text:
-    
     Alleluia, to us a child is born: *
         O come, let us adore him. Alleluia.
     --
@@ -1133,6 +1142,3 @@
 |> Plain
     A sermon may be preached after the lessons, after the hymn or anthem
     following the Collects, or after the conclusion of the Office.  
-
-|> Finish
-    Morning Prayer

@@ -21,7 +21,7 @@
     --
     tag: proper
     label: At Any Time
-    ref: john 8:12
+    ref: John 8:12
     text:
     Jesus spoke to them, saying, “I am the light of the world.
     Whoever follows me will not walk in darkness, but will have
@@ -29,21 +29,21 @@
     --
     tag: proper
     label: BLANK
-    ref: psalm 26:8
+    ref: Psalm 26:8
     text:
     Lord, I have loved the habitation of your house and the place
     where your honor dwells. 
     --
     tag: proper
     label: BLANK
-    ref:  psalm 141:2
+    ref: Psalm 141:2
     text:
     Let my prayer be set forth in your sight as incense, and let the
     lifting up of my hands be an evening sacrifice. 
     --
     tag: advent
     label: Advent
-    ref: mark 13:35-36
+    ref: Mark 13:35-36
     text: 
     Therefore stay awake—for you do not know when the master of
     the house will come, in the evening, or at midnight, or when the
@@ -52,7 +52,7 @@
     --
     tag: christmas
     label: Chriatmas
-    ref: mark 13:35-36
+    ref: Mark 13:35-36
     text: 
     Behold, the dwelling place of God is with man. He will dwell
     with them, and they will be his people, and God himself will be
@@ -60,14 +60,14 @@
     --
     tag: epiphany
     label: Ephiphany
-    ref: isaiah 60:3
+    ref: Isaiah 60:3
     text: 
     Nations shall come to your light, and kings to the brightness of
     your rising. 
     --
     tag: lent
     label: Lent and Other Penitential Occasions
-    ref: 1 john 1:8-9
+    ref: 1 John 1:8-9
     text: 
     If we say we have no sin, we deceive ourselves, and the truth is
     not in us. If we confess our sins, he is faithful and
@@ -76,7 +76,7 @@
     --
     tag: lent
     label: BLANK
-    ref: daniel 9:9
+    ref: Daniel 9:9
     text: 
     For I acknowledge my faults,
     and my sin is ever before me. psalm 51:3
@@ -85,7 +85,7 @@
     --
     tag: holy_week
     label: Holy Week
-    ref: isaiah 53:6
+    ref: Isaiah 53:6
     text: 
     All we like sheep have gone astray; we have turned every one to
     his own way; and the Lord has laid on him the iniquity of us
@@ -93,14 +93,14 @@
     --
     tag: easter
     label: Easter
-    ref: 1 corinthians 15:57
+    ref: 1 Corinthians 15:57
     text: 
     Thanks be to God, who gives us the victory through our Lord
     Jesus Christ. 
     --
     tag: ascension
     label: Ascension
-    ref: hebrews 9:24
+    ref: Hebrews 9:24
     text: 
     For Christ has entered, not into holy places made
     with hands, which are copies of the true things, but
@@ -109,7 +109,7 @@
     --
     tag: pentecost
     label: Pentecost
-    ref: revelation 22:17
+    ref: Revelation 22:17
     text: 
     The Spirit and the Bride say, “Come.” And let the one
     who hears say, “Come.” And let the one who is thirsty
@@ -118,21 +118,21 @@
     --
     tag: pentecost
     label: BLANK
-    ref: psalm 46:4
+    ref: Psalm 46:4
     text: 
     There is a river whose streams make glad the city of God,
     the holy dwelling place of the Most High. 
     --
     tag: trinity
     label: Trinity Sunday
-    ref: isaiah 6:3
+    ref: Isaiah 6:3
     text: 
     Holy, holy, holy is the Lord of Hosts; the whole earth is full of
     his glory! 
     --
     tag: thanksgiving
     label: Days of Thanksgiving
-    ref: proverbs 3:19-20
+    ref: Proverbs 3:19-20
     text: 
     The Lord by wisdom founded the earth; by understanding he
     established the heavens; by his knowledge the deeps broke open,
@@ -140,14 +140,14 @@
     --
     tag: anytime
     label: At Any Time
-    ref: psalm 96:9
+    ref: Psalm 96:9
     text:
     O worship the Lord in the beauty of holiness;
     let the whole earth stand in awe of him. 
     --
     tag: anytime
     label: BLANK
-    ref: psalm 16:8-9
+    ref: Psalm 16:8-9
     text: 
     I will thank the Lord for giving me counsel;
     my heart also chastens me in the night season.
@@ -252,7 +252,7 @@
     The following or some other suitable hymn or Psalm may be sung or said.
 
 |> PsalmTitle
-    phos hilaron
+    Phos Hilaron
     O Gladsome Light
 
 |> Prayer
@@ -287,14 +287,25 @@
 |> Rubric
     One or more Lessons, as appointed, are read, the Reader first saying
 
+|> Plain
+    A Reading from _____________.
+
 |> Lesson
     lesson1
+
+|> Versicals
+    -- The Word of the Lord.
+    People Thanks be to God.
+
+|> Plain
+    A Reading from _____________.
 
 |> Lesson
     lesson2
 
-|> Plain
-    A Reading from _____________.
+|> Versicals
+    -- The Word of the Lord.
+    People Thanks be to God.
 
 |> Rubric
     A citation giving chapter and verse may be added.
@@ -343,10 +354,10 @@
         world without end. Amen. 
         
 |> Ref
-    luke 1:46-55
+    Luke 1:46-55
 
 |> PsalmTitle
-    nunc dimittis
+    Nunc Dimittis
     The Song of Simeon
 
 |> Prayer
@@ -361,7 +372,7 @@
         without end. Amen. 
         
 |> Ref
-    luke 2:29-32
+    Luke 2:29-32
 
 |> Section
     the apostles’ creed
@@ -500,7 +511,7 @@
     suggestions in italics.
 
 |> PsalmTitle
-    the collect of the day
+    The Collect of the Day
     From the Collects of the Christian Year
 
 |> CollectTitle
@@ -670,14 +681,14 @@
     Amen. 
     
 |> Ref
-    2 corinthians 13:14t
+    2 Corinthians 13:14t
 
 |> Quote
     May the God of hope fill us with all joy and peace in believing
     through the power of the Holy Spirit. Amen. 
     
 |> Ref
-    romans 15:13t
+    Romans 15:13t
 
 |> Quote
     Glory to God whose power, working in us, can do infinitely
@@ -686,7 +697,7 @@
     ever. Amen. 
     
 |> Ref
-    ephesians 3:20-21t
+    Ephesians 3:20-21t
 
 |> Section
     opening sentences of scripture
@@ -694,7 +705,7 @@
 |> OpeningSentence
     tag: advent
     label: Advent
-    ref: mark 13:35-36
+    ref: Mark 13:35-36
     text: 
     Therefore stay awake—for you do not know when the master of
     the house will come, in the evening, or at midnight, or when the
@@ -705,7 +716,7 @@
 |> OpeningSentence
     tag: christmas
     label: Chriatmas
-    ref: mark 13:35-36
+    ref: Mark 13:35-36
     text: 
     Behold, the dwelling place of God is with man. He will dwell
     with them, and they will be his people, and God himself will be
@@ -715,7 +726,7 @@
 |> OpeningSentence
     tag: epiphany
     label: Ephiphany
-    ref: isaiah 60:3
+    ref: Isaiah 60:3
     text: 
     Nations shall come to your light, and kings to the brightness of
     your rising. 
@@ -724,7 +735,7 @@
 |> OpeningSentence
     tag: lent
     label: lent and other penitential occasions
-    ref: 1 john 1:8-9
+    ref: 1 John 1:8-9
     text: 
     If we say we have no sin, we deceive ourselves, and the truth is
     not in us. If we confess our sins, he is faithful and
@@ -735,10 +746,17 @@
 |> OpeningSentence
     tag: lent
     label: lent and other penitential occasions
-    ref: daniel 9:9
+    ref: Daniel 9:9
     text: 
     For I acknowledge my faults,
-    and my sin is ever before me. psalm 51:3
+    and my sin is ever before me. 
+    --
+
+|> OpeningSentence
+    tag: lent
+    label: Lent and Other Penitential Occasions
+    ref: Psalm 51:3
+    text:
     To the Lord our God belong mercy and forgiveness, for we have
     rebelled against him. 
     --
@@ -746,7 +764,7 @@
 |> OpeningSentence
     tag: holy_week
     label: Holy Week
-    ref: isaiah 53:6
+    ref: Isaiah 53:6
     text: 
     All we like sheep have gone astray; we have turned every one to
     his own way; and the Lord has laid on him the iniquity of us
@@ -756,7 +774,7 @@
 |> OpeningSentence
     tag: easter
     label: Easter
-    ref: 1 corinthians 15:57
+    ref: 1 Corinthians 15:57
     text: 
     Thanks be to God, who gives us the victory through our Lord
     Jesus Christ. 
@@ -765,7 +783,7 @@
 |> OpeningSentence
     tag: ascension
     label: Ascension
-    ref: hebrews 9:24
+    ref: Hebrews 9:24
     text: 
     For Christ has entered, not into holy places made
     with hands, which are copies of the true things, but
@@ -776,7 +794,7 @@
 |> OpeningSentence
     tag: pentecost
     label: Pentecost
-    ref: revelation 22:17
+    ref: Revelation 22:17
     text: 
     The Spirit and the Bride say, “Come.” And let the one
     who hears say, “Come.” And let the one who is thirsty
@@ -787,7 +805,7 @@
 |> OpeningSentence
     tag: pentecost
     label: Pentecost
-    ref: psalm 46:4
+    ref: Psalm 46:4
     text: 
     There is a river whose streams make glad the city of God,
     the holy dwelling place of the Most High. 
@@ -796,7 +814,7 @@
 |> OpeningSentence
     tag: trinity
     label: Trinity Sunday
-    ref: isaiah 6:3
+    ref: Isaiah 6:3
     text: 
     Holy, holy, holy is the Lord of Hosts; the whole earth is full of
     his glory! 
@@ -805,7 +823,7 @@
 |> OpeningSentence
     tag: thanksgiving
     label: days of thanksgiving
-    ref: proverbs 3:19-20
+    ref: Proverbs 3:19-20
     text: 
     The Lord by wisdom founded the earth; by understanding he
     established the heavens; by his knowledge the deeps broke open,
@@ -815,7 +833,7 @@
 |> OpeningSentence
     tag: anytime
     label: at any time
-    ref: psalm 96:9
+    ref: Psalm 96:9
     text: 
     O worship the Lord in the beauty of holiness;
     let the whole earth stand in awe of him. 
@@ -824,7 +842,7 @@
 |> OpeningSentence
     tag: anytime
     label: at any time
-    ref: psalm 16:8-9
+    ref: Psalm 16:8-9
     text: 
     I will thank the Lord for giving me counsel;
     my heart also chastens me in the night season.
