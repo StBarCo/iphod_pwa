@@ -1,0 +1,78 @@
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = About
+    description =
+        All about this web site
+
+|> Section
+    Welcome!!
+
+|> Plain
+    This site is known both as \"legereme\" and \"bcp2019\". Legereme for historical reasons
+    and BCP2019 because the Prayer Book Committee asked to name it that. 
+
+|> Plain
+    It is a computer/mobile device version of the ACNA BCP2019.
+
+|> Plain
+    It is not a project of the ACNA, so any problems you find are my fault, not theirs.
+
+|> Plain
+    There is a related Facebook group called Iphod where news of this site (and other church related
+    folderols ). If you cannont reach the site, the first place to check is with the Iphod FB group.
+
+|> Plain
+    Legereme/BCP2019 can also be installed just like an app on Android and iOS devices and can work
+    completely off line once the supporting database is installed.
+
+|> Plain
+    It cannot be installed on Amazon/Silk devices as an app. Amazon does not support the installation 
+    of this type of app.
+
+|> Plain
+    As to Windows mobile devices - beats me. I don't have one to test on. Contact me if you want to be
+    the guinea pig.
+
+|> Section
+    Who is responsible?
+
+|> Plain
+    Mostly Fr. Paul Sutcliffe, St. Elizabeth's Anglican Mission and a handful of others whose names 
+    will appear when I get their permission. 
+
+|> Plain
+    The runtime bills are paid by St. Elizabeth's Anglican Mission, Pittsburgh, PA.
+    St. Elizabeth's is most likely the smallest ACNA parish and to the best of my knowledge
+    the first church anywhere planted inside a retirement community. If you want to hear the
+    whole story, contact me and block out some time.
+
+|> Plain
+    If you feel like financially supporting this endeavor, you can send checks to
+
+|> Prayer
+    St. Elizabeth's Anglican Mission
+    c/o Vanadium Woods Village
+    50 Vanadium Road
+    Bridgeville, PA 15017
+
+|> Section
+    Come Visit!
+
+|> Plain
+    We would love to have you visit St. Elizabeth's. Sunday's at 11AM, in the third floor chapel.
+    And if you want to plant a church like St. Elizabeth's, we'll help you.
+
+|> Section
+    Information for Nerds
+
+|> Plain
+    The bulk of the code is written in Elm (a functional front end language) with some supporting javascript.
+    The program uses PouchDb for it's database which is synced to a CouchDb master database. 
+    All of the pages are created using Elm Markup and are kept in the databases for ease of maintenance.
+    Feel free to contact me if you want to talk nerdy about the app.
+
+|> Plain
+    The method and database make quick work of developing more or less static web pages that can be installed
+    on mobile devices. If you have, for example, a foreign language Prayer Book or out of print document, 
+    you would like to see turned into an app, please contact me, and we can work together on it.
