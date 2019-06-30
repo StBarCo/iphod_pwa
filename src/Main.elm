@@ -96,7 +96,8 @@ showMenu model =
 
 menuOptions : Model -> Element.Element Msg
 menuOptions model =
-    Element.column [ showMenu model, scaleFont model 16 ]
+    Element.row []
+    [ Element.column [ showMenu model, scaleFont model 16, Element.paddingXY 20 0 ]
         --[ clickOption "calendar" "Calendar"
         [ clickOption "morning_prayer" "Morning Prayer"
         , clickOption "midday" "Midday Prayer"
@@ -108,9 +109,14 @@ menuOptions model =
         , clickOption "communionToSick" "Communion to Sick"
         , clickOption "timeOfDeath" "Time of Death"
         , clickOption "vigil" "Prayer for a Vigil"
-        , Element.paragraph [] [Element.text "--"]
-        , clickOption "sync" "Install Database"
         ]
+    , Element.column [ showMenu model, scaleFont model 16, Element.paddingXY 20 0, Element.alignTop ]
+        [ clickOption "about" "About"
+        , clickOption "sync" "How to Install"
+        , clickOption "sync" "Update Database"
+        , clickOption "about" "Contact"
+        ]
+    ]
     
 
 lesson : Mark.Block (Model -> Element.Element Msg)
