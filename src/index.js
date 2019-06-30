@@ -155,6 +155,7 @@ function get_service(named) {
     , communionToSick: "communion_to_sick"
     , timeOfDeath: "ministry_to_dying"
     , vigil: "vigil"
+    , about: "about"
     }[named];
 
   service.get(dbName).then(  function(resp) { service_response(named, resp) })
