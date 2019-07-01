@@ -54,34 +54,64 @@ var dbOpts = { live: true, retry: true }
   }
 
 function sync() {
-  app.ports.onlineStatus.send("syncing iphod")
-  iphod.replicate.from(remoteIphodURL, dbOpts, syncError)
-  .on("paused", function(err) { updateOnlineIndicator(); })
-  .on("active", function(info) { app.port.onlineStatus.send("syncing iphod") })
-  .on("error", function(err) { app.ports.onlineStatus.send("iphod sync error") })
-  .on("complete", function(info) {
-    app.ports.onlineStatus.send("syncing services");
-    service.replicate.from(remoteServiceURL, dbOpts, syncError)
-    .on("paused", function(err) { updateOnlineIndicator(); })
-    .on("active", function(info) { app.port.onlineStatus.send("syncing services") })
-    .on("error", function(err) { app.ports.onlineStatus.send("services sync error") })
-    .on("complete", function(info) { 
-      app.ports.onlineStatus.send("syncing psalms");
-      psalms.replicate.from(remotePsalmsURL, dbOpts, syncError)
-      .on("paused", function(err) { updateOnlineIndicator(); })
-      .on("active", function(info) { app.port.onlineStatus.send("syncing psalms") })
-      .on("error", function(err) { app.ports.onlineStatus.send("psalms sync error") })
-      .on("complete", function(info) {
-        app.ports.onlineStatus.send("syncing lectionary");
-        lectionary.replicate.from(remoteLectionaryURL, dbOpts, syncError)
-        .on("complete", function(info) { updateOnlineIndicator() })
-        .on("paused", function(err) { updateOnlineIndicator(); })
-        .on("active", function(info) { app.port.onlineStatus.send("syncing lectionary") })
-        .on("error", function(err) { app.ports.onlineStatus.send("lectionary sync error") })
-      })
+  send_status("updating iphod")
+  remoteIphod.allDocs({include_docs: true})
+  .then( 
+    function(resp) { 
+      send_status("iphod read");
+      iphod.bulkDocs( resp.rows.map( function(r) { return r.doc}))
+      .then( function(resp) { update_service() })
     })
+  .catch( function(err) {
+      send_status("Iphod update failed")
+      console.log("IPHOD UPDATE ERR: ", err)
+    })
+  }
+
+function update_service() {
+  send_status("updating services");
+  remoteService.allDocs({include_docs: true})
+  .then( function(resp) {
+    send_status("services read");
+    service.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
+    .then( function(resp) { update_psalms() })
+  })
+  .catch( function(err) {
+    send_status("Services update failed")
+    console.log("Services UPDATE ERR: ", err)
   })
 }
+
+function update_psalms() {
+  send_status("updating psalms");
+  remotePsalms.allDocs({include_docs: true})
+  .then( function(resp) {
+    send_status("psalms read");
+    psalms.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
+    .then( function(resp) { update_lectionary() })
+  })
+  .catch( function(err) {
+    send_status("Psalms update failed")
+    console.log("Psalms UPDATE ERR: ", err)
+  })
+}
+          
+
+function update_lectionary() {
+  send_status("updating lectionary");
+  remoteLectionary.allDocs({include_docs: true})
+  .then( function(resp) {
+    send_status("lectionary read");
+    lectionary.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
+    .then( function(resp) { send_status("all updated") })
+  })
+  .catch( function(err) {
+    send_status("Lectionary update failed")
+    console.log("Lectionary UPDATE ERR: ", err)
+  })
+}
+          
+function send_status(s) { app.ports.onlineStatus.send(s); }
 
 function syncError() {};
 
