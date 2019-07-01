@@ -11,6 +11,7 @@ import Models exposing(..)
 darkRed = rgb255 100 0 0
 darkBlue = rgb255 13 44 117
 darkGrey = rgb255 80 80 80 
+darkPurple = rgb255 77 15 70
 foggy = rgb255 250 250 250
 litGreen = rgb255 16 104 16
 litWhite = rgb255 255 226 12

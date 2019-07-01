@@ -351,11 +351,11 @@ backgroundGradient s =
         ang = 3.0
         (foreground, grad) = case s of
             "white" ->
-                ( Palette.darkGrey
+                ( Palette.darkBlue
                 , {angle = ang, steps = [Element.rgb255 233 255 2, Element.rgb255 237 239 210]}
                 )
             "green" ->
-                ( Palette.foggy
+                ( Palette.darkPurple
                 , {angle = ang, steps = [Element.rgb255 23 102 10, Element.rgb255 226 255 221]}
                 )
             "red"   ->
@@ -670,7 +670,7 @@ init  list =
         firstModel = { initModel | width = wd, windowWidth = winWd }
     in
     
-    ( firstModel, requestOffice "currentOffice" )
+    ( firstModel, Cmd.none )
     --( firstModel
     --, Http.get
     --    { url = "/services/morning_prayer.emu"
@@ -816,7 +816,13 @@ update msg model =
             (addNewLesson s model, Cmd.none)
 
         UpdateOnlineStatus s ->
-            ( {model | online = s}, Cmd.none )
+            let
+                thisCmd = if s == "All Ready"
+                    then requestOffice "currentOffice"
+                    else Cmd.none
+            in
+            
+            ( {model | online = s}, thisCmd )
 
         UpdateOpeningSentences l ->
             ( {model | openingSentences = l}, Cmd.none)
