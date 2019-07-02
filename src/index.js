@@ -52,63 +52,101 @@ var dbOpts = { live: true, retry: true }
     , vers: ['ESV']
     , current: 'ESV'
   }
+  , iphodOK = false
+  , serviceOK = false
+  , lectionaryOK = false
+  , psalmsOK = false
+  ;
+
+// these tests for necessary DBs are pretty fragile
+// there is probably a smarter way to do this
+// perhaps something with revision sequences
+iphod.info()
+.then( function(resp) { if (resp.doc_count > 39000) { iphodOK = true} })
+service.info()
+.then( function(resp) { if (resp.doc_count >= 11) { serviceOK = true} })
+psalms.info()
+.then( function(resp) { if (resp.doc_count >= 150) { psalmsOK = true} })
+lectionary.info()
+.then( function(resp) { if (resp.doc_count >= 366) { lectionaryOK = true} })
 
 function sync() {
-  send_status("updating iphod")
-  remoteIphod.allDocs({include_docs: true})
-  .then( 
-    function(resp) { 
-      send_status("iphod read");
-      iphod.bulkDocs( resp.rows.map( function(r) { return r.doc}))
-      .then( function(resp) { update_service() })
-    })
-  .catch( function(err) {
-      send_status("Iphod update failed")
-      console.log("IPHOD UPDATE ERR: ", err)
-    })
+  if (iphodOK) { 
+    send_status("iphod up to date");
+    update_service();
   }
+  else {
+    send_status("updating iphod")
+    remoteIphod.allDocs({include_docs: true})
+    .then( 
+      function(resp) { 
+        send_status("iphod read");
+        iphod.bulkDocs( resp.rows.map( function(r) { return r.doc}))
+        .then( function(resp) { update_service() })
+      })
+    .catch( function(err) {
+        send_status("Iphod update failed")
+        console.log("IPHOD UPDATE ERR: ", err)
+      })
+    }
+}
 
 function update_service() {
-  send_status("updating services");
-  remoteService.allDocs({include_docs: true})
-  .then( function(resp) {
-    send_status("services read");
-    service.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
-    .then( function(resp) { update_psalms() })
-  })
-  .catch( function(err) {
-    send_status("Services update failed")
-    console.log("Services UPDATE ERR: ", err)
-  })
+  if (serviceOK) { 
+    send_status("service up to date");
+    update_psalms();
+  }
+  else {
+    send_status("updating services");
+    remoteService.allDocs({include_docs: true})
+    .then( function(resp) {
+      send_status("services read");
+      service.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
+      .then( function(resp) { update_psalms() })
+    })
+    .catch( function(err) {
+      send_status("Services update failed")
+      console.log("Services UPDATE ERR: ", err)
+    })
+  }
 }
 
 function update_psalms() {
-  send_status("updating psalms");
-  remotePsalms.allDocs({include_docs: true})
-  .then( function(resp) {
-    send_status("psalms read");
-    psalms.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
-    .then( function(resp) { update_lectionary() })
-  })
-  .catch( function(err) {
-    send_status("Psalms update failed")
-    console.log("Psalms UPDATE ERR: ", err)
-  })
+  if (psalmsOK) { 
+    send_status("psalms up to date");
+    update_lectionary();
+  }
+  else {
+    send_status("updating psalms");
+    remotePsalms.allDocs({include_docs: true})
+    .then( function(resp) {
+      send_status("psalms read");
+      psalms.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
+      .then( function(resp) { update_lectionary() })
+    })
+    .catch( function(err) {
+      send_status("Psalms update failed")
+      console.log("Psalms UPDATE ERR: ", err)
+    })
+  }
 }
           
 
 function update_lectionary() {
-  send_status("updating lectionary");
-  remoteLectionary.allDocs({include_docs: true})
-  .then( function(resp) {
-    send_status("lectionary read");
-    lectionary.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
-    .then( function(resp) { send_status("all updated") })
-  })
-  .catch( function(err) {
-    send_status("Lectionary update failed")
-    console.log("Lectionary UPDATE ERR: ", err)
-  })
+  if (lectionaryOK) { send_status("lectionary up to date")}
+  else {
+    send_status("updating lectionary");
+    remoteLectionary.allDocs({include_docs: true})
+    .then( function(resp) {
+      send_status("lectionary read");
+      lectionary.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
+      .then( function(resp) { send_status("all updated") })
+    })
+    .catch( function(err) {
+      send_status("Lectionary update failed")
+      console.log("Lectionary UPDATE ERR: ", err)
+    })
+  }
 }
           
 function send_status(s) { app.ports.onlineStatus.send(s); }
@@ -117,6 +155,7 @@ function syncError() {};
 
 // NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
 var isOnline = navigator.onLine; 
+var esvOK = navigator.onLine && false; // false because don't have key yet
 
 
 // window.addEventListener('online', updateOnlineIndicator() );  // only on Firefox
@@ -148,7 +187,7 @@ function service_response(named, resp) {
       })
 
     }
-    console.log("ERROR GETTING LECTIONARY: ", err)
+    console.log("ERROR GETTING IPHOD: ", err)
   })
 }
 
@@ -175,6 +214,7 @@ function service_header_response(now, season, named, resp, euResp) {
 function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
+  send_status("getting " + named )
   if (named === "sync") { return sync()}
   var dbName = 
     { deacons_mass: "deacons_mass"
@@ -419,7 +459,12 @@ function insertLesson(lesson, office) {
     })
 }
 
+function which_web() {
+
+}
+
 function lesson_response(mpep, lesson, resp) {
+  if (esvOK) { return try_esv(mpep, lesson, resp) }
   var thisReading = resp[mpep + lesson.substr(-1)]
   , refs = thisReading.map(  function(r)  { return r.read })
   , styles = thisReading.map( function(r) { return r.style})
@@ -472,6 +517,10 @@ function insertCollect(office) {
     console.log("GET COLLET ERROR: ". err)
   })
 
+}
+
+function try_esv(mpep, lesson, resp) {
+  return false;
 }
 
 function insertProper(office) {}
