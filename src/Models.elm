@@ -78,9 +78,9 @@ initVerse =
 vsDecoder : Decoder Verse
 vsDecoder =
     Decode.succeed Verse
-    |> required "book" string
-    |> required "chap" int
-    |> required "vs" int
+    |> optional "book" string ""
+    |> optional "chap" int 0
+    |> optional "vs" int 0
     |> optional "vss" string ""
 
 type alias Reading =

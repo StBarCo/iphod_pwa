@@ -9,6 +9,9 @@ window.app = Elm.Main.init({
 
 registerServiceWorker();
 
+import axios from 'axios';
+axios.defaults.headers.common['Authorization'] = "Token 77f1ef822a19e06867cf335a168713f9d2159bfc";
+
 import $ from 'jquery';
 window.onload = ( function() {
   app.ports.onlineStatus.send( "All Ready");
@@ -56,6 +59,7 @@ var dbOpts = { live: true, retry: true }
   , serviceOK = false
   , lectionaryOK = false
   , psalmsOK = false
+  , esv_key = "77f1ef822a19e06867cf335a168713f9d2159bfc"
   ;
 
 // these tests for necessary DBs are pretty fragile
@@ -71,12 +75,7 @@ lectionary.info()
 .then( function(resp) { if (resp.doc_count >= 366) { lectionaryOK = true} })
 
 function sync() {
-  if (iphodOK) { 
-    send_status("iphod up to date");
-    update_service();
-  }
-  else {
-    send_status("updating iphod")
+  send_status("updating iphod")
     remoteIphod.allDocs({include_docs: true})
     .then( 
       function(resp) { 
@@ -88,16 +87,10 @@ function sync() {
         send_status("Iphod update failed")
         console.log("IPHOD UPDATE ERR: ", err)
       })
-    }
 }
 
 function update_service() {
-  if (serviceOK) { 
-    send_status("service up to date");
-    update_psalms();
-  }
-  else {
-    send_status("updating services");
+  send_status("updating services");
     remoteService.allDocs({include_docs: true})
     .then( function(resp) {
       send_status("services read");
@@ -108,16 +101,10 @@ function update_service() {
       send_status("Services update failed")
       console.log("Services UPDATE ERR: ", err)
     })
-  }
 }
 
 function update_psalms() {
-  if (psalmsOK) { 
-    send_status("psalms up to date");
-    update_lectionary();
-  }
-  else {
-    send_status("updating psalms");
+  send_status("updating psalms");
     remotePsalms.allDocs({include_docs: true})
     .then( function(resp) {
       send_status("psalms read");
@@ -128,14 +115,11 @@ function update_psalms() {
       send_status("Psalms update failed")
       console.log("Psalms UPDATE ERR: ", err)
     })
-  }
 }
           
 
 function update_lectionary() {
-  if (lectionaryOK) { send_status("lectionary up to date")}
-  else {
-    send_status("updating lectionary");
+  send_status("updating lectionary");
     remoteLectionary.allDocs({include_docs: true})
     .then( function(resp) {
       send_status("lectionary read");
@@ -146,10 +130,11 @@ function update_lectionary() {
       send_status("Lectionary update failed")
       console.log("Lectionary UPDATE ERR: ", err)
     })
-  }
 }
           
 function send_status(s) { app.ports.onlineStatus.send(s); }
+function update_database() { send_status("update database"); }
+function db_fail(s) { send_status( s + " unavailable"); }
 
 function syncError() {};
 
@@ -211,11 +196,7 @@ function service_header_response(now, season, named, resp, euResp) {
 
 }
 
-function get_service(named) {
-  // have to map offices here
-  // we might want to add offices other than acna
-  send_status("getting " + named )
-  if (named === "sync") { return sync()}
+function service_db_name(s) {
   var dbName = 
     { deacons_mass: "deacons_mass"
     , morning_prayer: "morning_prayer"
@@ -229,21 +210,32 @@ function get_service(named) {
     , timeOfDeath: "ministry_to_dying"
     , vigil: "vigil"
     , about: "about"
-    }[named];
+    };
+  return dbName[s];
+}
 
-  service.get(dbName).then(  function(resp) { service_response(named, resp) })
-  .catch( function(err) {
-    if ( updateOnlineIndicator() ) { get_service_from_master(dbName) }
-    else { console.log("GET SERVICE ERROR: ", err); }
+function get_service_from_db(dbs, named) {
+  var thisDB = dbs.pop();
+  thisDB.get( service_db_name(named) )
+  .then( function(resp) {
+    service_response(named, resp);
   })
-  }
-
-function get_service_from_master(serv) {
-  remoteService.get(serv).then (function(resp) { service_response(serv, resp) })
-  .catch( function(err) {
-    console.log("FAILED TO GET " + serv + " FROM MASTER: ", err)
+  .catch( function(err) { 
+    if (dbs.length > 0) { get_service_from_db(dbs, named) }
+    else { 
+      db_fail("Service")
+    }
   })
 }
+
+function get_service(named) {
+  // have to map offices here
+  // we might want to add offices other than acna
+  send_status("getting " + named )
+  if (named === "sync") { return sync()}
+  get_service_from_db([remoteService, service], named)
+}
+
 
 function get_preferences(do_this_too) {
   preferences.get('preferences').then(function(resp){
@@ -442,60 +434,88 @@ function request_lessons(request) {
   // otherwise, don't do anything
 }
 
+function get_from_lectionary_db(dbs, lesson, mpep, mpepRef) {
+  var thisDB = dbs.pop();
+  thisDB.get(mpepRef)
+  .then( function(resp) { 
+    // first db to check is at end of list
+    get_from_scripture_db([ remoteIphod, iphod, 'esv'], mpep, lesson, resp); 
+  })
+  .catch( function(err) { 
+    if ( dbs.length > 0 ) { get_from_lectionary_db( dbs, lesson, mpep, mpepRef ) }
+    else { db_fail("Lectionary") }
+  })
+}
+
 function insertLesson(lesson, office) {
   // mpepmmdd - mpep0122
   var mpep = (office === "morning_prayer") ? "mp" : "ep"
     , mpepRef = "mpep" + moment().format("MMDD")
     ;
-  lectionary.get(mpepRef)
-    .then(  function(resp) { lesson_response(mpep, lesson, resp) })
-    .catch(  function(err) { 
-      if ( updateOnlineIndicator() ){
-        remoteLectionary.get(mpepRef)
-        .then( function(resp) { lesson_response(mpep, lesson, resp)})
-        .catch (function(err) { console.log("FAILED GETTING REMOTE LECTIONARY: ", err)});
-      }
-      console.log("FAILED GETTING MPEP REFS: ", err)
-    })
+    get_from_lectionary_db( [remoteLectionary, lectionary], lesson, mpep, mpepRef );
 }
 
-function which_web() {
-
+function get_from_scripture_db(dbs, mpep, lesson, resp) {
+  var thisDB = dbs.pop();
+  if (thisDB === 'esv') { get_from_esv(dbs, mpep, lesson, resp) }
+  else {
+    // var thisReading = resp[mpep + lesson.substr(-1)]
+    // , refs = thisReading.map(  function(r)  { return r.read })
+    // , styles = thisReading.map( function(r) { return r.style})
+    var keys = BibleRef.dbKeys( resp[mpep + lesson.substr(-1)] ) 
+      , allPromises = []
+      ;
+    keys.forEach( function(k, i) {
+      allPromises.push( thisDB.allDocs(
+        { include_docs: true
+        , startkey: k.from
+        , endkey: k.to
+        }
+      ))
+    });
+    return Promise.all( allPromises )
+      .then( function(resp) {
+        var thisLesson = [];
+        resp.forEach( function(r, i) {
+          thisLesson[i] =
+            { ref: keys[i].ref
+            , style: keys[i].style
+            , vss: r.rows.map( function(el) { return el.doc } )
+            }
+        })
+        app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) );
+      })
+      .catch( function(err) {
+        if ( dbs.length > 0 ) {  get_from_scripture_db(dbs, mpep, lesson, resp) }
+        else { db_fail("Iphod") }
+      });
+    } // end of else
 }
 
-function lesson_response(mpep, lesson, resp) {
-  if (esvOK) { return try_esv(mpep, lesson, resp) }
-  var thisReading = resp[mpep + lesson.substr(-1)]
-  , refs = thisReading.map(  function(r)  { return r.read })
-  , styles = thisReading.map( function(r) { return r.style})
-  , keys = BibleRef.dbKeys(refs)
-  //, refTitles = keys.map( function(r) { return BibleRef.lessonTitleFromKeys(r) } )
+function get_from_esv(dbs, mpep, lesson, resp) {
+  var keys = resp[mpep + lesson.substr(-1)]
   , allPromises = []
   ;
-  keys.forEach( function(k) {
-    allPromises.push( iphod.allDocs(
-      { include_docs: true
-      , startkey: k.from
-      , endkey: k.to
-      }
-    ))
+  var qx = keys.map( function(k) { return k.read } );
+  qx.forEach( function(q, i) {
+    allPromises.push( axios.get('https://api.esv.org/v3/passage/html/?q=' + q) )
   });
   return Promise.all( allPromises )
-    .then(  function(resp) {
-      var thisLesson = [];
-      resp.forEach( function(r, i) {
-        thisLesson[i] =
-          { ref: refs[i]
-          , style: styles[i]
-          , vss: r.rows.map( function(el) { return el.doc } )
-          }
-      })
-      app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) );
+  .then( function(resp) {
+    var thisLesson = [];
+    resp.forEach( function(r, i){
+      thisLesson[i] =
+        { ref: r.data.canonical
+        , style: keys[i].style
+        , vss: [{ vss: r.data.passages.join("<br />") }]
+        }
     })
-    .catch( function(err) {
-      app.ports.onlineStatus.send( "lesson failer" )
-      console.log("LESSON ERROR: ", err)
-    })
+    app.ports.receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson}) );
+  })
+  .catch( function(err) {
+    console.log("ESV ERROR: ", err)
+    get_from_scripture_db(dbs,mpep, lesson, resp);
+  })
 }
 
 function insertGospel(office) {}
@@ -520,6 +540,7 @@ function insertCollect(office) {
 }
 
 function try_esv(mpep, lesson, resp) {
+  if (esvOK) { return false; }
   return false;
 }
 

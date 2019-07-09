@@ -269,3 +269,8 @@ versicalSays model =
     , Element.padding 0
     , Element.width( Element.px (scale model (model.width - 110)) )
     ] 
+
+wordOfTheLord : Model -> List (Attribute msg)
+wordOfTheLord model =
+    [ paddingEach { edges | bottom = 30 }
+    ]

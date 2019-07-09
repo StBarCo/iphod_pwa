@@ -13,6 +13,7 @@ import Element.Region as Region
 import Html exposing (..)
 import Html.Attributes
 import Html.Parser
+import Html.Parser.Util
 import Http
 import Platform.Sub as Sub exposing (batch)
 import Platform.Cmd as Cmd exposing (Cmd)
@@ -236,8 +237,9 @@ showLesson model thisLesson =
         in
         
         Element.column ( Palette.lesson model )
-        [ Element.paragraph (Palette.lessonTitle model) [Element.text l.ref]
+        [ Element.paragraph (Palette.lessonTitle model) [Element.text ( "A reading from " ++ l.ref)]
         , Element.paragraph [ Palette.maxWidth model] vss
+        , Element.paragraph ( Palette.wordOfTheLord model ) [ Element.text "The Word of the Lord" ]
         ]
     )
     
@@ -262,12 +264,11 @@ fixPTags str =
 
 parseLine : String -> List (Element.Element Msg)
 parseLine str = 
-    let
-        parsed = Html.Parser.run str
-    in
-    case parsed of
+    case (Html.Parser.run str) of
         Ok nodes ->
-            nodes |> List.map (\n -> parseNode n) |> List.concat
+            -- nodes |> List.map (\n -> parseNode n) |> List.concat
+            Html.Parser.Util.toVirtualDom nodes
+            |> List.map (\el -> Element.html el)
 
         Err msg ->
             [ Element.paragraph []
@@ -275,66 +276,6 @@ parseLine str =
                 , Element.el [ Font.color Palette.darkBlue] (Element.text str)
                 ]
             ]
-
--- we need parseNodes because Html.Parser.Element has a list of Nodes that will have to be parsed
-parseNodes : List (Html.Parser.Node) -> List (Element.Element Msg)
-parseNodes nodes =
-    nodes |> List.map (\n -> parseNode n) |> List.concat
-
-parseNode : Html.Parser.Node -> List (Element.Element Msg)
-parseNode node = 
-    case node of
-        Html.Parser.Text s -> [Element.text s] 
-        
-        Html.Parser.Comment s -> [Element.none]
-
-        Html.Parser.Element s attrs ndz ->
-            newElement s attrs (parseNodes ndz)
-
-newElement : String 
-                -> List (Html.Parser.Attribute) 
-                -> List (Element.Element Msg) 
-                -> List (Element.Element Msg)
-newElement ofType attrs withTheseEls =
-    case ofType of
-        "span" ->
-            let
-                thisClass = getClass attrs
-                firstEl = getFirstEl withTheseEls
-            in
-            ( Element.el (Palette.class thisClass) firstEl)
-            :: ( withTheseEls |> List.drop 1)
-        "div" ->
-            ( Element.paragraph 
-                (Palette.class (getClass attrs) ) 
-                [ getFirstEl withTheseEls ]
-            )
-            :: ( withTheseEls |> List.drop 1 )
-        "p" ->
-            ( Element.paragraph
-                (Palette.class (getClass attrs) )
-                [ getFirstEl withTheseEls ]
-            )
-            :: ( withTheseEls |> List.drop 1 )
-        "br" ->
-            ( Html.br [] [] |> Element.html )
-            :: ( withTheseEls |> List.drop 1 )
-
-        _ -> 
-            ( Element.paragraph [Font.color Palette.darkRed] [Element.text ("Don't know tag: " ++ ofType)] )
-            :: withTheseEls
-
-getClass : List (Html.Parser.Attribute) -> String
-getClass attrs =
-    attrs
-    |> List.filter (\tup -> (Tuple.first tup) == "class")
-    |> List.head
-    |> Maybe.withDefault ("class", "")
-    |> Tuple.second
-
-getFirstEl : List (Element.Element Msg) -> Element.Element Msg
-getFirstEl list =
-    list |> List.head |> Maybe.withDefault Element.none
 
 
 finish : Mark.Block (Model -> Element.Element Msg)
@@ -872,7 +813,7 @@ addNewLesson str model =
     let
         lessons = model.lessons
         newModel = case (Decode.decodeString lessonDecoder str) of
-            Ok l    ->
+            Ok l ->
                 let
                     newLessons = case l.lesson of
                         "lesson1" -> {lessons | lesson1 = l }    
@@ -883,8 +824,8 @@ addNewLesson str model =
                 in
                 { model | lessons = newLessons }
             
-            _       -> 
-                model     
+            _  -> 
+                model
     in
     newModel
                     

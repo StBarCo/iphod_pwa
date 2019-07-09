@@ -283,28 +283,38 @@ var bookKeys = {
 }
 
 function dbKeys(refs) {
+  // refs is a list of objects { read: <string>, style: <string> }
   // this will be confusinging
   // the incoming ref is an array of references
   // each incoming reference may also resolve into multiple references
-  var parsedRefs = refs.map( function(r) { return parser.parse(r) } );
-  var book = web_names[bookName[parsedRefs[0].book.toLowerCase()]];
-  var bookKey = bookKeys[book];
-  var keys = parsedRefs.map(function(p) { 
-        var r = p.refs[0]; // p.refs is a list w/ one element
-        if (r.length == undefined) {
-
-            return  { from: "web" + (bookKey + 1000 * parseInt(r.chap) + parseInt(r.vsFrom)) 
-                    , to:   "web" + (bookKey + 1000 * parseInt(r.chap) + parseInt(r.vsTo))
-                    } 
-            }
-        else { // reference spans chapters
-            return  { from: "web" + (bookKey + 1000 * parseInt(r[0].chap) + parseInt(r[0].vsFrom)) 
-                    , to:   "web" + (bookKey + 1000 * parseInt(r[1].chap) + parseInt(r[1].vsTo))
-                    } 
-      
-        }
-        })
+  var parsedRefs = []
+    , book = ""
+    , bookKey = ""
     ;
+
+  refs.forEach( function(r, i) {
+    // must add style and reference to each of the parsed refs
+    var pr = parser.parse(r.read);
+    title = book_title[ bookName[pr.book.toLowerCase()] ]
+    book = web_names[ bookName[pr.book.toLowerCase()] ];
+    bookKey = bookKeys[book];
+
+    pr.refs.forEach( function(el) {
+      el.style = refs[i].style;
+      el.ref = title + " " + el.chap + ":" + el.vsFrom + "-" + (el.vsTo === 999 ? "end" : el.vsTo);
+      parsedRefs.push(el);
+    });
+  });
+  var keys = [];
+  parsedRefs.forEach(function(r) { 
+    keys.push(
+      { from: "web" + (bookKey + 1000 * parseInt(r.chap) + parseInt(r.vsFrom)) 
+      , to:   "web" + (bookKey + 1000 * parseInt(r.chap) + parseInt(r.vsTo))
+      , style: r.style 
+      , ref: r.ref
+      }
+    )
+  })
   return keys;
 }
 
