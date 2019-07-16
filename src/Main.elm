@@ -23,7 +23,7 @@ import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
-import String.Extra exposing (toTitleCase, toSentence, countOccurrences)
+import String.Extra exposing (toTitleCase, countOccurrences)
 import MyParsers exposing (..)
 import Palette exposing (scale, scaleFont, pageWidth, indent, outdent, show, hide)
 import Models exposing (..)
@@ -515,7 +515,12 @@ stringToPsalmLine model vs =
         Nothing -> 
             renderPsLine2 model vs
         Just n ->
-            renderPsLine1 model n (words |> List.tail |> Maybe.withDefault [] |> toSentence)
+            renderPsLine1 model n (
+                words 
+                |> List.tail 
+                |> Maybe.withDefault [] 
+                |> String.join " "
+                )
 
 seasonal : Mark.Block (Model -> Element.Element Msg)
 seasonal =
