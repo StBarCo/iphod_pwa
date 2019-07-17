@@ -15,6 +15,14 @@ import String.Extra exposing (toTitleCase, toSentence)
 import Palette exposing(scaleFont, pageWidth, maxWidth, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 
+isEven : Int -> Bool
+isEven n = 
+    modBy 2 n == 0
+
+stringNotEmpty : String -> Bool
+stringNotEmpty str =
+    not (String.isEmpty str)
+
 restOfLine : String -> Parser String
 restOfLine str =
         succeed identity
@@ -188,11 +196,25 @@ pageNumber =
         )
         Mark.string
 
+elsWithItalics : String -> List (Element.Element msg)
+elsWithItalics str =
+    str 
+    |> String.split "/"
+    |> List.filter stringNotEmpty
+    |> List.indexedMap (\i txt ->  
+        if isEven i
+        then 
+            Element.el [] (Element.text txt)
+        else
+            Element.el [ Font.italic ] (Element.text txt)
+    )
+    
+
 collectTitle : Mark.Block (Model -> Element.Element msg)
 collectTitle =
     Mark.block "CollectTitle"
         (\str model ->
-            Element.paragraph (Palette.collectTitle model) [ Element.text (str |> toTitleCase) ]
+            Element.paragraph (Palette.collectTitle model) ( elsWithItalics (str |> toTitleCase) )
         )
         Mark.string
 

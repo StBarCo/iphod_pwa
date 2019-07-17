@@ -15,6 +15,9 @@ axios.defaults.headers.common['Authorization'] = "Token 77f1ef822a19e06867cf335a
 import $ from 'jquery';
 window.onload = ( function() {
   app.ports.onlineStatus.send( "All Ready");
+  iphod.info().then( function(resp) {
+    if (resp.doc_count > 0) { sync(); }
+  })
 })
 // 
 // // var popper = require('popper.js');
@@ -31,6 +34,7 @@ var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
 import Pouchdb from 'pouchdb';
 var pdb = Pouchdb;
+var blork = new Pouchdb('blork');
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
 var service = new Pouchdb('service_dev')
@@ -74,63 +78,27 @@ psalms.info()
 lectionary.info()
 .then( function(resp) { if (resp.doc_count >= 366) { lectionaryOK = true} })
 
+
 function sync() {
-  send_status("updating iphod")
-    remoteIphod.allDocs({include_docs: true})
-    .then( 
-      function(resp) { 
-        send_status("iphod read");
-        iphod.bulkDocs( resp.rows.map( function(r) { return r.doc}))
-        .then( function(resp) { update_service() })
+  iphod.replicate.from(remoteIphod)
+  .on("complete", function(){
+    psalms.replicate.from(remotePsalms)
+    .on("complete", function() {
+      service.replicate.from(remoteService)
+      .on("complete", function() {
+        lectionary.replicate.from(remoteLectionary)
+        .on("complete", function() {
+          send_status("Sync complete");
+        })
       })
-    .catch( function(err) {
-        send_status("Iphod update failed")
-        console.log("IPHOD UPDATE ERR: ", err)
-      })
+    })
+  })
+  .on("error", function(err) {
+    console.log("SYNC ERROR: ", error);
+    send_status("Sync failed");
+  })
 }
 
-function update_service() {
-  send_status("updating services");
-    remoteService.allDocs({include_docs: true})
-    .then( function(resp) {
-      send_status("services read");
-      service.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
-      .then( function(resp) { update_psalms() })
-    })
-    .catch( function(err) {
-      send_status("Services update failed")
-      console.log("Services UPDATE ERR: ", err)
-    })
-}
-
-function update_psalms() {
-  send_status("updating psalms");
-    remotePsalms.allDocs({include_docs: true})
-    .then( function(resp) {
-      send_status("psalms read");
-      psalms.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
-      .then( function(resp) { update_lectionary() })
-    })
-    .catch( function(err) {
-      send_status("Psalms update failed")
-      console.log("Psalms UPDATE ERR: ", err)
-    })
-}
-          
-
-function update_lectionary() {
-  send_status("updating lectionary");
-    remoteLectionary.allDocs({include_docs: true})
-    .then( function(resp) {
-      send_status("lectionary read");
-      lectionary.bulkDocs( resp.rows.map( function(r) { return r.doc }) )
-      .then( function(resp) { send_status("all updated") })
-    })
-    .catch( function(err) {
-      send_status("Lectionary update failed")
-      console.log("Lectionary UPDATE ERR: ", err)
-    })
-}
           
 function send_status(s) { app.ports.onlineStatus.send(s); }
 function update_database() { send_status("update database"); }
