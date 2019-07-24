@@ -830,10 +830,6 @@ update msg model =
                         { model | calendar = cal.calendar}
                         
                     _  -> 
-                        let
-                            _ = Debug.log "DECODE CAL FAIL: " daz
-                        in
-                        
                         model
             in
             
