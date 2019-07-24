@@ -1,7 +1,7 @@
 module Palette exposing (..)
 
 import Html.Attributes
-import Element exposing (Attribute, rgb255, rgba255, paddingEach, padding, paddingXY, spacing, px, width, moveLeft)
+import Element exposing (Attribute, rgb255, rgba255, paddingEach, padding, paddingXY, spacing, px, width, height, moveLeft)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Input as Input
@@ -17,6 +17,7 @@ litGreen = rgb255 16 104 16
 litWhite = rgb255 255 226 12
 litPurple = rgb255 109 8 168
 litRed = rgb255 188 5 33
+black = rgb255 0 0 0
 
 edges : { top: Int, right: Int, bottom: Int, left: Int }
 edges = { top = 0, right = 0, bottom = 0, left = 0 }
@@ -29,41 +30,41 @@ zIndex : Int -> Element.Attribute msg
 zIndex z =
     Html.Attributes.style "z-index" (z |> String.fromInt) |> Element.htmlAttribute
 
-scale: Model -> Int -> Int
-scale model n =
-    if model.width > 700 
+scale: Int -> Int -> Int
+scale viewWidth n =
+    if viewWidth > 700 
     then
-        ((toFloat model.width  / 700) * (toFloat n)) |> round
+        ((toFloat viewWidth  / 700) * (toFloat n)) |> round
     else
-        ((toFloat model.width  / 375) * (toFloat n)) |> round
+        ((toFloat viewWidth  / 375) * (toFloat n)) |> round
 
-scalePx : Model -> Int -> Element.Length
-scalePx model n =
-    Element.px (scale model n)
+scalePx : Int -> Int -> Element.Length
+scalePx viewWidth n =
+    Element.px (scale viewWidth n)
 
-scaleWidth : Model -> Int -> Attribute msg
-scaleWidth model n =
-    Element.width (scalePx model n)
+scaleWidth : Int -> Int -> Attribute msg
+scaleWidth viewWidth n =
+    Element.width (scalePx viewWidth n)
 
---maxWidth : Model -> Attribute msg
---maxWidth model =
---    scaleWidth model (model.width - 25)
+--maxWidth : Int -> Attribute msg
+--maxWidth viewWidth =
+--    scaleWidth viewWidth (viewWidth - 25)
 
-adjustWidth : Model -> Int -> Attribute msg
-adjustWidth model adj =
-    width (px (model.width + adj) )
+adjustWidth : Int -> Int -> Attribute msg
+adjustWidth viewWidth adj =
+    width (px (viewWidth + adj) )
 
-maxWidth : Model -> Attribute msg
-maxWidth model =
-    width (px (model.width - 25))
+maxWidth : Int -> Attribute msg
+maxWidth viewWidth =
+    width (px (viewWidth - 25))
 
-scaleFont : Model -> Int -> Attribute msg
-scaleFont model n = 
-    (scale model n) |> Font.size
+scaleFont : Int -> Int -> Attribute msg
+scaleFont viewWidth n = 
+    (scale viewWidth n) |> Font.size
 
-pageWidth : Model -> Attribute msg
-pageWidth model = 
-    Element.width (px model.width)
+pageWidth : Int -> Attribute msg
+pageWidth viewWidth = 
+    Element.width (px viewWidth)
 
 indent : String -> Attribute msg
 indent s =
@@ -104,14 +105,14 @@ class name =
         _ ->
             []
 
-antiphon : Model -> List (Attribute msg)
-antiphon model =
-    [ maxWidth model 
+antiphon : Int -> List (Attribute msg)
+antiphon viewWidth =
+    [ maxWidth viewWidth 
     , paddingEach { edges | top = 10, left = 10 }
     ]
             
-antiphonTitle : Model -> List (Attribute msg)
-antiphonTitle model =
+antiphonTitle : Int -> List (Attribute msg)
+antiphonTitle viewWidth =
     [ paddingEach { edges | top = 10 }
     , Font.italic
     , Font.color darkBlue
@@ -119,8 +120,8 @@ antiphonTitle model =
     , outdent "3rem"
     ] 
 
-button : Model -> List (Attribute msg)
-button model =
+button : Int -> List (Attribute msg)
+button viewWidth =
     [ Border.color darkRed
     , Border.rounded 5
     , Border.width 5
@@ -130,147 +131,162 @@ button model =
     , Font.color foggy
     ]
 
-collectTitle : Model -> List (Attribute msg)
-collectTitle model =
+calendarDay : Int -> List (Attribute msg)
+calendarDay viewWidth =
+    [ Border.width 1
+    , Border.rounded 3
+    , scaleFont viewWidth 8
+    , width (scalePx viewWidth 50)
+    , height (scalePx viewWidth 50)
+    ]
+
+collectTitle : Int -> List (Attribute msg)
+collectTitle viewWidth =
     [ paddingEach { edges | top = 10, left = 10, bottom = 2 }
     , Font.variant Font.smallCaps
     , Font.color darkBlue
-    , scaleFont model 16
-    , maxWidth model
+    , scaleFont viewWidth 16
+    , maxWidth viewWidth
     ]
 
-lesson : Model -> List (Attribute msg)
-lesson model =
+lesson : Int -> List (Attribute msg)
+lesson viewWidth =
     [ paddingXY 10 0 ]
 
-lessonTitle : Model -> List (Attribute msg)
-lessonTitle model =
+lessonTitle : Int -> List (Attribute msg)
+lessonTitle viewWidth =
     [ Font.color darkBlue
     , Font.variant Font.smallCaps
-    , scaleFont model 16
+    , scaleFont viewWidth 16
     , paddingEach { top = 10, right = 0, bottom = 5, left = 10}
     ]
 
-menu : Model -> List (Attribute msg)
-menu model =
-    [ pageWidth model
+menu : Int -> List (Attribute msg)
+menu viewWidth =
+    [ pageWidth viewWidth
     , Element.paddingXY 0 0
     , fixedPosition
     , zIndex 9
     ]
 
-officeTitle : Model -> List (Attribute msg)
-officeTitle model = 
+officeTitle : Int -> List (Attribute msg)
+officeTitle viewWidth = 
     [ paddingEach { edges | top = 65 }
     , Element.centerX
     ]
 
-openingSentenceTitle : Model -> List (Attribute msg)
-openingSentenceTitle model =
+openingSentenceTitle : Int -> List (Attribute msg)
+openingSentenceTitle viewWidth =
     [ paddingEach {edges | top = 10, bottom = 2, left = 10}
     , Font.italic
     , Font.color darkBlue
     , Font.variant Font.smallCaps
-    , maxWidth model
+    , maxWidth viewWidth
     ] 
 
-openingSentence : Model -> List (Attribute msg)
-openingSentence model =
-    [ maxWidth model
+openingSentence : Int -> List (Attribute msg)
+openingSentence viewWidth =
+    [ maxWidth viewWidth
     , paddingXY 10 0
     ]                                       
 
-pageNumber : Model -> List (Attribute msg)
-pageNumber model =
-    [ scaleFont model 14
+pageNumber : Int -> List (Attribute msg)
+pageNumber viewWidth =
+    [ scaleFont viewWidth 14
     , Font.italic
     , Font.color darkRed
     , Font.alignLeft
     , hide
     ]
 
-plain : Model -> List (Attribute msg)
-plain model =
+plain : Int -> List (Attribute msg)
+plain viewWidth =
     [ Font.alignLeft
     , Element.paddingEach { top= 10, right = 10, bottom = 10, left= 10}
-    , maxWidth model
+    , maxWidth viewWidth
     ]
 
-prayer : Model -> List (Attribute msg)
-prayer model =
+prayer : Int -> List (Attribute msg)
+prayer viewWidth =
     [ Element.paddingEach { top = 0, right = 0, bottom = 0, left = 10}
     ]
 
-psalmTitle : Model -> List (Attribute msg)
-psalmTitle model =
+psalmTitle : Int -> List (Attribute msg)
+psalmTitle viewWidth =
     [ Font.variant Font.smallCaps
     , Font.color darkBlue
-    , scaleFont model 16
+    , scaleFont viewWidth 16
     , paddingEach { edges | top = 0, bottom = 2, left = 10 }
     ]
 
-quote : Model -> List (Attribute msg)
-quote model =
+quote : Int -> List (Attribute msg)
+quote viewWidth =
     [ paddingXY 10 0
-    , maxWidth model
+    , maxWidth viewWidth
     ]
 
-radioRow : Model -> List (Attribute msg)
-radioRow model =
+radioRow : Int -> List (Attribute msg)
+radioRow viewWidth =
     [ padding 10
     , spacing 10
-    , maxWidth model
+    , maxWidth viewWidth
     ]
 
-reference : Model -> List (Attribute msg)
-reference model =
-    [ scaleFont model 12
+reading : String -> Int -> List (Attribute msg)
+reading req viewWidth =
+    if req == "req"
+        then [ Font.color black ]
+        else [ Font.color darkBlue ]
+
+reference : Int -> List (Attribute msg)
+reference viewWidth =
+    [ scaleFont viewWidth 12
     , Font.italic
     , Font.color darkRed
     , paddingEach { top= 0, right= 10, bottom= 10, left= 10}
-    , maxWidth model
+    , maxWidth viewWidth
     ]
 
-rubric : Model -> List (Attribute msg)
-rubric model =        
-    [ scaleFont model 12
+rubric : Int -> List (Attribute msg)
+rubric viewWidth =        
+    [ scaleFont viewWidth 12
     , Font.italic
     , Font.color darkRed
     , Font.alignLeft
     , paddingEach { edges | top = 5, bottom = 10, left = 10 }
     , spacing 0
-    , maxWidth model
+    , maxWidth viewWidth
     ]
 
-section : Model -> List (Attribute msg)
-section model =
+section : Int -> List (Attribute msg)
+section viewWidth =
     [ Font.variant Font.smallCaps
     , paddingEach { edges | top = 10, bottom = 2, left = 10 }
     , Font.color darkBlue
     ]
 
-versicals : Model -> List (Attribute msg)
-versicals model =
+versicals : Int -> List (Attribute msg)
+versicals viewWidth =
     [ paddingXY 10 0]
 
-versicalSpeaker : Model -> List (Attribute msg)
-versicalSpeaker model =
+versicalSpeaker : Int -> List (Attribute msg)
+versicalSpeaker viewWidth =
     [ Font.italic
     , Font.alignLeft
     , Element.alignTop
-    , Element.width( Element.px (scale model 90))
+    , Element.width( Element.px (scale viewWidth 90))
     , Element.padding 0
     ] 
 
-versicalSays : Model -> List (Attribute msg)
-versicalSays model =
+versicalSays : Int -> List (Attribute msg)
+versicalSays viewWidth =
     [ Font.alignLeft
     , Element.alignTop
     , Element.padding 0
-    , Element.width( Element.px (scale model (model.width - 110)) )
+    , Element.width( Element.px (scale viewWidth (viewWidth - 110)) )
     ] 
 
-wordOfTheLord : Model -> List (Attribute msg)
-wordOfTheLord model =
+wordOfTheLord : Int -> List (Attribute msg)
+wordOfTheLord viewWidth =
     [ paddingEach { edges | bottom = 30 }
     ]

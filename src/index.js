@@ -159,7 +159,8 @@ function service_header_response(now, season, named, resp, euResp) {
     , euResp.colors[0]
     , named
   ]
-  request_lessons(named);
+  request_lessons(named); // promise the lessons will be sent
+
   app.ports.receivedOffice.send(serviceHeader.concat(resp.service))  
 
 }
@@ -178,6 +179,7 @@ function service_db_name(s) {
     , timeOfDeath: "ministry_to_dying"
     , vigil: "vigil"
     , about: "about"
+    , calendar: "calendar"
     };
   return dbName[s];
 }
@@ -276,7 +278,7 @@ function getEucharistLessons(day) {
   iphod.get(key)
   .then(  function(resp) {
     putCalendarLessons("eu1_today", resp.ot);
-     putCalendarLessons("eu2_today", resp.nt);
+    putCalendarLessons("eu2_today", resp.nt);
     putCalendarLessons("eugs_today", resp.gs);
   })
   .catch(  function(err) {
@@ -284,9 +286,9 @@ function getEucharistLessons(day) {
   })
 }
 
-app.ports.clearLessons.subscribe(  function(request) {
-  $(".lessons_today").empty();
-})
+// app.ports.clearLessons.subscribe(  function(request) {
+//   $(".lessons_today").empty();
+// })
 
 function putCalendarLessons( divId, refs ) {
   $(".lessons_today").hide();
@@ -329,6 +331,7 @@ app.ports.requestOffice.subscribe( function(request) {
       else { get_service("compline")}
       break;
     case "calendar":
+      get_service("calendar");
       Calendar.get_calendar( now, app.ports.receivedCalendar );
       break;
     default: 

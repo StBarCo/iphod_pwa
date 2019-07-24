@@ -1,7 +1,7 @@
 module Models exposing (..)
 
 import Element
-import Json.Decode as Decode exposing (Decoder, int, string)
+import Json.Decode as Decode exposing (Decoder, int, string, bool)
 import Json.Decode.Pipeline exposing (required, optional)
 
 -- PARSER MODELS
@@ -34,6 +34,20 @@ type alias Options =
 type alias OptionsHeader = 
     { tag: String
     , label: String
+    }
+type alias TempSeason =
+    { season: String
+    , week: String
+    , year: String
+    , today: String
+    }
+
+initTempSeason : TempSeason
+initTempSeason =
+    { season = ""
+    , week = ""
+    , year = ""
+    , today = ""
     }
 
 
@@ -84,14 +98,14 @@ vsDecoder =
     |> optional "vss" string ""
 
 type alias Reading =
-    { ref: String
+    { read: String
     , style: String
     , vss: List Verse
     }
 
 initReading : Reading
 initReading = 
-    { ref = ""
+    { read = ""
     , style = "req"
     , vss = []
     }
@@ -99,9 +113,9 @@ initReading =
 readingDecoder : Decoder Reading
 readingDecoder =
     Decode.succeed Reading
-    |> required "ref" string
+    |> required "read" string
     |> required "style" string
-    |> required "vss" (Decode.list vsDecoder)
+    |> optional "vss" (Decode.list vsDecoder) []
 
 
 type alias Lesson =
@@ -118,7 +132,7 @@ initLesson =
 lessonDecoder : Decoder Lesson
 lessonDecoder =
     Decode.succeed Lesson
-    |> required "lesson" string
+    |> optional "lesson" string ""
     |> required "content" (Decode.list readingDecoder)
 
 
@@ -137,6 +151,14 @@ initLessons =
     , gospel = initLesson
     }
 
+serviceLessonsDecoder : Decoder Lessons
+serviceLessonsDecoder =
+    Decode.succeed Lessons
+    |> required "lesson1" lessonDecoder 
+    |> required "lesson2" lessonDecoder 
+    |> required "psalms" lessonDecoder 
+    |> optional "gospel" lessonDecoder initLesson
+
 type alias CalendarDay = 
     { show      : Bool
     , id        : Int
@@ -148,10 +170,12 @@ type alias CalendarDay =
     , week      : String
     , lityear   : String
     , month     : Int
-    , dayOfMonth: Int
+    , dayOfMonth : Int
     , year      : Int
     , dow       : Int
-    -- , lessons   : Lessons
+    , mp        : Lessons
+    , ep        : Lessons
+    , eu        : Lessons
     }
 
 
@@ -170,9 +194,38 @@ initCalendarDay =
     , dayOfMonth = 0
     , year       = 0
     , dow        = 0
-    -- , lessons    = []
+    , mp         = initLessons
+    , ep         = initLessons
+    , eu         = initLessons
     }
 
+type alias Calendar = 
+    { calendar: List CalendarDay }
+
+calendarDecoder : Decoder Calendar
+calendarDecoder =
+    Decode.succeed Calendar
+    |> required "calendar" (Decode.list dayDecoder)
+
+dayDecoder : Decoder CalendarDay
+dayDecoder =
+    Decode.succeed CalendarDay
+    |> required "show" bool
+    |> required "id" int
+    |> required "pTitle" string
+    |> required "eTitle" string
+    |> required "color" string
+    |> required "colors" (Decode.list string)
+    |> required "season" string
+    |> required "week" string
+    |> required "lityear" string
+    |> required "month" int
+    |> required "dayOfMonth" int
+    |> required "year" int
+    |> required "dow" int
+    |> required "mp" serviceLessonsDecoder
+    |> required "ep" serviceLessonsDecoder
+    |> required "eu" serviceLessonsDecoder
 
 type alias Model =
     { windowWidth : Int
@@ -186,9 +239,10 @@ type alias Model =
     , day : String
     , week : String
     , year : String
-    , season : String
+    , season : (String, TempSeason)
     , color : String
     , showCalendar : Bool
+    , showThisCalendarDay : Int
     , options : List Options
     , calendar : List CalendarDay
     , showMenu : Bool
@@ -211,9 +265,10 @@ initModel =
     , day           = ""
     , week          = ""
     , year          = ""
-    , season        = ""
+    , season        = ("", initTempSeason)
     , color         = ""
     , showCalendar  = False
+    , showThisCalendarDay = -1
     , options       = []
     , calendar      = []
     , showMenu      = False

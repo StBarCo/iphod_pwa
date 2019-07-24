@@ -1,0 +1,9 @@
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = Calendar
+    description =
+        Liturgical Calendar
+
+|> Calendar
+    placeholder

@@ -14,76 +14,39 @@
   ;
 // weak assumption: Object.keys(rlds) will return keys in the order below
 var rlds =
-  { '01-18': 'confessionOfStPeter'
-  , '01-25': 'conversionOfStPaul'
-  , '02-02': 'presentation'
-  , '02-24': 'stMatthias'
-  , '03-19': 'stJoseph'
-  , '03-25': 'annunciation'
-  , '04-25': 'stMark'
-  , '05-01': 'stsPhilipAndJames'
-  , '05-31': 'visitation'
-  , '06-11': 'stBarnabas'
-  , '06-24': 'nativityOfJohnTheBaptist'
-  , '06-29': 'stPeterAndPaul'
-  , '07-01': 'dominion'
-  , '07-04': 'independence'
-  , '07-22': 'stMaryMagdalene'
-  , '07-25': 'stJames'
-  , '08-06': 'transfiguration'
-  , '08-15': 'bvm'
-  , '08-24': 'stBartholomew'
-  , '09-14': 'holyCross'
-  , '09-21': 'stMatthew'
-  , '09-29': 'michaelAllAngels'
-  , '10-18': 'stLuke'
-  , '10-23': 'stJamesOfJerusalem'
-  , '10-28': 'stsSimonAndJude'
-  , '11-11': 'remembrance'
-  , '11-30': 'stAndrew'
-  , '12-21': 'stThomas'
-  , '12-26': 'stStephen'
-  , '12-27': 'stJohn'
-  , '12-28': 'holyInnocents'
+  { '01-18': {id: 'confessionOfStPeter', color: "white"}
+  , '01-25': {id: 'conversionOfStPaul', color: "white"}
+  , '02-02': {id: 'presentation', color: "white"}
+  , '02-24': {id: 'stMatthias', color: "red"}
+  , '03-19': {id: 'stJoseph', color: "white"}
+  , '03-25': {id: 'annunciation', color: "white"}
+  , '04-25': {id: 'stMark', color: "red"}
+  , '05-01': {id: 'stsPhilipAndJames', color: "red"}
+  , '05-31': {id: 'visitation', color: "blue"}
+  , '06-11': {id: 'stBarnabas', color: "red"}
+  , '06-24': {id: 'nativityOfJohnTheBaptist', color: "white"}
+  , '06-29': {id: 'stPeterAndPaul', color: "red"}
+  , '07-01': {id: 'dominion', color: "white"}
+  , '07-04': {id: 'independence', color: "white"}
+  , '07-22': {id: 'stMaryMagdalene', color: "white"}
+  , '07-25': {id: 'stJames', color: "red"}
+  , '08-06': {id: 'transfiguration', color: "white"}
+  , '08-15': {id: 'bvm', color: "white"}
+  , '08-24': {id: 'stBartholomew', color: "red"}
+  , '09-14': {id: 'holyCross', color: "red"}
+  , '09-21': {id: 'stMatthew', color: "red"}
+  , '09-29': {id: 'michaelAllAngels', color: "white"}
+  , '10-18': {id: 'stLuke', color: "red"}
+  , '10-23': {id: 'stJamesOfJerusalem', color: "red"}
+  , '10-28': {id: 'stsSimonAndJude', color: "red"}
+  , '11-11': {id: 'remembrance', color: "white"}
+  , '11-30': {id: 'stAndrew', color: "red"}
+  , '12-21': {id: 'stThomas', color: "red"}
+  , '12-26': {id: 'stStephen', color: "red"}
+  , '12-27': {id: 'stJohn', color: "white"}
+  , '12-28': {id: 'holyInnocents', color: "red"}
   };
 
-/*
-var rlds =
-  { 312 : 'Epiphany'
-  , 324 : 'confessionOfStPeter'
-  , 331 : 'conversionOfStPaul'
-  , 339 : 'presentation'
-  , 361 : 'stMatthias'
-  ,  19 : 'stJoseph'
-  ,  25 : 'annunciation'
-  ,  56 : 'stMark'
-  ,  62 : 'stsPhilipAndJames'
-  ,  92 : 'visitation'
-  , 103 : 'stBarnabas'
-  , 116 : 'nativityOfJohnTheBaptist'
-  , 121 : 'stPeterAndPaul'
-  , 123 : 'dominion'
-  , 126 : 'independence'
-  , 144 : 'stMaryMagdalene'
-  , 147 : 'stJames'
-  , 159 : 'transfiguration'
-  , 168 : 'bvm'
-  , 177 : 'stBartholomew'
-  , 198 : 'holyCross'
-  , 205 : 'stMatthew'
-  , 213 : 'michaelAllAngels'
-  , 232 : 'stLuke'
-  , 237 : 'stJamesOfJerusalem'
-  , 242 : 'stsSimonAndJude'
-  , 256 : 'remembrance'
-  , 275 : 'stAndrew'
-  , 296 : 'stThomas'
-  , 300 : 'Christmas'
-  , 301 : 'stStephen'
-  , 302 : 'stJohn'
-  , 303 : 'holyInnocents'
-  };
-*/
 
 // IMPORTANT TO THE PROGRAMMER!!!
 // moment_date is MUTABLE
@@ -116,6 +79,10 @@ daysFromChristmas: function(moment_date) {
   return diff;
 },
 litYearName: function (moment_date) { return litYearNames[ this.litYear(moment_date) % 3 ]; },
+rldColor: function(moment_date) {
+  var rld = this.holyDay(moment_date);
+  return rld ? rld.color : undefined;
+},
 isSunday: function (moment_date) { return moment_date.day() == sunday; },
 isMonday: function (moment_date) { return moment_date.day() == monday; },
 daysTillSunday: function (moment_date) { return 7 - moment_date.day(); },
@@ -224,24 +191,22 @@ isGoodFriday: function (moment_date) {
 toSeason: function (moment_date) {
 //  var sunday = this.isSunday(moment_date) ? date : this.dateLastSunday(moment(moment_date))
   var sunday = moment_date.clone().day('Sunday')
-    , y = this.litYear(sunday)
-    , yrABC = this.litYearName(sunday)
-    , dOfMonth = (sunday.month() + 1) + "/" + sunday.date()
-    , weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday, 1))
-    , daysTillEpiphany = this.daysTill(moment_date, this.epiphanyDay(moment_date))
-    , weeksFromEpiphany = this.weeksTill(this.epiphanyDay(sunday), sunday)
-    , weeksFromChristmas = Math.floor( this.daysFromChristmas(moment_date) / 7 )
-    , isChristmas = this.inRange( this.daysFromChristmas(moment_date), 0, 11)
-    , weeksFromEaster = this.weeksTill(this.easter(moment_date), sunday)
-    , daysTillEaster = this.daysTill(moment_date, this.easter(moment_date))
-    , [rldDate, rldTitle] = this.nextHolyDay( moment_date.clone() )
-    , isRLD = moment_date.isSame( rldDate )
-    ;
+  var y = this.litYear(sunday);
+  var yrABC = this.litYearName(sunday);
+  var dOfMonth = (sunday.month() + 1) + "/" + sunday.date();
+  var weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday, 1));
+  var daysTillEpiphany = this.daysTill(moment_date, this.epiphanyDay(moment_date));
+  var weeksFromEpiphany = this.weeksTill(this.epiphanyDay(sunday), sunday);
+  var weeksFromChristmas = Math.floor( this.daysFromChristmas(moment_date) / 7 );
+  var isChristmas = this.inRange( this.daysFromChristmas(moment_date), 0, 11);
+  var weeksFromEaster = this.weeksTill(this.easter(moment_date), sunday);
+  var daysTillEaster = this.daysTill(moment_date, this.easter(moment_date));
+  var isRLD = this.holyDay(moment_date);
 
   switch (true) {
 
   case isRLD:
-    return {season: rldTitle, week: 1, year: yrABC, date: moment_date };
+    return { season: isRLD.id, week: 1, year: yrABC, date: moment_date };
     break;
   case (isChristmas):
     return this.whereInChristmas(moment_date, yrABC);
@@ -283,7 +248,7 @@ toSeason: function (moment_date) {
     return {season: "trinity",      week: "1", year: yrABC, date: moment_date};
     break;
   case (this.inRange(weeksTillAdvent, 1, 27)):
-    return {season: "proper",       week: (29 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
+    return {season: "proper",       week: (30 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
     break;
   case (this.inRange(weeksTillAdvent, 0, -3)):
     return {season: "advent",       week: (1 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
@@ -540,61 +505,55 @@ holyDay: function (moment_date) {
   var m_d = moment_date.format(mdFormat)
     , rld = rlds[m_d]
     ;
-  if (rld == 'presentation') {return [true, rld]; }
-  else if ( this.isSunday(moment_date)) {return [false, ""]; }
-  else if ( this.isMonday(moment_date)) { 
-    // go back and check for translated RLD
-    m_d = moment_date.add(-1, 'days').format(mdFormat);
-    rld = rlds[m_d];
+
+  if (rld === undefined){
+    // today is not a RLD
+    var yesterday = moment_date.clone().add(-1, 'days');
+    var yesterdayRLD = rlds[ yesterday.format(mdFormat) ];
+    var sundayRLD = rlds[ moment_date.clone().day('Sunday').format(mdFormat) ];
+    // if yesterday and today are not RLDs; return false
+    if ( yesterdayRLD === undefined ) { return false; }
+    // if sunday wasn't a RLD or was The Presentation; return false
+    if ( sundayRLD === undefined || sundayRLD.id === 'presentation') { return false; }
+    // sunday was a red letter day
+    // and today is the first available day for transfer
+    return sundayRLD;
   }
-  return (rld === undefined) ? [false, ""] : [true, rld];
+  // if today is the Feast of the Presentation, even if it's a Sunday
+  // it's still the Feast of the Presentation
+  // otherwise it's not a red letter day (because it's Sunday)
+  if (rld.id == 'presentation') {return rld; }
+  if ( this.isSunday(moment_date)) {return false; }
+  // it's not sunday and it is a RLD - return the RLD
+  return rld;
 
 },
 
-nextHolyDay: function (moment_date) {
-  var now = moment_date.clone()
-    , keys = Object.keys(rlds)
-    , key = undefined
-    , last_key = keys[keys.length - 1]
-    , yr = now.year()
-    , m_d = now.format(mdFormat) // month_day
-    ;
-
-  for (var i = 0; i < keys.length; i++) {
-    if ( m_d < keys[i]) {
-      key = keys[i];
-      break;
-    }
-  }
-  // if this loop falls through then the date is 12/29 - 12/30
-  // and the next RLD is the first in the list
-  if (key === undefined) {
-    yr += 1;
-    key = keys[0];
-  }
-  return [moment(yr + "-" + key), rlds[key] ];
-
-},
-
-// function nextHolyDay(date) {
-//   let yr = date.year()
-//     , day = date.day()
-//     , doy = dayOfYear(date)
-//     , holy_doy = hd_doy[doy]
-//     , advance = (holy_doy > 365) ? holy_doy + 1 : holy_doy
-//     , newDate = advDate( moment(yr + '-01-01'), advance)
-//   return [newDate, hd_index[holy_doy]]
-// },
-// function isLeapYear(date) {
-//   let yr = thisYear(date);
-//   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
-// },
-// function dayOfYear(date) {
-//   let newYear = moment(date.year() + '-01-01 ', )
-//     , doy = Math.floor( (date - newYear) / oneDay )
-//   return (isLeapYear(date) && doy > leapDay) ? doy - 1 : doy;
-// },
+// nextHolyDay: function (moment_date) {
+//   var now = moment_date.clone()
+//     , keys = Object.keys(rlds)
+//     , key = undefined
+//     , last_key = keys[keys.length - 1]
+//     , yr = now.year()
+//     , m_d = now.format(mdFormat) // month_day
+//     ;
 // 
+//   for (var i = 0; i < keys.length; i++) {
+//     if ( m_d < keys[i]) {
+//       key = keys[i];
+//       break;
+//     }
+//   }
+//   // if this loop falls through then the date is 12/29 - 12/30
+//   // and the next RLD is the first in the list
+//   if (key === undefined) {
+//     yr += 1;
+//     key = keys[0];
+//   }
+//   return [moment(yr + "-" + key), rlds[key].id ];
+// 
+// },
+
 namedDayDate: function (name, moment_date, wk) {
   var yr = this.thisYear(moment_date);
   switch (name) {
@@ -630,37 +589,161 @@ memorial: function (moment_date) {
 // dear confused programmer - for reasons for ever to remain a mystery
 // javascript indexs months off 0 (jan = 0, dec = 11)
 // and indexs days off of 1 (the first of the month is lo (and behold) 1)
-stAndrew: function (moment_date)                 { return (this.thisYear(moment_date) + '-11-30 ' ); },
-stThomas: function (moment_date)                 { return (this.thisYear(moment_date) + '-12-21 ' ); },
-stStephen: function (moment_date)                { return (this.thisYear(moment_date) + '-12-26 ' ); },
-stJohn: function (moment_date)                   { return (this.thisYear(moment_date) + '-12-27 ' ); },
-holyInnocents: function (moment_date)            { return (this.thisYear(moment_date) + '-12-28 ' ); },
-confessionOfStPeter: function (moment_date)      { return (this.thisYear(moment_date) + '-01-18 ' ); },
-conversionOfStPaul: function (moment_date)       { return (this.thisYear(moment_date) + '-01-25 ' ); },
-presentation: function (moment_date)             { return (this.thisYear(moment_date) + '-02-2 ' ); },
-stMatthias: function (moment_date)               { return (this.thisYear(moment_date) + '-02-24 ' ); },
-stJoseph: function (moment_date)                 { return (this.thisYear(moment_date) + '-03-19 ' ); },
-annunciation: function (moment_date)             { return (this.thisYear(moment_date) + '-03-25 ' ); },
-stMark: function (moment_date)                   { return (this.thisYear(moment_date) + '-04-25 ' ); },
-stsPhilipAndJames: function (moment_date)        { return (this.thisYear(moment_date) + '-05-1 ' ); },
-visitation: function (moment_date)               { return (this.thisYear(moment_date) + '-05-31 ' ); },
-stBarnabas: function (moment_date)               { return (this.thisYear(moment_date) + '-06-11 ' ); },
-nativityOfJohnTheBaptist: function (moment_date) { return (this.thisYear(moment_date) + '-06-24 ' ); },
-stPeterAndPaul: function (moment_date)           { return (this.thisYear(moment_date) + '-06-29 ' ); },
-dominion: function (moment_date)                 { return (this.thisYear(moment_date) + '-07-1 ' ); },
-independence: function (moment_date)             { return (this.thisYear(moment_date) + '-07-4 ' ); },
-stMaryMagdalene: function (moment_date)          { return (this.thisYear(moment_date) + '-07-22 ' ); },
-stJames: function (moment_date)                  { return (this.thisYear(moment_date) + '-07-25 ' ); },
-transfiguration: function (moment_date)          { return (this.thisYear(moment_date) + '-08-6 ' ); },
-bvm: function (moment_date)                      { return (this.thisYear(moment_date) + '-08-15 ' ); },
-stBartholomew: function (moment_date)            { return (this.thisYear(moment_date) + '-08-24 ' ); },
-holyCross: function (moment_date)                { return (this.thisYear(moment_date) + '-09-14 ' ); },
-stMatthew: function (moment_date)                { return (this.thisYear(moment_date) + '-09-21 ' ); },
-michaelAllAngels: function (moment_date)         { return (this.thisYear(moment_date) + '-09-29 ' ); },
-stLuke: function (moment_date)                   { return (this.thisYear(moment_date) + '-10-18 ' ); },
-stJamesOfJerusalem: function (moment_date)       { return (this.thisYear(moment_date) + '-10-23 ' ); },
-stsSimonAndJude: function (moment_date)          { return (this.thisYear(moment_date) + '-10-28 ' ); },
-remembrance: function (moment_date)              { return (this.thisYear(moment_date) + '-11-11 ' ); },
+stAndrew: function (moment_date)                
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-11-30 ' )
+            } 
+  },
+stThomas: function (moment_date)                
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-12-21 ' )
+            } 
+  },
+stStephen: function (moment_date)               
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-12-26 ' )
+            } 
+  },
+stJohn: function (moment_date)                  
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-12-27 ' )
+            } 
+  },
+holyInnocents: function (moment_date)           
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-12-28 ' )
+            } 
+  },
+confessionOfStPeter: function (moment_date)     
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-01-18 ' )
+            } 
+  },
+conversionOfStPaul: function (moment_date)      
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-01-25 ' )
+            } 
+  },
+presentation: function (moment_date)            
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-02-2 ' )
+            } 
+  },
+stMatthias: function (moment_date)              
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-02-24 ' )
+            } 
+  },
+stJoseph: function (moment_date)                
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-03-19 ' )
+            } 
+  },
+annunciation: function (moment_date)            
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-03-25 ' )
+            } 
+  },
+stMark: function (moment_date)                  
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-04-25 ' )
+            } 
+  },
+stsPhilipAndJames: function (moment_date)       
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-05-1 ' )
+            } 
+  },
+visitation: function (moment_date)              
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-05-31 ' )
+            } 
+  },
+stBarnabas: function (moment_date)              
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-06-11 ' )
+            } 
+  },
+nativityOfJohnTheBaptist: function (moment_date)
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-06-24 ' )
+            } 
+  },
+stPeterAndPaul: function (moment_date)          
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-06-29 ' )
+            } 
+  },
+dominion: function (moment_date)                
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-07-1 ' )
+            } 
+  },
+independence: function (moment_date)            
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-07-4 ' )
+            } 
+  },
+stMaryMagdalene: function (moment_date)         
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-07-22 ' )
+            } 
+  },
+stJames: function (moment_date)                 
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-07-25 ' )
+            } 
+  },
+transfiguration: function (moment_date)         
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-08-6 ' )
+            } 
+  },
+bvm: function (moment_date)                     
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-08-15 ' )
+            } 
+  },
+stBartholomew: function (moment_date)           
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-08-24 ' )
+            } 
+  },
+holyCross: function (moment_date)               
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-09-14 ' )
+            } 
+  },
+stMatthew: function (moment_date)               
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-09-21 ' )
+            } 
+  },
+michaelAllAngels: function (moment_date)        
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-09-29 ' )
+            } 
+  },
+stLuke: function (moment_date)                  
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-10-18 ' )
+            } 
+  },
+stJamesOfJerusalem: function (moment_date)      
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-10-23 ' )
+            } 
+  },
+stsSimonAndJude: function (moment_date)         
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-10-28 ' )
+            } 
+  },
+remembrance: function (moment_date)             
+  { return  { color: "red"
+            , date: (this.thisYear(moment_date) + '-11-11 ' )
+            } 
+  },
 
 translateFromSunday: function (moment_date) { return this.isSunday(moment_date) ? moment_date.add(1, 'day') : moment_date; },
 

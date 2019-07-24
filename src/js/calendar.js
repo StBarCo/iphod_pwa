@@ -42,7 +42,6 @@ export var Calendar = {
       , allPromises = this.buildPromises( daz )
       ;
 
-    console.log("GET CAL: ", daz)
     return Promise.all( allPromises).then(  function(resp) {
       var mpep = resp.slice(0, 42) // first 42
         , eu = resp.slice(42) // last 42
@@ -51,7 +50,9 @@ export var Calendar = {
       for ( var i = 0; i < 42; i++ ) {
         var m = mpep[i]
           , e = eu[i]
-          , dayOfMonth = daz[i].date.date()
+          , thisDate = daz[i].date
+          , thisColor = LitYear.rldColor(thisDate)
+          , dayOfMonth = thisDate.date()
           , pss = DailyPsalms.stringified(dayOfMonth) // psalms index off 1
           ;
         calday[i] = 
@@ -59,7 +60,7 @@ export var Calendar = {
           , id: i
           , pTitle: m.title // String
           , eTitle: e.title // String
-          , color: e.colors[0] // String
+          , color: thisColor ? thisColor : e.colors[0] // String
           , colors: e.colors
           , season: daz[i].season // String
           , week: daz[i].week //String
@@ -68,33 +69,54 @@ export var Calendar = {
           , dayOfMonth: dayOfMonth // int
           , year: daz[i].date.year() // Int
           , dow: daz[i].date.day() // Int
-          , mp: {
-              lesson1: m.mp1
-            , lesson2: m.mp2
-            , psalms: pss.mp
-            , gospel: []
-            }
-          , ep: {
-              lesson1: m.ep1
-            , lesson2: m.ep2
-            , psalms: pss.ep
-            , gospel: []
-            }
-          , eu: {
-              lesson1: e.ot
-            , lesson2: e.nt
-            , psalms: e.ps.map(  function(p) { return p.read; } )
-            , gospel: e.gs
-            }
+          , mp: makeReadings(m.mp1, m.mp2, pss.mp, false)
+          , ep: makeReadings(m.ep1, m.ep2, pss.ep, false)
+          , eu: makeReadings(e.ot, e.nt, e.ps, e.gs)
           }
       }
-      port.send( calday )
+      port.send( JSON.stringify( {calendar: calday} ) );
     })
     .catch(  function(err) {
       console.log("CALENDER GET FAILED: ", err)
     })
 
   }
-
 }
+
+function makeReadings(lesson1, lesson2, psalms, gospel) {
+  var lsnz = {}
+  lsnz.lesson1 = {
+      lesson: "lesson1"
+    , content: makeThisReading( lesson1 )
+    }
+  lsnz.lesson2 = {
+      lesson: "lesson2"
+    , content: makeThisReading( lesson2 )
+    }
+  lsnz.psalms = {
+      lesson: "psalms"
+    , content: makeThisReading( psalms )
+    }
+  // no gospel for mp/ep
+  if (gospel) {
+    lsnz.gospel = {
+        lesson: "gospel"
+      , content: makeThisReading( gospel ) 
+      }
+    }
+  return lsnz;
+}
+
+function makeThisReading(lessons) {
+  
+  if (lessons) {
+    return lessons.map( function(l) { 
+      // psalms do not have a style field and should be required
+      var style = l.style ? l.style : "req";
+      var read = l.read ? l.read : l;
+      return {read: read, style: style }; })
+  }
+  else { return []; }
+}
+
 

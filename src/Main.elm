@@ -21,15 +21,19 @@ import Mark
 import Mark.Error exposing (Error)
 import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
-import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf)
+import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf, groupWhile)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
 import String.Extra exposing (toTitleCase, countOccurrences)
 import MyParsers exposing (..)
 import Palette exposing (scale, scaleFont, pageWidth, indent, outdent, show, hide)
 import Models exposing (..)
 import Json.Decode as Decode
+import Date
 
 
+getSeason : Model -> String
+getSeason m =
+    m.season |> Tuple.first
 
 {-| Here we define our document.
 
@@ -75,32 +79,119 @@ document =
                 , lesson
                 , finish 
                 , seasonal
+                , calendar
                 -- Toplevel Text
             --    , Mark.map (Html.p []) Mark.text
                 ]
         }
 
+calendar : Mark.Block (Model -> Element.Element Msg)
+calendar =
+    Mark.block "Calendar"
+    (\month model ->
+        let
+            rows = if model.showThisCalendarDay < 0
+                then
+                    model.calendar 
+                    |> groupWhile (\a b -> a.eTitle == b.eTitle)
+                    |> List.map (\tup -> (Tuple.first tup) :: (Tuple.second tup))
+                    |> List.map (\week ->
+                        let
+                            thisWeek = 
+                                week
+                                |> List.map (\day ->
+                                    Element.column 
+                                    ( Event.onClick (ThisDay day) :: ((backgroundGradient day.color) ++ Palette.calendarDay model.width))
+                                    [ Element.paragraph [ Element.padding 2 ] 
+                                      [ Element.el [] (Element.text (day.dayOfMonth |> String.fromInt))
+                                      , Element.el [ Element.padding 2 ] (Element.text day.pTitle)
+                                      ]
+                                    ]
+                                )
+                        in
+                        Element.row [] thisWeek
+                    )
+                else
+                    let
+                        day = model.calendar 
+                            |> getAt model.showThisCalendarDay
+                            |> Maybe.withDefault initCalendarDay
+                        
+                    in
+                    [ Element.column []
+                        [ ( serviceReadings 
+                            "Eucharistic" 
+                            [day.eu.lesson1, day.eu.lesson2, day.eu.psalms, day.eu.gospel]
+                             model
+                          )
+                        , ( serviceReadings
+                            "Morning Prayer"
+                            [day.mp.lesson1, day.mp.lesson2, day.mp.psalms]
+                            model
+                          )
+                        , ( serviceReadings
+                            "Evening Prayer"
+                            [day.ep.lesson1, day.mp.lesson2, day.mp.psalms]
+                            model
+                          )
+                        , Input.button ((Element.moveDown 20.0) :: Palette.button model.width)
+                        { onPress = Just ShowCalendar
+                        , label = (Element.text "Return to Calendar")
+                        }
+                        ]
+                    ]
+
+
+        in
+        Element.column [ Element.centerX ] rows
+        -- Element.paragraph [] [Element.text "Calendar goes here"]
+        
+    )
+    Mark.string
+
+serviceReadings : String -> List Lesson -> Model -> Element.Element msg
+serviceReadings titleString l model =
+    let
+        leznz = l
+            |> List.map(\content ->
+                content.content |>
+                List.map(\c ->
+                    let
+                        txt = if c.style == "req"
+                            then c.read
+                            else "[" ++ c.read ++ "]"
+                    in
+                    Element.paragraph ( Palette.reading c.style model.width ) [ Element.text txt]
+                )
+            )
+            |> List.concat
+        title = Element.paragraph [ Font.bold ] [ Element.text titleString ]
+        
+    in
+    Element.column [] 
+    ( title :: leznz)
+    
 emptyDivWithId : Model -> String -> Element.Element msg
 emptyDivWithId model s =
     let 
         attrs = 
             [ (Html.Attributes.id s) |> Element.htmlAttribute
             , Html.Attributes.class "lessons" |> Element.htmlAttribute
-            , pageWidth model
+            , pageWidth model.width
             ]
     in
     Element.textColumn attrs [Element.none]
 
-showMenu : Model -> Element.Attribute msg
-showMenu model =
-    if model.showMenu then show else hide
+showMenu : Bool -> Element.Attribute msg
+showMenu bool =
+    if bool then show else hide
 
 menuOptions : Model -> Element.Element Msg
 menuOptions model =
     Element.row []
-    [ Element.column [ showMenu model, scaleFont model 16, Element.paddingXY 20 0 ]
-        --[ clickOption "calendar" "Calendar"
-        [ clickOption "morning_prayer" "Morning Prayer"
+    [ Element.column [ showMenu model.showMenu, scaleFont model.width 16, Element.paddingXY 20 0 ]
+        [ clickOption "calendar" "Calendar"
+        , clickOption "morning_prayer" "Morning Prayer"
         , clickOption "midday" "Midday Prayer"
         , clickOption "evening_prayer" "Evening Prayer"
         , clickOption "compline" "Compline"
@@ -111,7 +202,7 @@ menuOptions model =
         , clickOption "timeOfDeath" "Time of Death"
         , clickOption "vigil" "Prayer for a Vigil"
         ]
-    , Element.column [ showMenu model, scaleFont model 16, Element.paddingXY 20 0, Element.alignTop ]
+    , Element.column [ showMenu model.showMenu, scaleFont model.width 16, Element.paddingXY 20 0, Element.alignTop ]
         [ clickOption "about" "About"
         , clickOption "sync" "How to Install"
         , clickOption "sync" "Update Database"
@@ -146,16 +237,16 @@ showPsalms model thisLesson =
             pss = l.vss 
                 |> List.map (\v -> psalmLine model v.vs v.text )
                 |> List.concat
-            nameTitle = l.ref |> String.split "\n"
+            nameTitle = l.read |> String.split "\n"
             thisName = nameTitle |> List.head |> Maybe.withDefault "" |> toTitleCase
             thisTitle = nameTitle |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
         in
         Element.column 
         [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} 
-        , Palette.maxWidth model
+        , Palette.maxWidth model.width
         ]
         (   Element.paragraph 
-            (Palette.lessonTitle model) 
+            (Palette.lessonTitle model.width) 
             [ Element.text thisName
             , Element.el 
                 [ Font.alignRight
@@ -196,7 +287,7 @@ psalmLine model lineNumber str =
 
 renderPsSection : Model -> Maybe String -> String -> Element.Element Msg
 renderPsSection model title sectionName =
-    Element.paragraph [ Element.paddingXY 10 10, Palette.maxWidth model ]
+    Element.paragraph [ Element.paddingXY 10 10, Palette.maxWidth model.width ]
     [ Element.el [] (Element.text sectionName)
     , Element.el 
         [Font.italic, Element.paddingXY 20 0] 
@@ -205,7 +296,7 @@ renderPsSection model title sectionName =
 
 renderPsLine1 : Model -> Int -> String -> Element.Element Msg
 renderPsLine1 model lineNumber ln1 =
-    Element.paragraph [ indent "3rem", Palette.maxWidth model ]
+    Element.paragraph [ indent "3rem", Palette.maxWidth model.width ]
     [ Element.el [outdent "3rem"] Element.none
     , Element.el 
         [ Font.color Palette.darkRed
@@ -217,7 +308,7 @@ renderPsLine1 model lineNumber ln1 =
 
 renderPsLine2 : Model -> String -> Element.Element Msg
 renderPsLine2 model ln2 =
-    Element.paragraph [ indent "4rem" , Palette.maxWidth model ]
+    Element.paragraph [ indent "4rem" , Palette.maxWidth model.width ]
     [ Element.el [ outdent "2rem"] Element.none
     , Element.text ln2
     ]
@@ -236,10 +327,10 @@ showLesson model thisLesson =
                 |> parseLine
         in
         
-        Element.column ( Palette.lesson model )
-        [ Element.paragraph (Palette.lessonTitle model) [Element.text ( "A reading from " ++ l.ref)]
-        , Element.paragraph [ Palette.maxWidth model] vss
-        , Element.paragraph ( Palette.wordOfTheLord model ) [ Element.text "The Word of the Lord" ]
+        Element.column ( Palette.lesson model.width )
+        [ Element.paragraph (Palette.lessonTitle model.width) [Element.text ( "A reading from " ++ l.read)]
+        , Element.paragraph [ Palette.maxWidth model.width] vss
+        , Element.paragraph ( Palette.wordOfTheLord model.width ) [ Element.text "The Word of the Lord" ]
         ]
     )
     
@@ -354,8 +445,8 @@ renderHeader : String -> String -> (Model -> Element.Element Msg)
 renderHeader title description =
     (\model ->
         Element.column []
-        [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model) )
-            [ Element.row [Element.paddingXY 20 0, Palette.maxWidth model]
+        [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model.width) )
+            [ Element.row [Element.paddingXY 20 0, Palette.maxWidth model.width]
                 [ Element.image 
                     ( List.append (backgroundGradient model.color)
                         [ Element.height (Element.px 36)
@@ -366,31 +457,31 @@ renderHeader title description =
                     { src = "./menu.svg"
                     , description = "Toggle Menu"
                     }
-                , Element.el [scaleFont model 18, Element.paddingXY 30 20] (Element.text "Legereme")
+                , Element.el [scaleFont model.width 18, Element.paddingXY 30 20] (Element.text "Legereme")
                 , Element.el 
-                    [ scaleFont model 14
+                    [ scaleFont model.width 14
                     , Font.color Palette.darkRed
                     , Font.alignRight
-                    , Palette.adjustWidth model -230
+                    , Palette.adjustWidth model.width -230
                     ]
                     (Element.text model.online)
                 ]
             , menuOptions model
             ]
-        , Element.column ( Palette.officeTitle model )
+        , Element.column ( Palette.officeTitle model.width )
             [ Element.paragraph
                 [ Region.heading 1
-                , scaleFont model 32
+                , scaleFont model.width 32
                 , Font.center
                 , Element.width (Element.px model.width)
                 ]
                 [ Element.text title ]
             , Element.paragraph 
-                [ Font.center, scaleFont model 18] 
+                [ Font.center, scaleFont model.width 18] 
                 [ Element.text model.today ]
             , Element.paragraph
-                [ Font.center, scaleFont model 18]
-                [ Element.text ((model.season |> toTitleCase) ++ " " ++ model.week) 
+                [ Font.center, scaleFont model.width 18]
+                [ Element.text ((model |> getSeason |> toTitleCase) ++ " " ++ model.week) 
                 , Element.el [Font.italic] (Element.text model.year)
                 ]
             ]
@@ -413,7 +504,7 @@ toggle =
                         t
                 btns = opts.options |> List.map (\o -> 
                     Input.button
-                    (Palette.button model)
+                    (Palette.button model.width)
                     { onPress = Just (ClickToggle opts.tag o.tag opts)
                     , label = (Element.text o.label)
                     }
@@ -424,9 +515,9 @@ toggle =
                         ) ""
             in
             Element.column []
-            [ Element.el [ Palette.maxWidth model ] (Element.text opts.label)
+            [ Element.el [ Palette.maxWidth model.width ] (Element.text opts.label)
             , Element.row [ Element.spacing 10, Element.padding 10 ] btns
-            , Element.el [ Element.alignLeft, Palette.maxWidth model ] (Element.text selectedText)
+            , Element.el [ Element.alignLeft, Palette.maxWidth model.width ] (Element.text selectedText)
             ]    
         )
         Mark.string
@@ -445,7 +536,7 @@ optionButtons model everything =
 
         btns = opts.options |> List.map(\o ->
             Input.button 
-             (Palette.button model)
+             (Palette.button model.width)
              -- opts.tag == the options group tag
              -- o.tag == the selected option tag
              { onPress = Just (ClickOption opts.tag o.tag opts) 
@@ -468,10 +559,10 @@ optionalPrayer =
                 opts = optionButtons model everything
             in
 
-            Element.column [Element.paddingXY 10 0, Palette.maxWidth model] 
+            Element.column [Element.paddingXY 10 0, Palette.maxWidth model.width] 
             [ Element.paragraph [] [Element.text opts.label]
             , Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
-            , Element.el [ Element.alignLeft, Palette.maxWidth model ] (Element.text opts.text)
+            , Element.el [ Element.alignLeft, Palette.maxWidth model.width ] (Element.text opts.text)
             ]
         )
         Mark.string
@@ -485,7 +576,7 @@ optionalPsalms =
             lns = parsePsalm model opts.text
         in
         
-        Element.column [Element.paddingXY 10 0, Palette.maxWidth model] 
+        Element.column [Element.paddingXY 10 0, Palette.maxWidth model.width] 
         (  Element.paragraph [] [Element.text opts.label]
         :: Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
         :: parsePsalm model opts.text
@@ -531,7 +622,7 @@ seasonal =
             (newModel, _) = update (UpdateOpeningSentences tList) model
             thisSeason = newModel.openingSentences 
                 |> List.foldl (\os acc 
-                    -> if os.tag == model.season || os.tag == "anytime"
+                    -> if os.tag == (getSeason model) || os.tag == "anytime"
                         then os :: acc
                         else acc
                     ) []
@@ -539,17 +630,17 @@ seasonal =
                 |> List.map (\os ->
                     Element.textColumn []
                     [ ( if os.label == "BLANK"
-                        then Element.paragraph (Palette.rubric model) [Element.text "or this"]
-                        else Element.paragraph (Palette.openingSentenceTitle model) [Element.text os.label]
+                        then Element.paragraph (Palette.rubric model.width) [Element.text "or this"]
+                        else Element.paragraph (Palette.openingSentenceTitle model.width) [Element.text os.label]
                       )
-                    , Element.paragraph (Palette.openingSentence model) [Element.text os.text]
-                    , Element.paragraph (Palette.reference model) [Element.text os.ref]
+                    , Element.paragraph (Palette.openingSentence model.width) [Element.text os.text]
+                    , Element.paragraph (Palette.reference model.width) [Element.text os.ref]
                     ]
                 )
         in
 
         Element.textColumn
-        [ Palette.maxWidth model]
+        [ Palette.maxWidth model.width]
         thisSeason
         
     )
@@ -591,11 +682,11 @@ openingSentence =
             in
             case okParsed of
                 Ok os ->
-                    Element.textColumn [ Palette.maxWidth model ] 
-                    [ Element.paragraph (Palette.openingSentenceTitle model)
+                    Element.textColumn [ Palette.maxWidth model.width ] 
+                    [ Element.paragraph (Palette.openingSentenceTitle model.width)
                         [ Element.text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
-                    , Element.paragraph (Palette.openingSentence model) [Element.text (os.text |> collapseWhiteSpace)]
-                    , Element.paragraph (Palette.reference model) [ Element.text (os.ref |> toTitleCase) ]
+                    , Element.paragraph (Palette.openingSentence model.width) [Element.text (os.text |> collapseWhiteSpace)]
+                    , Element.paragraph (Palette.reference model.width) [ Element.text (os.ref |> toTitleCase) ]
                     ]
                 _ ->
                     Element.paragraph [] [Element.text "Opening Sentence Error"]
@@ -617,12 +708,6 @@ init  list =
     in
     
     ( firstModel, Cmd.none )
-    --( firstModel
-    --, Http.get
-    --    { url = "/services/morning_prayer.emu"
-    --    , expect = Http.expectString GotSrc
-    --    }
-    --)
 
 -- REQUEST PORTS
 
@@ -641,7 +726,7 @@ port changeMonth : (String, Int, Int) -> Cmd msg
 
 
 --port receivedReading : (Reading -> msg) -> Sub msg
-port receivedCalendar : (List CalendarDay -> msg) -> Sub msg
+port receivedCalendar : (String -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
 port receivedLesson : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
@@ -674,16 +759,17 @@ type Msg
     | UpdateOption Options
     | ClickOption String String Options
     | ClickToggle String String Options
-    | UpdateCalendar  (List CalendarDay)
+    | UpdateCalendar String
     | UpdateOffice (List String)
     | UpdateLesson String
     | UpdateOnlineStatus String
     | UpdateOpeningSentences (List OpeningSentence)
-    | DayClick CalendarDay
+    | ShowCalendar
     | Office String
     | AltButton String String
     | RequestReference String String
     | TodaysLessons String CalendarDay
+    | ThisDay CalendarDay
     | ChangeMonth String Int Int
     | ToggleMenu
     | NewWidth Int
@@ -738,7 +824,20 @@ update msg model =
             
 
         UpdateCalendar daz ->
-            (model, Cmd.none)
+            let
+                newModel = case (Decode.decodeString calendarDecoder daz) of
+                    Ok cal ->
+                        { model | calendar = cal.calendar}
+                        
+                    _  -> 
+                        let
+                            _ = Debug.log "DECODE CAL FAIL: " daz
+                        in
+                        
+                        model
+            in
+            
+            ( newModel, Cmd.none )
 
         UpdateOffice recvd ->
             let
@@ -747,10 +846,11 @@ update msg model =
                     , day = recvd |> requestedOfficeAt 1
                     , week = recvd |> requestedOfficeAt 2
                     , year = recvd |> requestedOfficeAt 3
-                    , season = recvd |> requestedOfficeAt 4
+                    , season = (recvd |> requestedOfficeAt 4, initTempSeason)
                     , color = recvd |> requestedOfficeAt 5
                     , pageName = recvd |> requestedOfficeAt 6
                     , source = Just (recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n")
+                    --, tempSeason = initTempSeason
                     }
 
             in
@@ -775,17 +875,18 @@ update msg model =
             
 ----
 
-        DayClick day ->
+        ShowCalendar ->
             let
-                -- newDay = { day | show = True}
-                newCalendar = 
-                    model.calendar 
-                    |> updateIf (\d -> d.show) (\d -> { d | show = False})
-                    |> updateAt day.id (\d -> { d | show = True})
-                newModel = { model | calendar = newCalendar }
+                temp = model.season |> Tuple.second
+                newModel = { model 
+                            | season = (temp.season, initTempSeason)
+                            , week = temp.week
+                            , year = temp.year
+                            , today = temp.today
+                            , showThisCalendarDay = -1
+                            }
             in
-                    
-            ( newModel, Cmd.batch[ clearLessons "", Cmd.none ] )
+            ( newModel, Cmd.none )
                     
         Office o ->
             ( { model | showMenu = False}
@@ -800,6 +901,28 @@ update msg model =
 
         TodaysLessons office day ->
             (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
+
+        ThisDay day ->
+            let
+                today = 
+                    Date.fromCalendarDate day.year (Date.numberToMonth (day.month + 1)) day.dayOfMonth
+                    |> Date.format "EEEE, d MMMM y"
+                season = if String.isEmpty day.pTitle
+                            then { season = day.season, week = day.week, year = day.lityear, today = model.today}
+                            else { initTempSeason | season = day.pTitle}
+                tempSeason = {season = getSeason model, week = model.week, year = model.year, today = model.today}
+            in
+            
+            ( { model 
+                | showThisCalendarDay = day.id
+                , today = today
+                , season = (season.season, tempSeason)
+                , week = season.week
+                , year = season.year
+                }
+            , Cmd.none
+            )
+            
 
         ChangeMonth toWhichMonth month year ->
             (model, Cmd.batch [changeMonth (toWhichMonth, month, year), Cmd.none] ) 
@@ -872,7 +995,7 @@ view model =
                         in
                         Element.layout 
                         [ Html.Attributes.style "overflow" "hidden" |> Element.htmlAttribute
-                        , Palette.scaleFont model 14
+                        , Palette.scaleFont model.width 14
                         ] 
                         ( Element.column [ ] rez )
 
@@ -911,3 +1034,4 @@ main =
     , subscriptions = subscriptions
     , view = view
     }
+
