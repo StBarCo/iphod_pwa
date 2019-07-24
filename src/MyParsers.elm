@@ -12,7 +12,7 @@ import Parser exposing ( .. )
 import Regex exposing(replace, Regex)
 import List.Extra exposing (getAt)
 import String.Extra exposing (toTitleCase, toSentence)
-import Palette exposing(scaleFont, pageWidth, maxWidth, scale, indent, outdent, scaleWidth)
+import Palette exposing(scaleFont, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 
 isEven : Int -> Bool
@@ -145,8 +145,8 @@ antiphon =
                     in
                     
                     Element.textColumn 
-                    ( Palette.antiphon model )
-                    ([ Element.el (Palette.antiphonTitle model)
+                    ( Palette.antiphon model.width )
+                    ([ Element.el (Palette.antiphonTitle model.width)
                         ( Element.text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
                     , line1
                     ] ++ t)
@@ -164,7 +164,7 @@ title =
         (\str model ->
             Element.paragraph 
             [ Font.center
-            , scaleFont model 32
+            , scaleFont model.width 32
             ]
             [ Element.text str ]
         )
@@ -191,7 +191,7 @@ pageNumber : Mark.Block (Model -> Element.Element msg)
 pageNumber =
     Mark.block "PageNumber"
         (\str model ->
-            Element.el (Palette.pageNumber model)
+            Element.el (Palette.pageNumber model.width)
             (Element.text str)
         )
         Mark.string
@@ -214,7 +214,7 @@ collectTitle : Mark.Block (Model -> Element.Element msg)
 collectTitle =
     Mark.block "CollectTitle"
         (\str model ->
-            Element.paragraph (Palette.collectTitle model) ( elsWithItalics (str |> toTitleCase) )
+            Element.paragraph (Palette.collectTitle model.width) ( elsWithItalics (str |> toTitleCase) )
         )
         Mark.string
 
@@ -223,7 +223,7 @@ section =
     Mark.block "Section"
         (\str model -> 
             Element.paragraph
-            ( Palette.section model )
+            ( Palette.section model.width )
             [ Element.text (str |> toTitleCase) ]
         )
         Mark.string
@@ -238,7 +238,7 @@ psalmTitle =
                 line2 = lines |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
             in
             Element.paragraph
-            ( Palette.psalmTitle model )
+            ( Palette.psalmTitle model.width )
             [ Element.el [] (Element.text line1)
             , Element.el [ Font.italic, Element.paddingXY 20 0 ] (Element.text line2)
             ]
@@ -250,7 +250,7 @@ reference =
     Mark.block "Ref"
         (\str model ->
             Element.el
-            (Palette.reference model)
+            (Palette.reference model.width)
             (Element.text str)
         )
         Mark.string
@@ -260,7 +260,7 @@ plain =
     Mark.block "Plain"
         (\str model ->
             Element.paragraph
-            ( Palette.plain model )
+            ( Palette.plain model.width )
             [ Element.text (str |> collapseWhiteSpace)]
         )
         Mark.string
@@ -270,7 +270,7 @@ versicals : Mark.Block (Model -> Element.Element msg)
 versicals =
     Mark.block "Versicals"
         (\str model ->
-            Element.column ( Palette.versicals model ) (listOfVersicals model str)
+            Element.column ( Palette.versicals model.width ) (listOfVersicals model str)
         )
         Mark.string
 
@@ -287,9 +287,9 @@ makeVersical model str =
             else (word1, (word1 |> String.length) + 1)
         -- get the length of the first word plus it's trailing space
         says = str |> String.dropLeft wordLen
-        el1 = Element.column [scaleWidth model 90] [ Element.text speaker ]
+        el1 = Element.column [scaleWidth model.width 90] [ Element.text speaker ]
         el2 = Element.column []
-            [ Element.paragraph [scaleWidth model 250] [Element.text says ]
+            [ Element.paragraph [scaleWidth model.width 250] [Element.text says ]
             ]
     in
         Element.paragraph
@@ -304,7 +304,7 @@ quote =
     Mark.block "Quote"
         (\str model ->
             Element.paragraph
-            ( Palette.quote model )
+            ( Palette.quote model.width )
             [ Element.text (str |> collapseWhiteSpace)]
         )
         Mark.string
@@ -315,7 +315,7 @@ rubric =
     Mark.block "Rubric"
         (\str model ->
             Element.paragraph
-            (Palette.rubric model)
+            (Palette.rubric model.width)
             [ Element.text (str |> collapseWhiteSpace) ]
         )
         Mark.string
@@ -335,7 +335,7 @@ prayer =
                     )
             in
             
-            Element.column (Palette.prayer model) lns
+            Element.column (Palette.prayer model.width) lns
         )
         Mark.string
 
