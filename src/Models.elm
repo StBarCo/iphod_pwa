@@ -2,7 +2,7 @@ module Models exposing (..)
 
 import Element
 import Json.Decode as Decode exposing (Decoder, int, string, bool)
-import Json.Decode.Pipeline exposing (required, optional)
+import Json.Decode.Pipeline exposing (required, optional, hardcoded)
 
 -- PARSER MODELS
 
@@ -113,7 +113,7 @@ initReading =
 readingDecoder : Decoder Reading
 readingDecoder =
     Decode.succeed Reading
-    |> required "read" string
+    |> required "ref" string
     |> required "style" string
     |> optional "vss" (Decode.list vsDecoder) []
 

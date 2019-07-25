@@ -940,11 +940,11 @@ addNewLesson str model =
             Ok l ->
                 let
                     newLessons = case l.lesson of
-                        "lesson1" -> {lessons | lesson1 = l }    
-                        "lesson2" -> {lessons | lesson2 = l }    
-                        "psalms"  -> {lessons | psalms = l }    
-                        "gospel"  -> {lessons | gospel = l } 
-                        _         -> lessons     
+                        "lesson1" -> {lessons | lesson1 = l }
+                        "lesson2" -> {lessons | lesson2 = l }
+                        "psalms"  -> {lessons | psalms = l }
+                        "gospel"  -> {lessons | gospel = l }
+                        _         -> lessons
                 in
                 { model | lessons = newLessons }
             

@@ -33,7 +33,7 @@ var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
 import Pouchdb from 'pouchdb';
-var pdb = Pouchdb;
+// window.pdb = Pouchdb;
 var blork = new Pouchdb('blork');
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
