@@ -113,8 +113,8 @@ function makeThisReading(lessons) {
     return lessons.map( function(l) { 
       // psalms do not have a style field and should be required
       var style = l.style ? l.style : "req";
-      var read = l.read ? l.read : l;
-      return {read: read, style: style }; })
+      var ref = l.read ? l.read : l;
+      return {ref: ref, style: style }; })
   }
   else { return []; }
 }
