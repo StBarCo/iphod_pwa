@@ -93,7 +93,7 @@ calendar =
             rows = if model.showThisCalendarDay < 0
                 then
                     model.calendar 
-                    |> groupWhile (\a b -> a.eTitle == b.eTitle)
+                    |> groupWhile (\a b -> a.weekOfMon == b.weekOfMon)
                     |> List.map (\tup -> (Tuple.first tup) :: (Tuple.second tup))
                     |> List.map (\week ->
                         let

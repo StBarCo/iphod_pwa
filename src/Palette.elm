@@ -26,6 +26,14 @@ fixedPosition : Element.Attribute msg
 fixedPosition =
     Html.Attributes.style "position" "fixed" |> Element.htmlAttribute
 
+hyphenate : Element.Attribute msg
+hyphenate =
+     Html.Attributes.style "hyphens" "auto" |> Element.htmlAttribute
+
+english : Element.Attribute msg
+english =
+    Html.Attributes.style "lang" "en" |> Element.htmlAttribute
+
 zIndex : Int -> Element.Attribute msg
 zIndex z =
     Html.Attributes.style "z-index" (z |> String.fromInt) |> Element.htmlAttribute
@@ -138,6 +146,8 @@ calendarDay viewWidth =
     , scaleFont viewWidth 8
     , width (scalePx viewWidth 50)
     , height (scalePx viewWidth 50)
+    , english
+    , hyphenate
     ]
 
 collectTitle : Int -> List (Attribute msg)

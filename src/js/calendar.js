@@ -3,7 +3,7 @@
 import Pouchdb from 'pouchdb';
 var iphod = new Pouchdb('iphod')
 var lectionary = new Pouchdb('lectionary')
-var moment = require('moment');
+// var moment = require('moment');
 var LitYear = require('./lityear.js').LitYear;
 var DailyPsalms = require('./dailyPsalms.js')
 
@@ -24,8 +24,8 @@ export var Calendar = {
   }
 
 , buildPromises: function (list) {
-    var dofKeys = list.map( d => { return "mpep" + d.date.format("MMDD") })
-      , euKeys = list.map( d => { return d.season + d.week + d.year })
+    var dofKeys = list.map( d => { return d.mpepKey })
+      , euKeys = list.map( d => { return d.iphodKey })
       , allPromises = []
       ;
     // lectionary and iphod are DBs
@@ -63,7 +63,8 @@ export var Calendar = {
           , color: thisColor ? thisColor : e.colors[0] // String
           , colors: e.colors
           , season: daz[i].season // String
-          , week: daz[i].week //String
+          , week: daz[i].week.toString() //String
+          , weekOfMon: Math.floor(i/7)
           , lityear: daz[i].year // String
           , month: daz[i].date.month() // Int
           , dayOfMonth: dayOfMonth // int

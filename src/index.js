@@ -121,29 +121,6 @@ function updateOnlineIndicator() {
 
 // if (isOnline) sync();
 
-function service_response(named, resp) {
-  var now = moment()
-  , season = LitYear.toSeason(now)
-  , iphodKey = season.season + season.week + season.year
-  , serviceHeader = []
-  ;
-  iphod.get(iphodKey).then( function(euResp){
-    service_header_response(now, season, named, resp, euResp)
-  })
-  .catch( function(err) {
-    if ( updateOnlineIndicator() ) {
-      remoteIphod.get(iphodKey).then (function(euResp) {
-        service_header_response(now, season, named, resp, euResp);
-      })
-      .catch( function(err) {
-        console.log("ERROR GETTING REMOTE IPHOD: ", err)
-      })
-
-    }
-    console.log("ERROR GETTING IPHOD: ", err)
-  })
-}
-
 function service_header_response(now, season, named, resp, euResp) {
   var today = now.format("dddd, MMMM Do YYYY")
   , day = [ "Sunday", "Monday", "Tuesday"
@@ -184,6 +161,15 @@ function service_db_name(s) {
   return dbName[s];
 }
 
+function get_service(named) {
+  // have to map offices here
+  // we might want to add offices other than acna
+  send_status("getting " + named )
+  if (named === "sync") { return sync()}
+  get_service_from_db([remoteService, service], named)
+}
+
+
 function get_service_from_db(dbs, named) {
   var thisDB = dbs.pop();
   thisDB.get( service_db_name(named) )
@@ -198,14 +184,27 @@ function get_service_from_db(dbs, named) {
   })
 }
 
-function get_service(named) {
-  // have to map offices here
-  // we might want to add offices other than acna
-  send_status("getting " + named )
-  if (named === "sync") { return sync()}
-  get_service_from_db([remoteService, service], named)
-}
+function service_response(named, resp) {
+  var now = moment();
+  var season = LitYear.toSeason(now);
+  var iphodKey = season.iphodKey;
 
+  iphod.get(iphodKey).then( function(euResp){
+    service_header_response(now, season, named, resp, euResp)
+  })
+  .catch( function(err) {
+    if ( updateOnlineIndicator() ) {
+      remoteIphod.get(iphodKey).then (function(euResp) {
+        service_header_response(now, season, named, resp, euResp);
+      })
+      .catch( function(err) {
+        console.log("ERROR GETTING REMOTE IPHOD: ", err)
+      })
+
+    }
+    console.log("ERROR GETTING IPHOD: ", err)
+  })
+}
 
 function get_preferences(do_this_too) {
   preferences.get('preferences').then(function(resp){
@@ -263,8 +262,7 @@ app.ports.requestTodaysLessons.subscribe(  function(request) {
 })
 
 function getOfficeLessons(office, day) {
-  var key = "mpep" + datePad0(day.month) + datePad0(day.dayOfMonth);
-  lectionary.get(key)
+  lectionary.get(LitYear.toSeason(day).mpepKey)
   .then(  function(resp) {
     putCalendarLessons(office + "1_today", resp[office + "1"] );
     putCalendarLessons(office + "2_today", resp[office + "2"] );
@@ -274,8 +272,7 @@ function getOfficeLessons(office, day) {
 }
 
 function getEucharistLessons(day) {
-  var key = day.season + day.week + day.lityear;
-  iphod.get(key)
+  iphod.get(day.iphodKey)
   .then(  function(resp) {
     putCalendarLessons("eu1_today", resp.ot);
     putCalendarLessons("eu2_today", resp.nt);
@@ -405,6 +402,14 @@ function request_lessons(request) {
   // otherwise, don't do anything
 }
 
+function insertLesson(lesson, office) {
+  // mpepmmdd - mpep0122
+  var mpep = (office === "morning_prayer") ? "mp" : "ep"
+    , mpepRef = "mpep" + moment().format("MMDD")
+    ;
+    get_from_lectionary_db( [remoteLectionary, lectionary], lesson, mpep, mpepRef );
+}
+
 function get_from_lectionary_db(dbs, lesson, mpep, mpepRef) {
   var thisDB = dbs.pop();
   thisDB.get(mpepRef)
@@ -416,14 +421,6 @@ function get_from_lectionary_db(dbs, lesson, mpep, mpepRef) {
     if ( dbs.length > 0 ) { get_from_lectionary_db( dbs, lesson, mpep, mpepRef ) }
     else { db_fail("Lectionary") }
   })
-}
-
-function insertLesson(lesson, office) {
-  // mpepmmdd - mpep0122
-  var mpep = (office === "morning_prayer") ? "mp" : "ep"
-    , mpepRef = "mpep" + moment().format("MMDD")
-    ;
-    get_from_lectionary_db( [remoteLectionary, lectionary], lesson, mpep, mpepRef );
 }
 
 function get_from_scripture_db(dbs, mpep, lesson, resp) {
@@ -590,9 +587,3 @@ function showPsalms(pss) {
   })
   return pss;
 }
-
-function datePad0(n) {
-  if (n < 10) return "0" + n;
-  return '' + n;
-}
-

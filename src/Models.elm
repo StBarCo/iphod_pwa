@@ -168,6 +168,7 @@ type alias CalendarDay =
     , colors    : List String
     , season    : String
     , week      : String
+    , weekOfMon : Int
     , lityear   : String
     , month     : Int
     , dayOfMonth : Int
@@ -189,6 +190,7 @@ initCalendarDay =
     , colors     = []
     , season     = ""
     , week       = ""
+    , weekOfMon  = 0
     , lityear    = ""
     , month      = 0
     , dayOfMonth = 0
@@ -218,6 +220,7 @@ dayDecoder =
     |> required "colors" (Decode.list string)
     |> required "season" string
     |> required "week" string
+    |> required "weekOfMon" int
     |> required "lityear" string
     |> required "month" int
     |> required "dayOfMonth" int

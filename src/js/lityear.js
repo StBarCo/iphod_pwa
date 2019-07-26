@@ -57,6 +57,17 @@ var rlds =
 
 export var LitYear = {
 
+mpepKey: function (moment_date){
+  return "mpep" + moment_date.format("MMDD");
+},
+
+iphodKey: function (moment_date) {
+  var s = this.toSeason(moment_date);
+  var holyDay = !!this.holyDay(moment_date);
+  if (holyDay) { return s.season; }
+  return s.season + s.week + s.year;
+},
+
 thisYear: function (moment_date) { return moment(moment_date).year(); },
 inRange: function (n, min, max) { return n >= Math.min(min, max) && n <= Math.max(min, max); },
 listContains: function (list, obj) { return list.indexOf(obj) >= 0; },
@@ -79,6 +90,9 @@ daysFromChristmas: function(moment_date) {
   return diff;
 },
 litYearName: function (moment_date) { return litYearNames[ this.litYear(moment_date) % 3 ]; },
+isRLD: function (moment_date) {
+  return !!this.holyDay(moment_date)
+},
 rldColor: function(moment_date) {
   var rld = this.holyDay(moment_date);
   return rld ? rld.color : undefined;
@@ -188,79 +202,104 @@ goodFriday: function (moment_date) {
 isGoodFriday: function (moment_date) { 
   return moment_date.isSame(this.goodFriday(moment_date)) ;
 },
+makeIphodKey: function(season, week, year) {
+  return season + week + year;
+},
 toSeason: function (moment_date) {
 //  var sunday = this.isSunday(moment_date) ? date : this.dateLastSunday(moment(moment_date))
   var sunday = moment_date.clone().day('Sunday')
   var y = this.litYear(sunday);
   var yrABC = this.litYearName(sunday);
-  var dOfMonth = (sunday.month() + 1) + "/" + sunday.date();
   var weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday, 1));
-  var daysTillEpiphany = this.daysTill(moment_date, this.epiphanyDay(moment_date));
   var weeksFromEpiphany = this.weeksTill(this.epiphanyDay(sunday), sunday);
-  var weeksFromChristmas = Math.floor( this.daysFromChristmas(moment_date) / 7 );
   var isChristmas = this.inRange( this.daysFromChristmas(moment_date), 0, 11);
   var weeksFromEaster = this.weeksTill(this.easter(moment_date), sunday);
   var daysTillEaster = this.daysTill(moment_date, this.easter(moment_date));
-  var isRLD = this.holyDay(moment_date);
-
+  var rld = this.holyDay(moment_date);
+  var holyDay = !!rld;
+  var mKey = this.mpepKey(moment_date);
+  var [wk, ik] = ["", ""];
   switch (true) {
 
-  case isRLD:
-    return { season: isRLD.id, week: 1, year: yrABC, date: moment_date };
+  case holyDay:
+    return { season: rld.id, week: 1, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: rld.id   };
     break;
   case (isChristmas):
     return this.whereInChristmas(moment_date, yrABC);
     break;
   case (this.rightAfterAshWednesday(moment_date)): 
-    return {season: "ashWednesday", week: "1", year: yrABC, date: moment_date}; 
+    ik = "ashWednesday1";
+    return {season: "ashWednesday", week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik}; 
     break;
   case (this.rightAfterAscension(moment_date)):
-    return {season: "ascension",    week: "1", year: yrABC, date: moment_date};
+    ik = "ascension1";
+    return {season: "ascension",    week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(daysTillEaster, 1, 6)):
-    return {season: "holyWeek",     week: (7 - daysTillEaster).toString(), year: yrABC, date: moment_date};
+    wk = (7 - daysTillEaster).toString();
+    ik = "holyWeek" + wk + yrABC;
+    return {season: "holyWeek",     week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(daysTillEaster, -1, -6)):
-    return {season: "easterWeek",   week: (0 - daysTillEaster).toString(), year: yrABC, date: moment_date};
+    wk = (0 - daysTillEaster).toString();
+    ik = "easterWeek" + wk + yrABC;
+    return {season: "easterWeek",   week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksFromEaster, -2, -6)):
-    return {season: "lent",         week: (7 + weeksFromEaster).toString(), year: yrABC, date: moment_date};
+    wk = (7 + weeksFromEaster).toString();
+    ik = "lent" + wk + yrABC;
+    return {season: "lent",         week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (weeksFromEaster == -1):
-    return {season: "palmSunday",   week: "1", year: yrABC, date: moment_date};
+    ik = "palmSunday1" + yrABC;
+    return {season: "palmSunday",   week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (weeksFromEaster == -7):
-    return {season: "epiphany",     week: "9", year: yrABC, date: moment_date};
+    ik = "epiphany9" + yrABC;
+    return {season: "epiphany",     week: "9", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (weeksFromEaster == -8):
-    return {season: "epiphany",     week: "8", year: yrABC, date: moment_date};
+    ik = "epiphany8" + yrABC;
+    return {season: "epiphany",     week: "8", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (weeksFromEaster === 0):
-    return {season: "easterDay",    week: "1", year: yrABC, date: moment_date};
+    ik = "easterDay1" + yrABC;
+    return {season: "easterDay",    week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksFromEaster, 0, 6)):
-    return {season: "easter",       week: (1 + weeksFromEaster).toString(), year: yrABC, date: moment_date};
+    wk = (1 + weeksFromEaster).toString();
+    ik = "easter" + wk + yrABC;
+    return {season: "easter",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (weeksFromEaster == 7):
-    return {season: "pentecost",    week: "1", year: yrABC, date: moment_date};
+    ik = "pentecost1" + yrABC;
+    return {season: "pentecost",    week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (weeksFromEaster == 8):
-    return {season: "trinity",      week: "1", year: yrABC, date: moment_date};
+    ik = "trinity1" + yrABC;
+    return {season: "trinity",      week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksTillAdvent, 1, 27)):
-    return {season: "proper",       week: (30 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
+    wk = (30 - weeksTillAdvent).toString();
+    ik = "proper" + wk + yrABC;
+    return {season: "proper",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksTillAdvent, 0, -3)):
-    return {season: "advent",       week: (1 - weeksTillAdvent).toString(), year: yrABC, date: moment_date};
+    wk = (1 - weeksTillAdvent).toString();
+    ik = "advent" + wk + yrABC;
+    return {season: "advent",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.epiphanyBeforeSunday(moment_date)):
-    return {season: "epiphany",     week: "0", year: yrABC, date: moment_date};
+    ik = "epiphany0" + yrABC;
+    return {season: "epiphany",     week: "0", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksFromEpiphany, 0, 8)):
-    return {season: "epiphany",     week: (weeksFromEpiphany + 1).toString(), year: yrABC, date: moment_date};
+    wk = (weeksFromEpiphany + 1).toString();
+    ik = "epiphany" + wk + yrABC;
+    return {season: "epiphany",     week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   default:
-    return {season: "unknown",      week: "unknown", year: "unknown",date: moment_date};
+    return {season: "unknown",      week: "unknown", year: "unknown",date: moment_date, mKey: "unknown", iphodKey: "unknown"};
   }
   
 },
