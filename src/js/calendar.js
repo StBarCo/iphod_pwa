@@ -111,11 +111,11 @@ function makeReadings(lesson1, lesson2, psalms, gospel) {
 function makeThisReading(lessons) {
   
   if (lessons) {
-    return lessons.map( function(l) { 
+    return lessons.map( function(l,id) { 
       // psalms do not have a style field and should be required
       var style = l.style ? l.style : "req";
       var ref = l.read ? l.read : l;
-      return {ref: ref, style: style }; })
+      return {id: id, ref: ref, style: style }; })
   }
   else { return []; }
 }

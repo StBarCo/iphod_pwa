@@ -90,7 +90,8 @@ calendar =
     Mark.block "Calendar"
     (\month model ->
         let
-            rows = if model.showThisCalendarDay < 0
+            dayId = model.showThisCalendarDay
+            rows = if dayId < 0
                 then
                     model.calendar 
                     |> groupWhile (\a b -> a.weekOfMon == b.weekOfMon)
@@ -114,26 +115,14 @@ calendar =
                 else
                     let
                         day = model.calendar 
-                            |> getAt model.showThisCalendarDay
+                            |> getAt dayId
                             |> Maybe.withDefault initCalendarDay
                         
                     in
                     [ Element.column []
-                        [ ( serviceReadings 
-                            "Eucharistic" 
-                            [day.eu.lesson1, day.eu.lesson2, day.eu.psalms, day.eu.gospel]
-                             model
-                          )
-                        , ( serviceReadings
-                            "Morning Prayer"
-                            [day.mp.lesson1, day.mp.lesson2, day.mp.psalms]
-                            model
-                          )
-                        , ( serviceReadings
-                            "Evening Prayer"
-                            [day.ep.lesson1, day.mp.lesson2, day.mp.psalms]
-                            model
-                          )
+                        [ ( serviceReadings Eucharist day model.width )
+                        , ( serviceReadings MorningPrayer day model.width )
+                        , ( serviceReadings EveningPrayer day model.width )
                         , Input.button ((Element.moveDown 20.0) :: Palette.button model.width)
                         { onPress = Just ShowCalendar
                         , label = (Element.text "Return to Calendar")
@@ -149,11 +138,17 @@ calendar =
     )
     Mark.string
 
-serviceReadings : String -> List Lesson -> Model -> Element.Element msg
-serviceReadings titleString l model =
+serviceReadings : Service -> CalendarDay -> Int -> Element.Element Msg
+serviceReadings thisService day width =
     let
-        leznz = l
-            |> List.map(\content ->
+        -- dayId = day.id
+        leznz = 
+            ( case thisService of
+                    Eucharist -> [day.eu.lesson1, day.eu.psalms, day.eu.lesson2, day.eu.gospel]
+                    MorningPrayer -> [day.mp.psalms, day.mp.lesson1, day.mp.lesson2 ]
+                    EveningPrayer -> [day.ep.psalms, day.ep.lesson1, day.ep.lesson2 ]
+            )
+            |> List.indexedMap(\i content ->
                 content.content |>
                 List.map(\c ->
                     let
@@ -161,11 +156,19 @@ serviceReadings titleString l model =
                             then c.read
                             else "[" ++ c.read ++ "]"
                     in
-                    Element.paragraph ( Palette.reading c.style model.width ) [ Element.text txt]
+                    Element.paragraph 
+                        ( Event.onClick (ThisReading thisService (indexedReading i thisService) day) 
+                        :: Palette.reading c.style width 
+                        ) 
+                        [ Element.text txt]
                 )
             )
             |> List.concat
-        title = Element.paragraph [ Font.bold ] [ Element.text titleString ]
+        title = Element.paragraph 
+            [ Event.onClick (ThisReading thisService All day)
+            , Font.bold 
+            ] 
+            [ Element.text (serviceTitle thisService) ]
         
     in
     Element.column [] 
@@ -716,8 +719,9 @@ port requestReference : (List String) -> Cmd msg
 port requestOffice : String -> Cmd msg
 -- port requestReadings : String -> Cmd msg
 port requestLessons : String -> Cmd msg
+port serviceReadingRequest : ServiceReadingRequest -> Cmd msg
 port toggleButtons : (List String) -> Cmd msg
-port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
+-- port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
 port clearLessons : String -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
 
@@ -752,6 +756,39 @@ subscriptions model =
 --        , receivedGospel UpdateGospel
         ]
 
+serviceToString : Service -> String
+serviceToString s =
+    case s of
+        Eucharist -> "eu"
+        MorningPrayer -> "mp"
+        EveningPrayer -> "ep"
+
+readingTypeToString : ReadingType -> String
+readingTypeToString r =
+    case r of
+        Lesson1 -> "lesson1"
+        Lesson2 -> "lesson2"
+        Psalms  -> "psalms"
+        Gospel  -> "gospel"
+        All     -> "all"
+
+serviceTitle : Service -> String
+serviceTitle s =
+    case s of
+        Eucharist -> "Eucharist"
+        MorningPrayer -> "Morning Prayer"
+        EveningPrayer -> "Evening Prayer"
+
+indexedReading : Int -> Service -> ReadingType
+indexedReading i s = 
+    ( case s of 
+        Eucharist -> [Lesson1, Psalms, Lesson2, Gospel]
+        MorningPrayer -> [Psalms, Lesson1, Lesson2]
+        EveningPrayer -> [Psalms, Lesson1, Lesson2]
+    )
+    |> getAt i
+    |> Maybe.withDefault All
+
 
 type Msg 
     = NoOp
@@ -768,8 +805,9 @@ type Msg
     | Office String
     | AltButton String String
     | RequestReference String String
-    | TodaysLessons String CalendarDay
+--    | TodaysLessons String CalendarDay
     | ThisDay CalendarDay
+    | ThisReading Service ReadingType CalendarDay
     | ChangeMonth String Int Int
     | ToggleMenu
     | NewWidth Int
@@ -895,8 +933,8 @@ update msg model =
         RequestReference readingId ref ->
             (model, Cmd.batch [requestReference [readingId, ref], Cmd.none] )  
 
-        TodaysLessons office day ->
-            (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
+        -- TodaysLessons office day ->
+        --     (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
 
         ThisDay day ->
             let
@@ -918,6 +956,19 @@ update msg model =
                 }
             , Cmd.none
             )
+
+        ThisReading thisService thisReading day -> 
+            let
+                servRequest = 
+                    { id = day.id
+                    , reading = readingTypeToString thisReading
+                    , service = serviceToString thisService
+                    , dayOfMonth = day.dayOfMonth
+                    , month = day.month
+                    , year = day.year
+                    }
+            in
+            (model, Cmd.batch [ serviceReadingRequest servRequest, Cmd.none ] )
             
 
         ChangeMonth toWhichMonth month year ->
@@ -931,6 +982,7 @@ update msg model =
                 | windowWidth = i
                 , width = (min i 500) - 20
             }, Cmd.none)
+
 
 addNewLesson : String -> Model -> Model
 addNewLesson str model =

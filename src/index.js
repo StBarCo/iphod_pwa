@@ -255,62 +255,120 @@ $(window).on("resize", function() {
   app.ports.newWidth.send( newWidth )
 })
 
-app.ports.requestTodaysLessons.subscribe(  function(request) {
-  $(".lessons_today").empty();
-  var [office, day] = request;
-  (office === "eu") ? getEucharistLessons(day) : getOfficeLessons(office, day)
+app.ports.serviceReadingRequest.subscribe( function(req) {
+  console.log("SERVICE READING REQUEST: ", req)
+  var thisDate = moment({year: req.year, month: req.month, date: req.dayOfMonth});
+  var sn = LitYear.toSeason(thisDate);
+  console.log("THIS DATE:", sn);
+  if (req.service == "eu") { getEucharistLessons(sn.iphodKey, req); }
+  else { getOfficeLessons(sn.mpepKey, req); }
 })
 
-function getOfficeLessons(office, day) {
-  lectionary.get(LitYear.toSeason(day).mpepKey)
-  .then(  function(resp) {
-    putCalendarLessons(office + "1_today", resp[office + "1"] );
-    putCalendarLessons(office + "2_today", resp[office + "2"] );
+function getOfficeLessons(key, req) {
+  lectionary.get(key)
+  .then( function(resp) {
+    var keys = getReadingKeys(req.service, req.reading, resp);
+    console.log("KEYS: ", keys)
   })
-  .catch(  function(err) {
+  .catch( function(err) {
+    console.log("GET OFFICE LESSON ERROR:", err)
   })
 }
 
-function getEucharistLessons(day) {
-  iphod.get(day.iphodKey)
-  .then(  function(resp) {
-    putCalendarLessons("eu1_today", resp.ot);
-    putCalendarLessons("eu2_today", resp.nt);
-    putCalendarLessons("eugs_today", resp.gs);
+function getEucharistLessons(key, req) {
+  iphod.get(key)
+  .then( function(resp) {
+    console.log("GET EUCHARISTIC LESSON:", resp)
   })
-  .catch(  function(err) {
-    console.log("GET EU LESSONS ERROR: ", err)
+  .catch( function(err){
+    console.log("GET EUCHARISTIC LESSON ERROR:", err)
   })
 }
+
+function getReadingKeys(service, lesson, resp) {
+  console.log("GET READING KEYS: ", lesson)
+  var keys = []
+  switch (lesson) {
+    case "lesson1": 
+      keys = BibleRef.dbKeys(resp[service + "1"]);
+      break;
+    case "lesson2": 
+      keys = BibleRef.dbKeys(resp[service + "1"]);
+      break;
+    case "psalms" : 
+      keys = resp[service + "p"];
+      break;
+    default: 
+      keys = 
+        [ BibleRef.dbKeys(resp[service + "1"])
+        , BibleRef.dbKeys(resp[service + "2"])
+        , resp[service + "p"]
+        ]
+  }
+  return keys;
+}
+
+
+// app.ports.requestTodaysLessons.subscribe(  function(request) {
+//   $(".lessons_today").empty();
+//   var [office, day] = request;
+//   (office === "eu") ? getEucharistLessons(day) : getOfficeLessons(office, day)
+// })
+
+// function getOfficeLessons(office, day) {
+//   lectionary.get(LitYear.toSeason(day).mpepKey)
+//   .then(  function(resp) {
+//     putCalendarLessons(office + "1_today", resp[office + "1"] );
+//     putCalendarLessons(office + "2_today", resp[office + "2"] );
+//   })
+//   .catch(  function(err) {
+//   })
+// }
+// 
+// function getEucharistLessons(day) {
+//   iphod.get(day.iphodKey)
+//   .then(  function(resp) {
+//     putCalendarLessons("eu1_today", resp.ot);
+//     putCalendarLessons("eu2_today", resp.nt);
+//     putCalendarLessons("eugs_today", resp.gs);
+//   })
+//   .catch(  function(err) {
+//     console.log("GET EU LESSONS ERROR: ", err)
+//   })
+// }
 
 // app.ports.clearLessons.subscribe(  function(request) {
 //   $(".lessons_today").empty();
 // })
 
-function putCalendarLessons( divId, refs ) {
-  $(".lessons_today").hide();
-  var allPromises = []
-    , keys = BibleRef.dbKeys( refs.map(  function(r) { return r.read } ) )
-    ;
-  allPromises = keys.map(  function(k) {
-     return iphod.allDocs(
-      { include_docs: true
-      , startkey: k.from
-      , endkey: k.to
-      }
-    )
-  });
-  Promise.all( allPromises ).then(  function(resp) {
-    resp.forEach(  function(r) {
-      var vss = "";
-      r.rows.forEach(  function(rx) { vss += rx.doc.vss } );
-      $("#" + divId).append("<div>" + vss + "</div>").show();
-    })
-  })
-  .catch(  function(err) {
-    console.log("ERROR - putCalendarLessons for " + divId + ": ", err)
-  })
-}
+// function getReadingKeys(refs) {  
+//   return BibleRef.dbKeys( refs.map( function(r) { return r.read; } ) );
+// }
+
+// function putCalendarLessons( divId, refs ) {
+//   $(".lessons_today").hide();
+//   var allPromises = []
+//     , keys = getReadingKeys(refs); //BibleRef.dbKeys( refs.map(  function(r) { return r.read } ) )
+//     ;
+//   allPromises = keys.map(  function(k) {
+//      return iphod.allDocs(
+//       { include_docs: true
+//       , startkey: k.from
+//       , endkey: k.to
+//       }
+//     )
+//   });
+//   Promise.all( allPromises ).then(  function(resp) {
+//     resp.forEach(  function(r) {
+//       var vss = "";
+//       r.rows.forEach(  function(rx) { vss += rx.doc.vss } );
+//       $("#" + divId).append("<div>" + vss + "</div>").show();
+//     })
+//   })
+//   .catch(  function(err) {
+//     console.log("ERROR - putCalendarLessons for " + divId + ": ", err)
+//   })
+// }
 
 
 app.ports.requestOffice.subscribe( function(request) {

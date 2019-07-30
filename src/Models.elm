@@ -42,6 +42,27 @@ type alias TempSeason =
     , today: String
     }
 
+type Service
+    = Eucharist
+    | MorningPrayer
+    | EveningPrayer
+
+type ReadingType
+    = Lesson1
+    | Lesson2
+    | Psalms
+    | Gospel
+    | All
+
+type alias ServiceReadingRequest =
+    { id : Int
+    , reading : String
+    , service : String
+    , dayOfMonth : Int
+    , month : Int
+    , year : Int
+    }
+
 initTempSeason : TempSeason
 initTempSeason =
     { season = ""
@@ -98,14 +119,16 @@ vsDecoder =
     |> optional "vss" string ""
 
 type alias Reading =
-    { read: String
+    { id: Int
+    , read: String
     , style: String
     , vss: List Verse
     }
 
 initReading : Reading
 initReading = 
-    { read = ""
+    { id = 0
+    , read = ""
     , style = "req"
     , vss = []
     }
@@ -113,6 +136,7 @@ initReading =
 readingDecoder : Decoder Reading
 readingDecoder =
     Decode.succeed Reading
+    |> required "id" int
     |> required "ref" string
     |> required "style" string
     |> optional "vss" (Decode.list vsDecoder) []
