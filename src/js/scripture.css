@@ -1,4 +1,12 @@
+h2, h3 {
+  margin: 0;
+  padding: 0;
+}
 
+p.virtual {
+  overflow-wrap: normal;
+  white-space: normal;
+}
 
 p.psalm_name {
   font-size: 1.3rem;

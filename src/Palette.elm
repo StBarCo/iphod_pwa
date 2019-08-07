@@ -34,6 +34,10 @@ english : Element.Attribute msg
 english =
     Html.Attributes.style "lang" "en" |> Element.htmlAttribute
 
+whiteSpace : String -> Element.Attribute msg
+whiteSpace str =
+    Html.Attributes.style "white-space" str |> Element.htmlAttribute
+
 zIndex : Int -> Element.Attribute msg
 zIndex z =
     Html.Attributes.style "z-index" (z |> String.fromInt) |> Element.htmlAttribute
@@ -161,7 +165,10 @@ collectTitle viewWidth =
 
 lesson : Int -> List (Attribute msg)
 lesson viewWidth =
-    [ paddingXY 10 0 ]
+    [ paddingXY 3 0 
+    , maxWidth viewWidth
+    , whiteSpace "normal"
+    ]
 
 lessonTitle : Int -> List (Attribute msg)
 lessonTitle viewWidth =
@@ -242,11 +249,11 @@ radioRow viewWidth =
     , maxWidth viewWidth
     ]
 
-reading : String -> Int -> List (Attribute msg)
-reading req viewWidth =
+readingRef : String -> Int -> List (Attribute msg)
+readingRef req viewWidth =
     if req == "req"
-        then [ Font.color black ]
-        else [ Font.color darkBlue ]
+        then [ Font.color black, paddingXY 20 5 ]
+        else [ Font.color darkBlue, paddingXY 20 5 ]
 
 reference : Int -> List (Attribute msg)
 reference viewWidth =

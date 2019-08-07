@@ -136,7 +136,7 @@ initReading =
 readingDecoder : Decoder Reading
 readingDecoder =
     Decode.succeed Reading
-    |> required "id" int
+    |> optional "id" int 0
     |> required "ref" string
     |> required "style" string
     |> optional "vss" (Decode.list vsDecoder) []
@@ -145,12 +145,14 @@ readingDecoder =
 type alias Lesson =
     { lesson: String
     , content: List Reading 
+    , spa_location: String
     }
 
 initLesson : Lesson
 initLesson = 
     { lesson = ""
     , content = [] 
+    , spa_location = ""
     }
 
 lessonDecoder : Decoder Lesson
@@ -158,6 +160,7 @@ lessonDecoder =
     Decode.succeed Lesson
     |> optional "lesson" string ""
     |> required "content" (Decode.list readingDecoder)
+    |> optional "spa_location" string "office"
 
 
 type alias Lessons =
@@ -274,6 +277,9 @@ type alias Model =
     , calendar : List CalendarDay
     , showMenu : Bool
     , lessons : Lessons
+    , eu : Lessons
+    , mp : Lessons
+    , ep : Lessons
     , openingSentences : List OpeningSentence
     , online : String
     }
@@ -300,6 +306,9 @@ initModel =
     , calendar      = []
     , showMenu      = False
     , lessons       = initLessons
+    , eu            = initLessons
+    , mp            = initLessons
+    , ep            = initLessons
     , openingSentences = []
     , online        = "loading"
     }

@@ -1,10 +1,8 @@
 port module Main exposing (main)
 
 import Browser exposing (Document)
-import Browser.Events
 import Element
 import Element.Background as Background
-import Element.Border as Border
 import Element.Input as Input
 -- Event is singular on purpose
 import Element.Events as Event
@@ -19,13 +17,13 @@ import Platform.Sub as Sub exposing (batch)
 import Platform.Cmd as Cmd exposing (Cmd)
 import Mark
 import Mark.Error exposing (Error)
-import Parser exposing ( .. )
-import Regex exposing(replace, Regex)
-import List.Extra exposing (getAt, last, find, findIndex, setAt, updateAt, updateIf, groupWhile)
+import Parser exposing (..)
+import Regex exposing(replace)
+import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
 import String.Extra exposing (toTitleCase, countOccurrences)
 import MyParsers exposing (..)
-import Palette exposing (scale, scaleFont, pageWidth, indent, outdent, show, hide)
+import Palette exposing (scaleFont, pageWidth, indent, outdent, show, hide)
 import Models exposing (..)
 import Json.Decode as Decode
 import Date
@@ -49,12 +47,7 @@ document =
     Mark.documentWith
         (\meta body ->
             { metadata = meta
-            , body = (renderHeader meta.title meta.description) :: body
-                -- renderTitle model meta
-                --     :: body
---                Html.node "style" [] [ Html.text stylesheet ]
---                    :: Html.h1 [] meta.title
---                    :: body
+            , body = renderHeader meta.title meta.description :: body
             }
         )
         -- -- we have some required metadata that starts our document
@@ -95,14 +88,14 @@ calendar =
                 then
                     model.calendar 
                     |> groupWhile (\a b -> a.weekOfMon == b.weekOfMon)
-                    |> List.map (\tup -> (Tuple.first tup) :: (Tuple.second tup))
+                    |> List.map (\tup -> Tuple.first tup :: Tuple.second tup)
                     |> List.map (\week ->
                         let
                             thisWeek = 
                                 week
                                 |> List.map (\day ->
                                     Element.column 
-                                    ( Event.onClick (ThisDay day) :: ((backgroundGradient day.color) ++ Palette.calendarDay model.width))
+                                    ( Event.onClick (ThisDay day) :: (backgroundGradient day.color ++ Palette.calendarDay model.width))
                                     [ Element.paragraph [ Element.padding 2 ] 
                                       [ Element.el [] (Element.text (day.dayOfMonth |> String.fromInt))
                                       , Element.el [ Element.padding 2 ] (Element.text day.pTitle)
@@ -119,72 +112,100 @@ calendar =
                             |> Maybe.withDefault initCalendarDay
                         
                     in
-                    [ Element.column []
-                        [ ( serviceReadings Eucharist day model.width )
-                        , ( serviceReadings MorningPrayer day model.width )
-                        , ( serviceReadings EveningPrayer day model.width )
-                        , Input.button ((Element.moveDown 20.0) :: Palette.button model.width)
+                    [ Element.column [Font.alignLeft]
+                        [ serviceReadings Eucharist day model
+                        , serviceReadings MorningPrayer day model
+                        , serviceReadings EveningPrayer day model
+                        , Input.button (Element.moveDown 20.0 :: Palette.button model.width)
                         { onPress = Just ShowCalendar
-                        , label = (Element.text "Return to Calendar")
+                        , label = Element.text "Return to Calendar"
                         }
                         ]
                     ]
 
 
         in
-        Element.column [ Element.centerX ] rows
-        -- Element.paragraph [] [Element.text "Calendar goes here"]
+        Element.column [] rows
         
     )
     Mark.string
 
-serviceReadings : Service -> CalendarDay -> Int -> Element.Element Msg
-serviceReadings thisService day width =
+
+referenceText : Int -> CalendarDay -> Service -> ReadingType -> List (Element.Element Msg)
+referenceText width day thisService thisReading =
     let
-        -- dayId = day.id
+        lezn = case (thisService, thisReading) of
+            (Eucharist, Lesson1) -> day.eu.lesson1.content
+            (Eucharist, Lesson2) -> day.eu.lesson2.content
+            (Eucharist, Psalms) -> day.eu.psalms.content
+            (Eucharist, Gospel) ->  day.eu.gospel.content
+            (MorningPrayer, Lesson1) -> day.mp.lesson1.content
+            (MorningPrayer, Lesson2) -> day.mp.lesson2.content
+            (MorningPrayer, Psalms) -> day.mp.psalms.content
+            (EveningPrayer, Lesson1) -> day.ep.lesson1.content
+            (EveningPrayer, Lesson2) -> day.ep.lesson2.content
+            (EveningPrayer, Psalms) -> day.ep.psalms.content
+            (_, _) -> [] 
+        in
+        lezn 
+        |> List.map(\r ->
+            let
+                ref = if r.style == "req"
+                    then r.read
+                    else "[" ++ r.read ++ "]"    
+            in
+            Element.paragraph
+                ( Event.onClick (ThisReading thisService thisReading day) 
+                :: Palette.readingRef r.style width 
+                ) 
+                [ Element.text ref]
+        )
+
+    
+serviceReadings : Service -> CalendarDay -> Model -> Element.Element Msg
+serviceReadings thisService day model =
+    let
+        width = model.width
         leznz = 
-            ( case thisService of
-                    Eucharist -> [day.eu.lesson1, day.eu.psalms, day.eu.lesson2, day.eu.gospel]
-                    MorningPrayer -> [day.mp.psalms, day.mp.lesson1, day.mp.lesson2 ]
-                    EveningPrayer -> [day.ep.psalms, day.ep.lesson1, day.ep.lesson2 ]
-            )
-            |> List.indexedMap(\i content ->
-                content.content |>
-                List.map(\c ->
-                    let
-                        txt = if c.style == "req"
-                            then c.read
-                            else "[" ++ c.read ++ "]"
-                    in
-                    Element.paragraph 
-                        ( Event.onClick (ThisReading thisService (indexedReading i thisService) day) 
-                        :: Palette.reading c.style width 
-                        ) 
-                        [ Element.text txt]
-                )
-            )
-            |> List.concat
-        title = Element.paragraph 
-            [ Event.onClick (ThisReading thisService All day)
-            , Font.bold 
-            ] 
-            [ Element.text (serviceTitle thisService) ]
-        
+            case thisService of
+                Eucharist ->
+                    [ referenceText width day Eucharist Lesson1 
+                    , showLesson model.eu.lesson1.content width
+                    , referenceText width day Eucharist Psalms
+                    , showPsalms model.eu.psalms.content width
+                    , referenceText width day Eucharist Lesson2
+                    , showLesson model.eu.lesson2.content width
+                    , referenceText width day Eucharist Gospel
+                    , showLesson model.eu.gospel.content width
+                    ] |> List.concat
+                MorningPrayer -> 
+                    [ referenceText width day MorningPrayer Psalms
+                    , showPsalms model.mp.psalms.content width
+                    , referenceText width day MorningPrayer Lesson1
+                    , showLesson model.mp.lesson1.content width
+                    , referenceText width day MorningPrayer Lesson2
+                    , showLesson model.mp.lesson2.content width
+                    ] |> List.concat
+                EveningPrayer -> 
+                    [ referenceText width day EveningPrayer Psalms
+                    , showPsalms model.ep.psalms.content width
+                    , referenceText width day EveningPrayer Lesson1
+                    , showLesson model.ep.lesson1.content width
+                    , referenceText width day EveningPrayer Lesson2
+                    , showLesson model.ep.lesson2.content width
+                    ] |> List.concat
+
+
     in
     Element.column [] 
-    ( title :: leznz)
+    ( Element.paragraph 
+        ( Event.onClick (ThisReading thisService All day) 
+        :: Palette.lessonTitle width 
+        )
+        [ Element.text (serviceTitle thisService) ]
+      :: leznz
+    )
     
-emptyDivWithId : Model -> String -> Element.Element msg
-emptyDivWithId model s =
-    let 
-        attrs = 
-            [ (Html.Attributes.id s) |> Element.htmlAttribute
-            , Html.Attributes.class "lessons" |> Element.htmlAttribute
-            , pageWidth model.width
-            ]
-    in
-    Element.textColumn attrs [Element.none]
-
 showMenu : Bool -> Element.Attribute msg
 showMenu bool =
     if bool then show else hide
@@ -219,26 +240,31 @@ lesson =
     Mark.block "Lesson"
         (\request model ->
             let
-                thisLesson = case (request |> String.trim) of
-                    "lesson1" -> showLesson model model.lessons.lesson1
-                    "lesson2" -> showLesson model model.lessons.lesson2
-                    "psalms"  -> showPsalms model model.lessons.psalms
-                    -- "gospel"  -> model.lessons.gospel
+                thisLesson = case request |> String.trim of
+                    "lesson1" -> showLesson model.lessons.lesson1.content model.width
+                    "lesson2" -> showLesson model.lessons.lesson2.content model.width
+                    "psalms"  -> showPsalms model.lessons.psalms.content model.width
+                    "gospel"  -> showLesson model.lessons.gospel.content model.width
                     _         -> [Element.none]
-
+    
             in
             
-            Element.column []
-            thisLesson
+            Element.column (Palette.lesson model.width)
+            ( List.concat
+                [ [ Element.paragraph (Palette.lessonTitle model.width) [ Element.text "A Reading From..." ] ]
+                , thisLesson
+                , [ Element.paragraph [] [ Element.text "The Word of the Lord" ] ]
+                ]
+            )
         )
         Mark.string
 
-showPsalms : Model -> Lesson -> List (Element.Element Msg)
-showPsalms model thisLesson =
-    thisLesson.content |> List.map (\l ->
+showPsalms : List Reading -> Int -> List (Element.Element Msg)
+showPsalms content width =
+    content |> List.map (\l ->
         let
             pss = l.vss 
-                |> List.map (\v -> psalmLine model v.vs v.text )
+                |> List.map (\v -> psalmLine width v.vs v.text )
                 |> List.concat
             nameTitle = l.read |> String.split "\n"
             thisName = nameTitle |> List.head |> Maybe.withDefault "" |> toTitleCase
@@ -246,10 +272,10 @@ showPsalms model thisLesson =
         in
         Element.column 
         [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} 
-        , Palette.maxWidth model.width
+        , Palette.maxWidth width
         ]
         (   Element.paragraph 
-            (Palette.lessonTitle model.width) 
+            (Palette.lessonTitle width) 
             [ Element.text thisName
             , Element.el 
                 [ Font.alignRight
@@ -262,8 +288,8 @@ showPsalms model thisLesson =
         )
     )
 
-psalmLine : Model -> Int -> String -> List (Element.Element Msg)
-psalmLine model lineNumber str =
+psalmLine : Int -> Int -> String -> List (Element.Element Msg)
+psalmLine width lineNumber str =
     let
         lns = str |> String.split "\n"
         -- lns |> List.head never return Nothing (in this case) 
@@ -279,27 +305,27 @@ psalmLine model lineNumber str =
     in
     if hebrew |> String.isEmpty
         then
-            [ renderPsLine1 model lineNumber ln1
-            , renderPsLine2 model ln2
+            [ renderPsLine1 width lineNumber ln1
+            , renderPsLine2 width ln2
             ]
         else
-            [ renderPsSection model psTitle hebrew
-            , renderPsLine1 model lineNumber ln1
-            , renderPsLine2 model ln2
+            [ renderPsSection width psTitle hebrew
+            , renderPsLine1 width lineNumber ln1
+            , renderPsLine2 width ln2
             ]
 
-renderPsSection : Model -> Maybe String -> String -> Element.Element Msg
-renderPsSection model title sectionName =
-    Element.paragraph [ Element.paddingXY 10 10, Palette.maxWidth model.width ]
+renderPsSection : Int -> Maybe String -> String -> Element.Element Msg
+renderPsSection width title sectionName =
+    Element.paragraph [ Element.paddingXY 10 10, Palette.maxWidth width ]
     [ Element.el [] (Element.text sectionName)
     , Element.el 
         [Font.italic, Element.paddingXY 20 0] 
         (Element.text (title |> Maybe.withDefault "") )
     ]
 
-renderPsLine1 : Model -> Int -> String -> Element.Element Msg
-renderPsLine1 model lineNumber ln1 =
-    Element.paragraph [ indent "3rem", Palette.maxWidth model.width ]
+renderPsLine1 : Int -> Int -> String -> Element.Element Msg
+renderPsLine1 width lineNumber ln1 =
+    Element.paragraph [ indent "3rem", Palette.maxWidth width ]
     [ Element.el [outdent "3rem"] Element.none
     , Element.el 
         [ Font.color Palette.darkRed
@@ -309,39 +335,45 @@ renderPsLine1 model lineNumber ln1 =
     , Element.el [] (Element.text ln1)
     ]
 
-renderPsLine2 : Model -> String -> Element.Element Msg
-renderPsLine2 model ln2 =
-    Element.paragraph [ indent "4rem" , Palette.maxWidth model.width ]
+renderPsLine2 : Int -> String -> Element.Element Msg
+renderPsLine2 width ln2 =
+    Element.paragraph [ indent "4rem" , Palette.maxWidth width ]
     [ Element.el [ outdent "2rem"] Element.none
     , Element.text ln2
     ]
 
-showLesson : Model -> Lesson -> List (Element.Element Msg)
-showLesson model thisLesson =
-    thisLesson.content |> List.map (\l ->
-        let
-            -- put all the verse texts in to a single string (for parsing)
-            -- and wrap in <p>...</p>, because sometimes the lesson will include </p><p>
-            -- wrapping the whole thing fixes that
-            vss = l.vss 
-                |> List.foldr (\t acc -> t.text :: acc) [] 
-                |> String.join " "
-                |> fixPTags
-                |> parseLine
-        in
-        
-        Element.column ( Palette.lesson model.width )
-        [ Element.paragraph (Palette.lessonTitle model.width) [Element.text ( "A reading from " ++ l.read)]
-        , Element.paragraph [ Palette.maxWidth model.width] vss
-        , Element.paragraph ( Palette.wordOfTheLord model.width ) [ Element.text "The Word of the Lord" ]
-        ]
-    )
+showLesson : List Reading -> Int -> List (Element.Element Msg)
+showLesson content width =
+    content |> versesFromLesson width
+
+versesFromLesson : Int -> List Reading -> List (Element.Element Msg)
+versesFromLesson width readings =
+    let
+        vss =
+            readings
+            |> List.map(\r ->
+                let
+                    rvss = 
+                        r.vss
+                        |> List.foldr (\t acc -> t.text :: acc) []
+                        |> String.join " "
+                        |> fixPTags
+                        |> parseLine
+                in
+                Element.column (Palette.lesson width) rvss
+            
+            )
+
+    in
+    vss
     
+
+
 fixPTags : String -> String
 fixPTags str =
     let
         firstOpenedPTag = str |> String.indexes "<p" |> List.head |> Maybe.withDefault 0
-        firstClosedPTag = str |> (String.indexes "</p") |> List.head |> Maybe.withDefault 0
+        firstClosedPTag = str |> String.indexes "</p" |> List.head |> Maybe.withDefault 0
         openedPTags = str |> countOccurrences "<p"
         closedPTags = str |> countOccurrences "</p"
     in
@@ -358,9 +390,8 @@ fixPTags str =
 
 parseLine : String -> List (Element.Element Msg)
 parseLine str = 
-    case (Html.Parser.run str) of
+    case Html.Parser.run str of
         Ok nodes ->
-            -- nodes |> List.map (\n -> parseNode n) |> List.concat
             Html.Parser.Util.toVirtualDom nodes
             |> List.map (\el -> Element.html el)
 
@@ -446,7 +477,7 @@ service =
 
 renderHeader : String -> String -> (Model -> Element.Element Msg)
 renderHeader title description =
-    (\model ->
+    \model ->
         Element.column []
         [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model.width) )
             [ Element.row [Element.paddingXY 20 0, Palette.maxWidth model.width]
@@ -489,7 +520,7 @@ renderHeader title description =
                 ]
             ]
         ]
-    )
+
 
 
 toggle: Mark.Block (Model -> Element.Element Msg)
@@ -498,7 +529,7 @@ toggle =
         (\everything model ->
             let
                 t = everything |> stringToOptions
-                opts = case ( thisOptions t.tag model.options ) of
+                opts = case thisOptions t.tag model.options of
                     Just o -> o
                     Nothing ->
                         let
@@ -509,7 +540,7 @@ toggle =
                     Input.button
                     (Palette.button model.width)
                     { onPress = Just (ClickToggle opts.tag o.tag opts)
-                    , label = (Element.text o.label)
+                    , label = Element.text o.label
                     }
                     )
                 selectedText = opts.options
@@ -529,7 +560,7 @@ optionButtons : Model -> String -> { btns: List (Element.Element Msg), label: St
 optionButtons model everything =
     let
         t = everything |> stringToOptions
-        opts = case ( thisOptions t.tag model.options ) of
+        opts = case thisOptions t.tag model.options of
             Just o -> o
             Nothing -> 
                 let
@@ -543,7 +574,7 @@ optionButtons model everything =
              -- opts.tag == the options group tag
              -- o.tag == the selected option tag
              { onPress = Just (ClickOption opts.tag o.tag opts) 
-             , label = (Element.text o.label)
+             , label = Element.text o.label
              }
             )
         selectedText = opts.options
@@ -576,7 +607,6 @@ optionalPsalms =
     (\everything model ->
         let
             opts = optionButtons model everything
-            lns = parsePsalm model opts.text
         in
         
         Element.column [Element.paddingXY 10 0, Palette.maxWidth model.width] 
@@ -591,10 +621,10 @@ parsePsalm: Model -> String -> List ( Element.Element Msg )
 parsePsalm model ps =
     ps 
     |> String.lines 
-    |> List.map (\l -> stringToPsalmLine model l )
+    |> List.map (\l -> stringToPsalmLine model.width l )
 
-stringToPsalmLine : Model -> String -> Element.Element Msg
-stringToPsalmLine model vs =
+stringToPsalmLine : Int -> String -> Element.Element Msg
+stringToPsalmLine width vs =
     -- if the first word of the line is digits
     -- consider it to be a verse number
     -- thus the first line of the verse
@@ -607,9 +637,9 @@ stringToPsalmLine model vs =
     in
     case vsNum of
         Nothing -> 
-            renderPsLine2 model vs
+            renderPsLine2 width vs
         Just n ->
-            renderPsLine1 model n (
+            renderPsLine1 width n (
                 words 
                 |> List.tail 
                 |> Maybe.withDefault [] 
@@ -621,21 +651,20 @@ seasonal =
     Mark.block "Seasonal"
     (\everything model ->
         let
-            (ofType, tList) = everything |> parseSeasonal
+            (_, tList) = everything |> parseSeasonal
             (newModel, _) = update (UpdateOpeningSentences tList) model
             thisSeason = newModel.openingSentences 
                 |> List.foldl (\os acc 
-                    -> if os.tag == (getSeason model) || os.tag == "anytime"
+                    -> if os.tag == getSeason model || os.tag == "anytime"
                         then os :: acc
                         else acc
                     ) []
                 |> List.reverse
                 |> List.map (\os ->
                     Element.textColumn []
-                    [ ( if os.label == "BLANK"
+                    [ if os.label == "BLANK"
                         then Element.paragraph (Palette.rubric model.width) [Element.text "or this"]
                         else Element.paragraph (Palette.openingSentenceTitle model.width) [Element.text os.label]
-                      )
                     , Element.paragraph (Palette.openingSentence model.width) [Element.text os.text]
                     , Element.paragraph (Palette.reference model.width) [Element.text os.ref]
                     ]
@@ -665,7 +694,7 @@ linesToSeasonalList lns =
     |> Maybe.withDefault []
     |> replaceSplitter
     |> List.map (\l ->
-        case (Parser.run seasonalOpeningSentenceParser l) of
+        case Parser.run seasonalOpeningSentenceParser l of
             Ok os -> os
             Err x ->
                 { tag = "err"
@@ -703,10 +732,8 @@ openingSentence =
 init : List Int -> ( Model, Cmd Msg )
 init  list =
     let
-        ht = list |> List.head |> Maybe.withDefault 0
         winWd = list |> getAt 1 |> Maybe.withDefault 375 -- iphone = 375
         wd = min winWd 800
-        x = Element.classifyDevice { height = ht, width = wd}
         firstModel = { initModel | width = wd, windowWidth = winWd }
     in
     
@@ -719,10 +746,10 @@ port requestReference : (List String) -> Cmd msg
 port requestOffice : String -> Cmd msg
 -- port requestReadings : String -> Cmd msg
 port requestLessons : String -> Cmd msg
-port serviceReadingRequest : ServiceReadingRequest -> Cmd msg
+port calendarReadingRequest : ServiceReadingRequest -> Cmd msg
 port toggleButtons : (List String) -> Cmd msg
 -- port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
-port clearLessons : String -> Cmd msg
+-- port clearLessons : String -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
 
 
@@ -750,10 +777,6 @@ subscriptions model =
         , receivedLesson UpdateLesson
         , newWidth NewWidth
         , onlineStatus UpdateOnlineStatus
---        , receivedPsalms UpdatePsalms
---        , receivedLesson1 UpdateLesson1
---        , receivedLesson2 UpdateLesson2
---        , receivedGospel UpdateGospel
         ]
 
 serviceToString : Service -> String
@@ -779,17 +802,6 @@ serviceTitle s =
         MorningPrayer -> "Morning Prayer"
         EveningPrayer -> "Evening Prayer"
 
-indexedReading : Int -> Service -> ReadingType
-indexedReading i s = 
-    ( case s of 
-        Eucharist -> [Lesson1, Psalms, Lesson2, Gospel]
-        MorningPrayer -> [Psalms, Lesson1, Lesson2]
-        EveningPrayer -> [Psalms, Lesson1, Lesson2]
-    )
-    |> getAt i
-    |> Maybe.withDefault All
-
-
 type Msg 
     = NoOp
     | GotSrc (Result Http.Error String)
@@ -805,7 +817,6 @@ type Msg
     | Office String
     | AltButton String String
     | RequestReference String String
---    | TodaysLessons String CalendarDay
     | ThisDay CalendarDay
     | ThisReading Service ReadingType CalendarDay
     | ChangeMonth String Int Int
@@ -863,7 +874,7 @@ update msg model =
 
         UpdateCalendar daz ->
             let
-                newModel = case (Decode.decodeString calendarDecoder daz) of
+                newModel = case Decode.decodeString calendarDecoder daz of
                     Ok cal ->
                         { model | calendar = cal.calendar}
                         
@@ -872,7 +883,7 @@ update msg model =
             in
             
             ( newModel, Cmd.none )
-
+        
         UpdateOffice recvd ->
             let
                 newModel = { model
@@ -884,13 +895,11 @@ update msg model =
                     , color = recvd |> requestedOfficeAt 5
                     , pageName = recvd |> requestedOfficeAt 6
                     , source = Just (recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n")
-                    --, tempSeason = initTempSeason
                     }
 
             in
             
             (newModel, requestLessons newModel.pageName )
-            -- (newModel, Cmd.none )
 
         UpdateLesson s ->
             (addNewLesson s model, Cmd.none)
@@ -933,9 +942,6 @@ update msg model =
         RequestReference readingId ref ->
             (model, Cmd.batch [requestReference [readingId, ref], Cmd.none] )  
 
-        -- TodaysLessons office day ->
-        --     (model, Cmd.batch[ requestTodaysLessons (office, day), Cmd.none])
-
         ThisDay day ->
             let
                 today = 
@@ -953,6 +959,9 @@ update msg model =
                 , season = (season.season, tempSeason)
                 , week = season.week
                 , year = season.year
+                , eu = initLessons
+                , mp = initLessons
+                , ep = initLessons
                 }
             , Cmd.none
             )
@@ -967,8 +976,15 @@ update msg model =
                     , month = day.month
                     , year = day.year
                     }
+                newModel = 
+                    { model
+                    | lessons = initLessons
+                    , eu = initLessons
+                    , mp = initLessons
+                    , ep = initLessons
+                    }
             in
-            (model, Cmd.batch [ serviceReadingRequest servRequest, Cmd.none ] )
+            (newModel, Cmd.batch [ calendarReadingRequest servRequest, Cmd.none ] )
             
 
         ChangeMonth toWhichMonth month year ->
@@ -987,18 +1003,31 @@ update msg model =
 addNewLesson : String -> Model -> Model
 addNewLesson str model =
     let
-        lessons = model.lessons
-        newModel = case (Decode.decodeString lessonDecoder str) of
+        newModel = case Decode.decodeString lessonDecoder str of
             Ok l ->
                 let
+                    lessons = case l.spa_location of
+                        "eu" -> model.eu
+                        "mp" -> model.mp
+                        "ep" -> model.ep
+                        -- default is office
+                        _ -> model.lessons
+                
+
                     newLessons = case l.lesson of
                         "lesson1" -> {lessons | lesson1 = l }
                         "lesson2" -> {lessons | lesson2 = l }
                         "psalms"  -> {lessons | psalms = l }
                         "gospel"  -> {lessons | gospel = l }
                         _         -> lessons
+                    
                 in
-                { model | lessons = newLessons }
+                case l.spa_location of
+                    "eu" -> { model | eu = newLessons }
+                    "mp" -> { model | mp = newLessons }
+                    "ep" -> { model | ep = newLessons }
+                    -- default is office
+                    _ -> { model | lessons = newLessons }
             
             _  -> 
                 model
@@ -1015,7 +1044,7 @@ thisOptions tag opts =
 
 updateOptions : Options -> List Options -> List Options
 updateOptions opt oList =
-    case ( optionsIndex opt.tag oList ) of
+    case optionsIndex opt.tag oList of
         Just i ->
             oList |> setAt i opt
         Nothing ->
@@ -1032,13 +1061,12 @@ view model =
         [ case model.source of
             Nothing ->
                 Element.layout []
-                ((renderHeader "Getting Service" "Patience is a virtue") model)
+                (renderHeader "Getting Service" "Patience is a virtue" model)
             
             Just source ->
                 case Mark.compile document source of
                     Mark.Success thisService ->
                         let
-                        -- convert List (model -> Element.Element msg) to List (Element.Element msg)
                             rez = List.map (\fn -> fn model) thisService.body
                         in
                         Element.layout 

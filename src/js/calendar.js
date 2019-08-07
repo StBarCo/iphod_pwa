@@ -89,20 +89,24 @@ function makeReadings(lesson1, lesson2, psalms, gospel) {
   lsnz.lesson1 = {
       lesson: "lesson1"
     , content: makeThisReading( lesson1 )
-    }
+    , spa_location: ""
+  }
   lsnz.lesson2 = {
       lesson: "lesson2"
     , content: makeThisReading( lesson2 )
-    }
+    , spa_location: ""
+  }
   lsnz.psalms = {
       lesson: "psalms"
     , content: makeThisReading( psalms )
-    }
+    , spa_location: ""
+  }
   // no gospel for mp/ep
   if (gospel) {
     lsnz.gospel = {
         lesson: "gospel"
       , content: makeThisReading( gospel ) 
+      , spa_location: ""
       }
     }
   return lsnz;
