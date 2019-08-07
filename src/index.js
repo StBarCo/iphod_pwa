@@ -401,9 +401,6 @@ function request_lessons(request, today) {
     insertPsalms( office, "office" )
     insertLesson( "lesson1", office, mpepKey, "office" )
     insertLesson( "lesson2", office, mpepKey, "office" )
-    // insertGospel( request )
-    // insertCollect( request )
-    // insertProper( request )
   }
   // otherwise, don't do anything
 }
@@ -424,7 +421,6 @@ function insertLesson(lesson, office, key, spa_location) {
 }
 
 function get_from_eucharist( lesson, key, spa_location ) {
-  console.log("GET FROM EUCHARIST", lesson, spa_location)
   iphod.get(key)
   .then( function(resp) {
     var eu_key = 
