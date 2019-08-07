@@ -84,6 +84,9 @@ calendar =
     (\month model ->
         let
             dayId = model.showThisCalendarDay
+            align = if dayId < 0
+                then [ Element.centerX ]
+                else [ Element.alignLeft, Element.paddingXY 10 5 ]
             rows = if dayId < 0
                 then
                     model.calendar 
@@ -125,7 +128,7 @@ calendar =
 
 
         in
-        Element.column [] rows
+        Element.column align rows
         
     )
     Mark.string
