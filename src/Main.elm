@@ -1,14 +1,14 @@
 port module Main exposing (main)
 
 import Browser exposing (Document)
-import Element
+import Element exposing (..)
 import Element.Background as Background
 import Element.Input as Input
 -- Event is singular on purpose
 import Element.Events as Event
 import Element.Font as Font
 import Element.Region as Region
-import Html exposing (..)
+-- import Html
 import Html.Attributes
 import Html.Parser
 import Html.Parser.Util
@@ -19,11 +19,11 @@ import Mark
 import Mark.Error exposing (Error)
 import Parser exposing (..)
 import Regex exposing(replace)
-import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile)
+import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile, dropWhile, updateAt, filterNot)
 -- import Parser.Advanced exposing ((|.), (|=), Parser)
 import String.Extra exposing (toTitleCase, countOccurrences)
 import MyParsers exposing (..)
-import Palette exposing (scaleFont, pageWidth, indent, outdent, show, hide)
+import Palette exposing (scaleFont, pageWidth, indent, outdent, show, hide, edges)
 import Models exposing (..)
 import Json.Decode as Decode
 import Date
@@ -40,7 +40,7 @@ This may seem a bit overwhelming, but 95% of it is copied directly from `Mark.De
 -}
 
 --  document : Mark.Document
---          { body : List (Model -> Element.Element Msg)
+--          { body : List (Model -> Element Msg)
 --          , metadata : { description : String, maintainer : String, title : String }
 --          }
 document =
@@ -73,20 +73,166 @@ document =
                 , finish 
                 , seasonal
                 , calendar
+                , prayerList
+                , newPrayerListItem
+                , openPrayerList
                 -- Toplevel Text
             --    , Mark.map (Html.p []) Mark.text
                 ]
         }
 
-calendar : Mark.Block (Model -> Element.Element Msg)
+openPrayerList : Mark.Block (Model -> Element Msg)
+openPrayerList =
+    Mark.block "OpenPrayerList"
+    (\show model ->
+        let
+            elements = if model.prayerList.prayers |> List.isEmpty
+                then [none]
+                else
+                    if model.prayerList.show
+                        then prayerListButton "Hide Prayer List" model.width
+                             :: renderPrayerList False model.width model.prayerList.prayers
+                             
+                        else prayerListButton "Show Prayer List" model.width
+                             :: [none]
+                             
+        in
+        column [] elements
+        
+    )
+    Mark.bool
+
+prayerListButton : String -> Int -> Element Msg
+prayerListButton buttonText buttonWidth =
+    paragraph
+    ( Event.onClick ShowPrayerList
+    :: width (px 160)
+    :: Palette.button buttonWidth
+    )
+    [ text buttonText ]
+
+newPrayerListItem : Mark.Block (Model -> Element Msg)
+newPrayerListItem =
+    Mark.block "NewListItem"
+    (\show model ->
+        let
+            prayers = if model.prayerList.edit
+                then
+                    model.prayerList.prayers
+                    |> List.head 
+                    |> Maybe.withDefault initPrayer
+                    |> editPrayer model.width
+                else
+                    model.prayerList.prayers
+                    |> renderPrayerList True model.width
+
+            elements = 
+                row 
+                    (Event.onClick AddToPrayerList :: Palette.button model.width ) 
+                    [ text "Add new item"]
+                :: prayers 
+        in
+        column [] elements
+    )
+    Mark.bool
+
+
+editPrayer : Int -> Prayer -> List (Element Msg)
+editPrayer width prayer =
+    [ row []
+        [ column []
+            [ paragraph
+                [Event.onClick CancelPrayerItem, paddingXY 10 5]
+                [text "Cancel"]
+            , paragraph
+                [Event.onClick SavePrayerItem, paddingXY 10 5]
+                [text "Save"]
+            ]
+        , Input.multiline 
+            [ Palette.scaleWidth 300 width
+            , Palette.placeholder "Who/What to pray for\nAnd reason"
+            , height shrink
+            , paddingEach {edges | bottom = 30}
+            ] 
+            { onChange = UpdateNewPrayer
+            , text = prayer.who
+            , placeholder = Nothing -- does not work in this version of elm-ui
+            , label = Input.labelAbove [] (text "New Prayer")
+            , spellcheck = True
+            }
+        ] -- end of row
+    , Input.radio
+        [ padding 5
+        , spacing 10
+        ]
+        { onChange = PrayerCategory
+        , selected = Just (prayer.ofType)
+        , label = Input.labelAbove [] (text "Prayer Type")
+        , options =
+            [ Input.option Sick (text "For the Sick")
+            , Input.option SickChild (text "Sick Child")
+            , Input.option Surgery (text "Before an Surgery")
+            , Input.option Strength (text "Strength & Confidence")
+            , Input.option Sanctification (text "Sanctification of Illness")
+            , Input.option Health (text "Health of Body & Soul")
+            , Input.option Recovery (text "Beginning of Recovery")
+            , Input.option LittleHope (text "Little Hope of Recovery")
+            ]
+        }
+    ]
+
+
+
+renderPrayerList : Bool -> Int -> List Prayer -> List (Element Msg)
+renderPrayerList editable width prayers =
+    prayers 
+    |> List.map (\p ->
+        let
+            (clickable, removable) = if editable
+                then
+                    (   [ Event.onClick (EditPrayerListItem p.id)
+                        , Palette.scaleWidth 250 width
+                        , padding 5
+                        ]
+                    ,   el
+                        ( Event.onClick (RemoveFromPrayerList p.id) 
+                        :: alignRight
+                        :: alignTop 
+                        :: Palette.button width)
+                        ( text "Remove" )
+                    )
+                else
+                    (   [ Palette.scaleWidth 250 width, padding 5 ]
+                    ,   none
+                    )
+        in
+        row (Palette.prayerList width)
+        [ column 
+            clickable
+            [ paragraph [] [ text p.who ]
+            , paragraph [] [ text p.why ]
+            , paragraph [Font.color Palette.darkBlue] [ text (p.ofType |> prayerTypeToTitle) ]
+            ]
+        , removable
+        ]
+    )
+
+
+prayerList : Mark.Block (Model -> Element Msg)
+prayerList  =
+    Mark.block "PrayerList"
+    (\_ model -> none )
+    Mark.string -- this string is ignored
+
+calendar : Mark.Block (Model -> Element Msg)
 calendar =
     Mark.block "Calendar"
     (\month model ->
         let
             dayId = model.showThisCalendarDay
             align = if dayId < 0
-                then [ Element.centerX ]
-                else [ Element.alignLeft, Element.paddingXY 10 5 ]
+                then [ centerX ]
+                else [ alignLeft, paddingXY 10 5 ]
             rows = if dayId < 0
                 then
                     model.calendar 
@@ -97,16 +243,16 @@ calendar =
                             thisWeek = 
                                 week
                                 |> List.map (\day ->
-                                    Element.column 
+                                    column 
                                     ( Event.onClick (ThisDay day) :: (backgroundGradient day.color ++ Palette.calendarDay model.width))
-                                    [ Element.paragraph [ Element.padding 2 ] 
-                                      [ Element.el [] (Element.text (day.dayOfMonth |> String.fromInt))
-                                      , Element.el [ Element.padding 2 ] (Element.text day.pTitle)
+                                    [ paragraph [ padding 2 ] 
+                                      [ el [] (text (day.dayOfMonth |> String.fromInt))
+                                      , el [ padding 2 ] (text day.pTitle)
                                       ]
                                     ]
                                 )
                         in
-                        Element.row [] thisWeek
+                        row [] thisWeek
                     )
                 else
                     let
@@ -115,26 +261,26 @@ calendar =
                             |> Maybe.withDefault initCalendarDay
                         
                     in
-                    [ Element.column [Font.alignLeft]
+                    [ column [Font.alignLeft]
                         [ serviceReadings Eucharist day model
                         , serviceReadings MorningPrayer day model
                         , serviceReadings EveningPrayer day model
-                        , Input.button (Element.moveDown 20.0 :: Palette.button model.width)
+                        , Input.button (moveDown 20.0 :: Palette.button model.width)
                         { onPress = Just ShowCalendar
-                        , label = Element.text "Return to Calendar"
+                        , label = text "Return to Calendar"
                         }
                         ]
                     ]
 
 
         in
-        Element.column align rows
+        column align rows
         
     )
     Mark.string
 
 
-referenceText : Int -> CalendarDay -> Service -> ReadingType -> List (Element.Element Msg)
+referenceText : Int -> CalendarDay -> Service -> ReadingType -> List (Element Msg)
 referenceText width day thisService thisReading =
     let
         lezn = case (thisService, thisReading) of
@@ -157,15 +303,15 @@ referenceText width day thisService thisReading =
                     then r.read
                     else "[" ++ r.read ++ "]"    
             in
-            Element.paragraph
+            paragraph
                 ( Event.onClick (ThisReading thisService thisReading day) 
                 :: Palette.readingRef r.style width 
                 ) 
-                [ Element.text ref]
+                [ text ref]
         )
 
     
-serviceReadings : Service -> CalendarDay -> Model -> Element.Element Msg
+serviceReadings : Service -> CalendarDay -> Model -> Element Msg
 serviceReadings thisService day model =
     let
         width = model.width
@@ -200,23 +346,23 @@ serviceReadings thisService day model =
 
 
     in
-    Element.column [] 
-    ( Element.paragraph 
+    column [] 
+    ( paragraph 
         ( Event.onClick (ThisReading thisService All day) 
         :: Palette.lessonTitle width 
         )
-        [ Element.text (serviceTitle thisService) ]
+        [ text (serviceTitle thisService) ]
       :: leznz
     )
     
-showMenu : Bool -> Element.Attribute msg
+showMenu : Bool -> Attribute msg
 showMenu bool =
     if bool then show else hide
 
-menuOptions : Model -> Element.Element Msg
+menuOptions : Model -> Element Msg
 menuOptions model =
-    Element.row []
-    [ Element.column [ showMenu model.showMenu, scaleFont model.width 16, Element.paddingXY 20 0 ]
+    row []
+    [ column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0 ]
         [ clickOption "calendar" "Calendar"
         , clickOption "morning_prayer" "Morning Prayer"
         , clickOption "midday" "Midday Prayer"
@@ -229,8 +375,9 @@ menuOptions model =
         , clickOption "timeOfDeath" "Time of Death"
         , clickOption "vigil" "Prayer for a Vigil"
         ]
-    , Element.column [ showMenu model.showMenu, scaleFont model.width 16, Element.paddingXY 20 0, Element.alignTop ]
-        [ clickOption "about" "About"
+    , column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
+        [ clickOption "prayerList" "Prayer List"
+        , clickOption "about" "About"
         , clickOption "sync" "How to Install"
         , clickOption "sync" "Update Database"
         , clickOption "about" "Contact"
@@ -238,7 +385,7 @@ menuOptions model =
     ]
     
 
-lesson : Mark.Block (Model -> Element.Element Msg)
+lesson : Mark.Block (Model -> Element Msg)
 lesson =
     Mark.block "Lesson"
         (\request model ->
@@ -248,21 +395,21 @@ lesson =
                     "lesson2" -> showLesson model.lessons.lesson2.content model.width
                     "psalms"  -> showPsalms model.lessons.psalms.content model.width
                     "gospel"  -> showLesson model.lessons.gospel.content model.width
-                    _         -> [Element.none]
+                    _         -> [none]
     
             in
             
-            Element.column (Palette.lesson model.width)
+            column (Palette.lesson model.width)
             ( List.concat
-                [ [ Element.paragraph (Palette.lessonTitle model.width) [ Element.text "A Reading From..." ] ]
+                [ [ paragraph (Palette.lessonTitle model.width) [ text "A Reading From..." ] ]
                 , thisLesson
-                , [ Element.paragraph [] [ Element.text "The Word of the Lord" ] ]
+                , [ paragraph [] [ text "The Word of the Lord" ] ]
                 ]
             )
         )
         Mark.string
 
-showPsalms : List Reading -> Int -> List (Element.Element Msg)
+showPsalms : List Reading -> Int -> List (Element Msg)
 showPsalms content width =
     content |> List.map (\l ->
         let
@@ -273,25 +420,25 @@ showPsalms content width =
             thisName = nameTitle |> List.head |> Maybe.withDefault "" |> toTitleCase
             thisTitle = nameTitle |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
         in
-        Element.column 
-        [ Element.paddingEach { top = 10, right = 40, bottom = 0, left = 0} 
+        column 
+        [ paddingEach { top = 10, right = 40, bottom = 0, left = 0} 
         , Palette.maxWidth width
         ]
-        (   Element.paragraph 
+        (   paragraph 
             (Palette.lessonTitle width) 
-            [ Element.text thisName
-            , Element.el 
+            [ text thisName
+            , el 
                 [ Font.alignRight
                 , Font.italic
-                , Element.paddingEach { top = 0, right = 0, bottom = 0, left = 20}
+                , paddingEach { top = 0, right = 0, bottom = 0, left = 20}
                 ]
-                (Element.text thisTitle)
+                (text thisTitle)
             ]
         :: pss
         )
     )
 
-psalmLine : Int -> Int -> String -> List (Element.Element Msg)
+psalmLine : Int -> Int -> String -> List (Element Msg)
 psalmLine width lineNumber str =
     let
         lns = str |> String.split "\n"
@@ -317,39 +464,39 @@ psalmLine width lineNumber str =
             , renderPsLine2 width ln2
             ]
 
-renderPsSection : Int -> Maybe String -> String -> Element.Element Msg
+renderPsSection : Int -> Maybe String -> String -> Element Msg
 renderPsSection width title sectionName =
-    Element.paragraph [ Element.paddingXY 10 10, Palette.maxWidth width ]
-    [ Element.el [] (Element.text sectionName)
-    , Element.el 
-        [Font.italic, Element.paddingXY 20 0] 
-        (Element.text (title |> Maybe.withDefault "") )
+    paragraph [ paddingXY 10 10, Palette.maxWidth width ]
+    [ el [] (text sectionName)
+    , el 
+        [Font.italic, paddingXY 20 0] 
+        (text (title |> Maybe.withDefault "") )
     ]
 
-renderPsLine1 : Int -> Int -> String -> Element.Element Msg
+renderPsLine1 : Int -> Int -> String -> Element Msg
 renderPsLine1 width lineNumber ln1 =
-    Element.paragraph [ indent "3rem", Palette.maxWidth width ]
-    [ Element.el [outdent "3rem"] Element.none
-    , Element.el 
+    paragraph [ indent "3rem", Palette.maxWidth width ]
+    [ el [outdent "3rem"] none
+    , el 
         [ Font.color Palette.darkRed
-        , Element.padding 5
+        , padding 5
         ]
-        ( Element.text (String.fromInt lineNumber) )
-    , Element.el [] (Element.text ln1)
+        ( text (String.fromInt lineNumber) )
+    , el [] (text ln1)
     ]
 
-renderPsLine2 : Int -> String -> Element.Element Msg
+renderPsLine2 : Int -> String -> Element Msg
 renderPsLine2 width ln2 =
-    Element.paragraph [ indent "4rem" , Palette.maxWidth width ]
-    [ Element.el [ outdent "2rem"] Element.none
-    , Element.text ln2
+    paragraph [ indent "4rem" , Palette.maxWidth width ]
+    [ el [ outdent "2rem"] none
+    , text ln2
     ]
 
-showLesson : List Reading -> Int -> List (Element.Element Msg)
+showLesson : List Reading -> Int -> List (Element Msg)
 showLesson content width =
     content |> versesFromLesson width
 
-versesFromLesson : Int -> List Reading -> List (Element.Element Msg)
+versesFromLesson : Int -> List Reading -> List (Element Msg)
 versesFromLesson width readings =
     let
         vss =
@@ -363,7 +510,7 @@ versesFromLesson width readings =
                         |> fixPTags
                         |> parseLine
                 in
-                Element.column (Palette.lesson width) rvss
+                column (Palette.lesson width) rvss
             
             )
 
@@ -391,61 +538,61 @@ fixPTags str =
         str
     
 
-parseLine : String -> List (Element.Element Msg)
+parseLine : String -> List (Element Msg)
 parseLine str = 
     case Html.Parser.run str of
         Ok nodes ->
             Html.Parser.Util.toVirtualDom nodes
-            |> List.map (\el -> Element.html el)
+            |> List.map (\el -> html el)
 
         Err msg ->
-            [ Element.paragraph []
-                [ Element.el [ Font.color Palette.darkRed] (Element.text "ERROR: COULDN'T PARSE STRING -> ")
-                , Element.el [ Font.color Palette.darkBlue] (Element.text str)
+            [ paragraph []
+                [ el [ Font.color Palette.darkRed] (text "ERROR: COULDN'T PARSE STRING -> ")
+                , el [ Font.color Palette.darkBlue] (text str)
                 ]
             ]
 
 
-finish : Mark.Block (Model -> Element.Element Msg)
+finish : Mark.Block (Model -> Element Msg)
 finish =
     Mark.block "Finish"
     (\office model ->
-        Element.none
+        none
     )
     Mark.string
 
-backgroundGradient : String -> List (Element.Attribute msg)
+backgroundGradient : String -> List (Attribute msg)
 backgroundGradient s =
     let
         ang = 3.0
         (foreground, grad) = case s of
             "white" ->
                 ( Palette.darkBlue
-                , {angle = ang, steps = [Element.rgb255 233 255 2, Element.rgb255 237 239 210]}
+                , {angle = ang, steps = [rgb255 233 255 2, rgb255 237 239 210]}
                 )
             "green" ->
                 ( Palette.darkPurple
-                , {angle = ang, steps = [Element.rgb255 23 102 10, Element.rgb255 226 255 221]}
+                , {angle = ang, steps = [rgb255 23 102 10, rgb255 226 255 221]}
                 )
             "red"   ->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 119 2 14, Element.rgb255 255 226 229]}
+                , {angle = ang, steps = [rgb255 119 2 14, rgb255 255 226 229]}
                 )
             "violet"->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 60 1 99, Element.rgb255 241 229 249]}
+                , {angle = ang, steps = [rgb255 60 1 99, rgb255 241 229 249]}
                 )
             "blue"  ->
                 ( Palette.foggy
-                , {angle = ang, steps = [Element.rgb255 0 5 99, Element.rgb255 220 230 239]}
+                , {angle = ang, steps = [rgb255 0 5 99, rgb255 220 230 239]}
                 )
             "rose"  ->
                 ( Palette.darkGrey
-                , {angle = ang, steps = [Element.rgb255 188 9 103, Element.rgb255 239 220 230]}
+                , {angle = ang, steps = [rgb255 188 9 103, rgb255 239 220 230]}
                 )
             "gold"  ->
                 ( Palette.darkGrey
-                , {angle = ang, steps = [Element.rgb255 233 255 2, Element.rgb255 237 239 210]}
+                , {angle = ang, steps = [rgb255 233 255 2, rgb255 237 239 210]}
                 )
             _       ->
                 ( Palette.foggy
@@ -454,11 +601,11 @@ backgroundGradient s =
     in
     [ Font.color foreground, Background.gradient grad ]
 
-clickOption : String -> String -> Element.Element Msg
+clickOption : String -> String -> Element Msg
 clickOption request label =
-    Element.el
+    el
     [ Event.onClick (Office request) ]
-    ( Element.text label )
+    ( text label )
 
 
 service : Mark.Block { description : String, maintainer : String, contact: String, title : String }
@@ -478,55 +625,55 @@ service =
         |> Mark.toBlock
 
 
-renderHeader : String -> String -> (Model -> Element.Element Msg)
+renderHeader : String -> String -> (Model -> Element Msg)
 renderHeader title description =
     \model ->
-        Element.column []
-        [ Element.column (List.append (backgroundGradient model.color) (Palette.menu model.width) )
-            [ Element.row [Element.paddingXY 20 0, Palette.maxWidth model.width]
-                [ Element.image 
+        column []
+        [ column (List.append (backgroundGradient model.color) (Palette.menu model.width) )
+            [ row [paddingXY 20 0, Palette.maxWidth model.width]
+                [ image 
                     ( List.append (backgroundGradient model.color)
-                        [ Element.height (Element.px 36)
-                        , Element.width (Element.px 35)
+                        [ height (px 36)
+                        , width (px 35)
                         , Event.onClick ToggleMenu
                         ]
                     )
                     { src = "./menu.svg"
                     , description = "Toggle Menu"
                     }
-                , Element.el [scaleFont model.width 18, Element.paddingXY 30 20] (Element.text "Legereme")
-                , Element.el 
+                , el [scaleFont model.width 18, paddingXY 30 20] (text "Legereme")
+                , el 
                     [ scaleFont model.width 14
                     , Font.color Palette.darkRed
                     , Font.alignRight
                     , Palette.adjustWidth model.width -230
                     ]
-                    (Element.text model.online)
+                    (text model.online)
                 ]
             , menuOptions model
             ]
-        , Element.column ( Palette.officeTitle model.width )
-            [ Element.paragraph
+        , column ( Palette.officeTitle model.width )
+            [ paragraph
                 [ Region.heading 1
                 , scaleFont model.width 32
                 , Font.center
-                , Element.width (Element.px model.width)
+                , width (px model.width)
                 ]
-                [ Element.text title ]
-            , Element.paragraph 
+                [ text title ]
+            , paragraph 
                 [ Font.center, scaleFont model.width 18] 
-                [ Element.text model.today ]
-            , Element.paragraph
+                [ text model.today ]
+            , paragraph
                 [ Font.center, scaleFont model.width 18]
-                [ Element.text ((model |> getSeason |> toTitleCase) ++ " " ++ model.week) 
-                , Element.el [Font.italic] (Element.text model.year)
+                [ text ((model |> getSeason |> toTitleCase) ++ " " ++ model.week) 
+                , el [Font.italic] (text model.year)
                 ]
             ]
         ]
 
 
 
-toggle: Mark.Block (Model -> Element.Element Msg)
+toggle: Mark.Block (Model -> Element Msg)
 toggle =
     Mark.block "Toggle"
         (\everything model ->
@@ -543,7 +690,7 @@ toggle =
                     Input.button
                     (Palette.button model.width)
                     { onPress = Just (ClickToggle opts.tag o.tag opts)
-                    , label = Element.text o.label
+                    , label = text o.label
                     }
                     )
                 selectedText = opts.options
@@ -551,15 +698,15 @@ toggle =
                         if o.selected == "True" then acc ++ o.text else acc
                         ) ""
             in
-            Element.column []
-            [ Element.el [ Palette.maxWidth model.width ] (Element.text opts.label)
-            , Element.row [ Element.spacing 10, Element.padding 10 ] btns
-            , Element.el [ Element.alignLeft, Palette.maxWidth model.width ] (Element.text selectedText)
+            column []
+            [ el [ Palette.maxWidth model.width ] (text opts.label)
+            , row [ spacing 10, padding 10 ] btns
+            , el [ alignLeft, Palette.maxWidth model.width ] (text selectedText)
             ]    
         )
         Mark.string
 
-optionButtons : Model -> String -> { btns: List (Element.Element Msg), label: String, text: String }
+optionButtons : Model -> String -> { btns: List (Element Msg), label: String, text: String }
 optionButtons model everything =
     let
         t = everything |> stringToOptions
@@ -577,7 +724,7 @@ optionButtons model everything =
              -- opts.tag == the options group tag
              -- o.tag == the selected option tag
              { onPress = Just (ClickOption opts.tag o.tag opts) 
-             , label = Element.text o.label
+             , label = text o.label
              }
             )
         selectedText = opts.options
@@ -588,7 +735,7 @@ optionButtons model everything =
     { btns = btns, label = opts.label, text = selectedText }
 
 
-optionalPrayer : Mark.Block (Model -> Element.Element Msg)
+optionalPrayer : Mark.Block (Model -> Element Msg)
 optionalPrayer =
     Mark.block "OptionalPrayer"
         (\everything model ->
@@ -596,15 +743,15 @@ optionalPrayer =
                 opts = optionButtons model everything
             in
 
-            Element.column [Element.paddingXY 10 0, Palette.maxWidth model.width] 
-            [ Element.paragraph [] [Element.text opts.label]
-            , Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
-            , Element.el [ Element.alignLeft, Palette.maxWidth model.width ] (Element.text opts.text)
+            column [paddingXY 10 0, Palette.maxWidth model.width] 
+            [ paragraph [] [text opts.label]
+            , wrappedRow [ spacing 10, padding 10] opts.btns
+            , el [ alignLeft, Palette.maxWidth model.width ] (text opts.text)
             ]
         )
         Mark.string
 
-optionalPsalms : Mark.Block (Model -> Element.Element Msg)
+optionalPsalms : Mark.Block (Model -> Element Msg)
 optionalPsalms =
     Mark.block "OptionalPsalms"
     (\everything model ->
@@ -612,21 +759,21 @@ optionalPsalms =
             opts = optionButtons model everything
         in
         
-        Element.column [Element.paddingXY 10 0, Palette.maxWidth model.width] 
-        (  Element.paragraph [] [Element.text opts.label]
-        :: Element.wrappedRow [ Element.spacing 10, Element.padding 10] opts.btns
+        column [paddingXY 10 0, Palette.maxWidth model.width] 
+        (  paragraph [] [text opts.label]
+        :: wrappedRow [ spacing 10, padding 10] opts.btns
         :: parsePsalm model opts.text
         )
     )
     Mark.string
 
-parsePsalm: Model -> String -> List ( Element.Element Msg )
+parsePsalm: Model -> String -> List ( Element Msg )
 parsePsalm model ps =
     ps 
     |> String.lines 
     |> List.map (\l -> stringToPsalmLine model.width l )
 
-stringToPsalmLine : Int -> String -> Element.Element Msg
+stringToPsalmLine : Int -> String -> Element Msg
 stringToPsalmLine width vs =
     -- if the first word of the line is digits
     -- consider it to be a verse number
@@ -649,7 +796,7 @@ stringToPsalmLine width vs =
                 |> String.join " "
                 )
 
-seasonal : Mark.Block (Model -> Element.Element Msg)
+seasonal : Mark.Block (Model -> Element Msg)
 seasonal =
     Mark.block "Seasonal"
     (\everything model ->
@@ -664,17 +811,17 @@ seasonal =
                     ) []
                 |> List.reverse
                 |> List.map (\os ->
-                    Element.textColumn []
+                    textColumn []
                     [ if os.label == "BLANK"
-                        then Element.paragraph (Palette.rubric model.width) [Element.text "or this"]
-                        else Element.paragraph (Palette.openingSentenceTitle model.width) [Element.text os.label]
-                    , Element.paragraph (Palette.openingSentence model.width) [Element.text os.text]
-                    , Element.paragraph (Palette.reference model.width) [Element.text os.ref]
+                        then paragraph (Palette.rubric model.width) [text "or this"]
+                        else paragraph (Palette.openingSentenceTitle model.width) [text os.label]
+                    , paragraph (Palette.openingSentence model.width) [text os.text]
+                    , paragraph (Palette.reference model.width) [text os.ref]
                     ]
                 )
         in
 
-        Element.textColumn
+        textColumn
         [ Palette.maxWidth model.width]
         thisSeason
         
@@ -708,7 +855,7 @@ linesToSeasonalList lns =
 
     )
 
-openingSentence : Mark.Block (Model -> Element.Element msg)
+openingSentence : Mark.Block (Model -> Element msg)
 openingSentence =
     Mark.block "OpeningSentence"
         (\parseThis model -> 
@@ -717,14 +864,14 @@ openingSentence =
             in
             case okParsed of
                 Ok os ->
-                    Element.textColumn [ Palette.maxWidth model.width ] 
-                    [ Element.paragraph (Palette.openingSentenceTitle model.width)
-                        [ Element.text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
-                    , Element.paragraph (Palette.openingSentence model.width) [Element.text (os.text |> collapseWhiteSpace)]
-                    , Element.paragraph (Palette.reference model.width) [ Element.text (os.ref |> toTitleCase) ]
+                    textColumn [ Palette.maxWidth model.width ] 
+                    [ paragraph (Palette.openingSentenceTitle model.width)
+                        [ text (if os.label == "BLANK" then "" else os.label |> toTitleCase) ]
+                    , paragraph (Palette.openingSentence model.width) [text (os.text |> collapseWhiteSpace)]
+                    , paragraph (Palette.reference model.width) [ text (os.ref |> toTitleCase) ]
                     ]
                 _ ->
-                    Element.paragraph [] [Element.text "Opening Sentence Error"]
+                    paragraph [] [text "Opening Sentence Error"]
             
         )
         Mark.string
@@ -754,6 +901,7 @@ port toggleButtons : (List String) -> Cmd msg
 -- port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
 -- port clearLessons : String -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
+port prayerListDB : (List String) -> Cmd msg
 
 
 -- SUBSCRIPTIONS
@@ -763,6 +911,7 @@ port changeMonth : (String, Int, Int) -> Cmd msg
 port receivedCalendar : (String -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
 port receivedLesson : (String -> msg) -> Sub msg
+port receivedPrayerList : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
 port onlineStatus : (String -> msg) -> Sub msg
 -- port receivedPsalms : (String -> msg) -> Sub msg
@@ -778,6 +927,7 @@ subscriptions model =
         [ receivedCalendar UpdateCalendar
         , receivedOffice UpdateOffice
         , receivedLesson UpdateLesson
+        , receivedPrayerList UpdatePrayerList
         , newWidth NewWidth
         , onlineStatus UpdateOnlineStatus
         ]
@@ -825,6 +975,15 @@ type Msg
     | ChangeMonth String Int Int
     | ToggleMenu
     | NewWidth Int
+    | EditPrayerListItem String
+    | RemoveFromPrayerList String
+    | AddToPrayerList
+    | CancelPrayerItem
+    | UpdateNewPrayer String
+    | SavePrayerItem
+    | PrayerCategory PrayerType
+    | UpdatePrayerList String -- json
+    | ShowPrayerList
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -899,7 +1058,6 @@ update msg model =
                     , pageName = recvd |> requestedOfficeAt 6
                     , source = Just (recvd |> requestedOfficeAt 7 |> String.replace "\\n" "\n")
                     }
-
             in
             
             (newModel, requestLessons newModel.pageName )
@@ -1002,6 +1160,141 @@ update msg model =
                 , width = (min i 500) - 20
             }, Cmd.none)
 
+        EditPrayerListItem id ->
+            let
+                -- get the prayer by it's ID
+                -- remove it from the original list
+                -- add the why field to the who field
+                -- the edit section on works on the why field
+                -- put the prayer at the top of the list
+                -- , edit = true
+                tp = 
+                    model.prayerList.prayers
+                    |> find(\p -> p.id == id)
+                    |> Maybe.withDefault initPrayer
+                ep = { tp | who = (tp.who ++ "\n" ++ tp.why)}
+                newPrayers = ep :: (filterNot(\p -> p.id == id) model.prayerList.prayers)
+                pl = model.prayerList
+                newPl = { pl | edit = True, prayers = newPrayers }
+
+            in
+            ( { model | prayerList = newPl }, Cmd.none)
+
+        RemoveFromPrayerList id ->
+            let
+
+                pl = model.prayerList
+                cmds = case (find(\el -> el.id == id) pl.prayers) of
+                    Just thisPrayer ->
+                        [ prayerListCommand "delete" thisPrayer, Cmd.none ]
+                    _ -> 
+                        [Cmd.none]
+
+                -- newList = pl.prayers |> dropWhile (\el -> el.id == id)
+                -- newPl = { pl | prayers = newList }
+            in
+            -- ({ model | prayerList = newPl }, Cmd.batch cmds)
+            (model, Cmd.batch cmds)
+
+        AddToPrayerList ->
+            let
+                newPl = 
+                    { edit = True
+                    , show = False
+                    , prayers = initPrayer :: model.prayerList.prayers 
+                    }
+            in
+            ( { model | prayerList = newPl }, Cmd.none )
+
+        CancelPrayerItem ->
+            ( model, Cmd.batch [ requestOffice "prayerList", Cmd.none ])
+            -- -- this is weird: we use the who field as a temporary buffer of who ++ why
+            -- -- thus, if we cancel the edit, we have to take the who field apart
+            -- -- and replace the why field, just like saving
+            -- -- but if it's new, we just drop it
+            -- let
+            --     newPrayers = model.prayerList.prayers |> dropWhile (\el -> el.id == "new")
+            -- in
+            -- ( { model | prayerList = { edit = False, prayers = newPrayers} }
+            -- , Cmd.none
+            -- )
+
+        PrayerCategory ofType ->
+            let 
+                pl = model.prayerList
+                updatedPrayers = 
+                    pl.prayers
+                    |> updateAt 0 (\p -> { p | ofType = ofType} )
+                newList =
+                    { pl
+                    | prayers = updatedPrayers
+                    }
+            in
+            ( { model | prayerList = newList }, Cmd.none )
+                    
+
+        UpdateNewPrayer str ->
+            let
+                newList = model.prayerList.prayers |> updateAt 0 (\p -> {p | who = str})
+                pl = model.prayerList
+                newPl = { pl | prayers = newList}
+            in
+            ( { model | prayerList = newPl }, Cmd.none)
+
+        SavePrayerItem ->
+            let
+                thisPrayer = model.prayerList.prayers |> getAt 0 |> Maybe.withDefault initPrayer
+                plist = thisPrayer.who |> String.split "\n"
+                who = plist |> getAt 0 |> Maybe.withDefault ""
+                why = plist
+                    |> List.tail
+                    |> Maybe.withDefault []
+                    |> String.join "\n"
+                newPrayer = { thisPrayer | who = who, why = why }
+            in
+            ( model, Cmd.batch [prayerListCommand "save" newPrayer, Cmd.none] 
+            )
+
+        UpdatePrayerList jsonPrayers ->
+            let
+                newPrayerList = case Decode.decodeString prayerListDecoder jsonPrayers of
+                    Ok p -> p
+                    Err str -> model.prayerList
+            in
+            ( { model | prayerList = newPrayerList }, Cmd.none )
+
+        ShowPrayerList ->
+            let
+                pl = model.prayerList
+                newModel = if pl.prayers |> List.isEmpty
+                    then 
+                        model
+                    else
+                        let
+                            newPl = { pl | show = not pl.show }
+                        in
+                        { model | prayerList = newPl}
+                        
+            in
+            (newModel, Cmd.none)
+            
+            
+prayerListCommand : String -> Prayer -> Cmd msg
+prayerListCommand cmd thisPrayer =
+    let
+        thisCmd = if thisPrayer.id == "new"
+            then "new"
+            else cmd
+    in
+    
+    prayerListDB
+        [ thisCmd
+        , thisPrayer.id
+        , thisPrayer.who
+        , thisPrayer.why
+        , thisPrayer.ofType |> prayerTypeToString
+        , "date goes here"
+        ]
 
 addNewLesson : String -> Model -> Model
 addNewLesson str model =
@@ -1063,7 +1356,7 @@ view model =
     , body = 
         [ case model.source of
             Nothing ->
-                Element.layout []
+                layout []
                 (renderHeader "Getting Service" "Patience is a virtue" model)
             
             Just source ->
@@ -1072,39 +1365,39 @@ view model =
                         let
                             rez = List.map (\fn -> fn model) thisService.body
                         in
-                        Element.layout 
-                        [ Html.Attributes.style "overflow" "hidden" |> Element.htmlAttribute
+                        layout 
+                        [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
                         , Palette.scaleFont model.width 14
                         ] 
-                        ( Element.column [ ] rez )
+                        ( column [ ] rez )
 
                     -- Mark.Almost {resp, errors} ->
                     Mark.Almost x ->
                         -- this is the case where there has been an error,
                         -- but it hs been caught by `Mark.onError` and is still rendeable
                         -- let
-                        -- -- convert List (model -> Element.Element msg) to List (Element.Element msg)
+                        -- -- convert List (model -> Element msg) to List (Element msg)
                         --     rez = List.map (\fn -> fn model) thisService.body
                         -- in
-                        Element.layout [] ( Element.paragraph [] [ Element.text "ERRORS GO HERE" ] )
-                        -- Element.layout []
-                        -- ( Element.column [] 
+                        layout [] ( paragraph [] [ text "ERRORS GO HERE" ] )
+                        -- layout []
+                        -- ( column [] 
                         --    ( List.concat [(viewErrors errors), rez] )
                         -- )
 
                     Mark.Failure errors ->
-                        Element.layout []
-                        ( Element.column [] (viewErrors errors) )
+                        layout []
+                        ( column [] (viewErrors errors) )
         ]
     }
 
 
-viewErrors : List Error -> List (Element.Element Msg)
+viewErrors : List Error -> List (Element Msg)
 viewErrors errors =
     List.map
         (Mark.Error.toHtml Mark.Error.Light)
         errors
-    |> List.map Element.html
+    |> List.map html
 
 main =
     Browser.document

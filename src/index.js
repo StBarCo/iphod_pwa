@@ -18,6 +18,7 @@ var receivedLesson = undefined
   , onlineStatus = undefined
   , receivedOffice = undefined
   , receivedCalendar = undefined
+  , receivedPrayerList = undefined
   , newWidth = undefined
   ;
 
@@ -42,9 +43,10 @@ var iphod = new Pouchdb('iphod')
 var service = new Pouchdb('service_dev')
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
+var prayerList = new Pouchdb('prayerList'); // never replicate!
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
-  , remoteServiceURL =    "https://legereme.com/couchdb/service"
+  , remoteServiceURL =    "https://legereme.com/couchdb/service_dev"
   , remotePsalmsURL =     "https://legereme.com/couchdb/psalms"
   , remoteLectionaryURL = "https://legereme.com/couchdb/lectionary"
   , remoteIphod = new Pouchdb(remoteIphodURL)
@@ -74,6 +76,7 @@ window.onload = ( function() {
   onlineStatus = app.ports.onlineStatus;
   receivedOffice = app.ports.receivedOffice;
   receivedCalendar = app.ports.receivedCalendar;
+  receivedPrayerList = app.ports.receivedPrayerList;
   newWidth = app.ports.newWidth;
   onlineStatus.send( "All Ready");
   iphod.info().then( function(resp) {
@@ -154,7 +157,7 @@ function service_header_response(now, season, named, resp, euResp) {
   ]
   request_lessons(named, now); // promise the lessons will be sent
 
-  receivedOffice.send(serviceHeader.concat(resp.service))  
+  receivedOffice.send(serviceHeader.concat(resp.service))
 
 }
 
@@ -173,6 +176,7 @@ function service_db_name(s) {
     , vigil: "vigil"
     , about: "about"
     , calendar: "calendar"
+    , prayerList: "prayer_list"
     };
   return dbName[s];
 }
@@ -181,24 +185,17 @@ function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
   send_status("getting " + named )
-  if (named === "sync") { return sync()}
-  get_service_from_db([remoteService, service], named)
-}
-
-
-function get_service_from_db(dbs, named) {
-  var thisDB = dbs.pop();
-  thisDB.get( service_db_name(named) )
-  .then( function(resp) {
+  if (named === "sync") { return sync() }
+  service.get( service_db_name(named) )
+  .then ( function(resp) {
     service_response(named, resp);
+    get_prayer_list();
   })
-  .catch( function(err) { 
-    if (dbs.length > 0) { get_service_from_db(dbs, named) }
-    else { 
-      db_fail("Service")
-    }
+  .catch( function(err) {
+    db_fail("Service " + named)
   })
 }
+
 
 function service_response(named, resp) {
   var now = moment();
@@ -266,6 +263,59 @@ function initElmHeader() {
 
 // END OF POUCHDB ....................
 
+// PRAYER LIST
+
+app.ports.prayerListDB.subscribe( function(request) {
+  var [cmd, id, who, why, ofType, date] = request;
+  var prayer =
+    { who: who
+    , why: why
+    , ofType: ofType
+    , date: date
+    };
+  switch (cmd) {
+    case "new" :
+      prayerList.post(prayer)
+      .then (function(resp) {
+        get_prayer_list();
+      })
+      .catch ( function(err) {
+        console.log("ERROR SAVING PRAYER: ", err)
+      })
+      break;
+    case "save" :
+      // to save properly, first you have to get the rev
+      prayerList.get(id)
+      .then( function(doc){
+        prayer._id = id;
+        prayer._rev = doc._rev;
+        prayerList.put(prayer)
+        .then( function(resp){ get_prayer_list() })
+      })
+      .catch( function(err){
+        console.log("Error saving prayer", err)
+      })
+      break;
+    case "delete" :
+      prayerList.get(id)
+      .then( function(doc) {
+        prayerList.remove(doc)
+        .then( function(resp) {
+          get_prayer_list()
+        })
+      })
+      .catch( function(err) {
+        console.log("Failed to remove prayer: ", err)
+      })
+      break;
+    default:
+      break;
+    }
+})
+
+// END OF PRAYER LIST
+
+
 $(window).on("resize", function() {
   newWidth.send( $(window).width() );
 })
@@ -288,7 +338,9 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
       break;
 
     case "psalms":
-        insertPsalms( req.service, req.service )
+      req.service === "eu"
+        ? insertEucharistPsalms(req.service, key)
+        : insertPsalms( req.service, req.service)
       break;
 
     case "gospel":
@@ -299,7 +351,9 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
     case "all":
         insertLesson( "lesson1", req.service, key, req.service )
         insertLesson( "lesson2", req.service, key, req.service )
-        insertPsalms( req.service, req.service )
+        req.service === "eu" 
+          ? insertEucharistPsalms(req.service, key)
+          : insertPsalms( req.service, req.service )
         insertLesson( "gospel", req.service, key, req.service)
         // insertGospel(req.service, key)
       break;
@@ -328,10 +382,32 @@ app.ports.requestOffice.subscribe( function(request) {
       get_service("calendar");
       Calendar.get_calendar( now, receivedCalendar );
       break;
+    case "prayerList":
+      get_service(request)
+      get_prayer_list();
+      break;
     default: 
       get_service(request);
   };
 });
+
+function get_prayer_list() {
+  prayerList.allDocs({include_docs: true, limit: 50})
+  .then( function(resp) {
+    var prayers = resp.rows.map( r => {
+      return  { id: r.doc._id
+              , who: r.doc.who
+              , why: r.doc.why
+              , ofType: r.doc.ofType
+              , tillWhen: r.doc.tillWhen
+            }
+    })
+    receivedPrayerList.send( JSON.stringify( {prayers: prayers} ))
+  })
+  .catch( function(err) {
+    console.log("ERROR GETTING PRAYER LIST: ", err);
+  })
+}
 
 app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
   // month is coming as jan = 1; moment uses jan = 0
@@ -530,27 +606,42 @@ function try_esv(mpep, lesson, resp) {
 
 function insertProper(office) {}
 
+function insertEucharistPsalms(spa_location, key) {
+  iphod.get(key)
+  .then( function(resp) {
+    var psalms = resp.ps
+    var psalmRefs = BibleRef.dbKeys(psalms)
+    allPsalms(psalmRefs, spa_location);
+  })
+  .catch( function(err) {
+    console.log("Eucharist Psalms fail:  " + err)
+  })
+}
+
 function insertPsalms(office, spa_location) {
   var now = moment()
     , mpep = (office === "morning_prayer") ? "mp" : "ep"
     , dayOfMonth = now.date()
     , psalmRefs = DailyPsalms.dailyPsalms[dayOfMonth][mpep]
-    , thesePsalms = psalmRefs.map(  function(p) { return "acna" + p[0] } )
-    , allPromises = []
-    ;
-    thesePsalms.forEach(  function(p) { allPromises.push( psalms.get(p) ) });
-    Promise.all( allPromises )
-      .then(  function(resp) { psalm_response(psalmRefs, resp, spa_location) })
-      .catch(  function(err) {
-        if (updateOnlineIndicator() ) {
-          allPromises = [];
-          thesePsalms.forEach( function(p) { allPromises.push( remotePsalms.get(p) ) });
-          Promise.all( allPromises )
-          .then( function(resp) { psalm_response(psalmRefs, resp, spa_location) })
-          .catch( function(err) { console.log("PROBLEM GETTING REMOTE PSALMS: " + err) });
-        }
-        console.log("PROBLEM GETTING PSALMS: " + err);
-      })
+    allPsalms(psalmRefs);
+}
+
+function allPsalms(psalmRefs, spa_location) {
+  var allPromises = [];
+  var thesePsalms = psalmRefs.map( p => { return "acna" + p[0] });
+  thesePsalms.forEach( p => { allPromises.push( psalms.get(p) ) });
+  Promise.all( allPromises )
+    .then(  function(resp) { psalm_response(psalmRefs, resp, spa_location) })
+    .catch(  function(err) {
+      if (updateOnlineIndicator() ) {
+        allPromises = [];
+        thesePsalms.forEach( function(p) { allPromises.push( remotePsalms.get(p) ) });
+        Promise.all( allPromises )
+        .then( function(resp) { psalm_response(psalmRefs, resp, spa_location) })
+        .catch( function(err) { console.log("PROBLEM GETTING REMOTE PSALMS: " + err) });
+      }
+      console.log("PROBLEM GETTING PSALMS: " + err);
+    })
 }
 
 function psalm_response(psalmRefs, resp, spa_location) {

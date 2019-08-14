@@ -1,8 +1,8 @@
 module MyParsers exposing (..)
 
-import Html exposing (..)
+import Html
 import Html.Attributes
-import Element
+import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Input as Input
@@ -55,8 +55,8 @@ ref : Parser String
 ref =
     "ref:" |> restOfLine
 
-text : Parser String
-text =
+parserText : Parser String
+parserText =
     succeed identity 
     |. keyword "text:"
     |. spaces
@@ -70,7 +70,7 @@ openingSentenceParser =
     |= tag
     |= label
     |= ref
-    |= text
+    |= parserText
     |. spaces
 
 seasonalOpeningSentenceParser : Parser OpeningSentence
@@ -80,7 +80,7 @@ seasonalOpeningSentenceParser =
     |= tag
     |= label
     |= ref
-    |= text
+    |= parserText
     |. spaces
 
 antiphonParser : Parser Antiphon
@@ -90,16 +90,16 @@ antiphonParser =
     |= tag
     |= label
     |. spaces
-    |= text
+    |= parserText
 
-optionParser : Parser Option
+optionParser : Parser Models.Option
 optionParser =
     succeed Option
     |. spaces
     |= selected
     |= tag
     |= label
-    |= text
+    |= parserText
 
 optionsHeaderParser : Parser OptionsHeader
 optionsHeaderParser =
@@ -111,7 +111,7 @@ optionsHeaderParser =
     |. spaces
 
 
-antiphon : Mark.Block (Model -> Element.Element msg)
+antiphon : Mark.Block (Model -> Element msg)
 antiphon =
     Mark.block "Antiphon"
         (\parseThis model ->
@@ -124,79 +124,79 @@ antiphon =
                         lns = a.text |> String.split "\n"
                         h = lns |> List.head |> Maybe.withDefault ""
                         line1 = if String.length h == 0 
-                                then Element.none 
+                                then none 
                                 else 
-                                    Element.paragraph 
+                                    paragraph 
                                     [ indent "3rem"] 
-                                    [ Element.el 
+                                    [ el 
                                         [ outdent "3rem"]
-                                        Element.none
-                                    , Element.el [] (Element.text h)
+                                        none
+                                    , el [] (text h)
                                     ]
                         t = lns 
                             |> List.tail 
                             |> Maybe.withDefault [""]
                             |> List.map (\l ->
                                 if String.length l == 0 
-                                then Element.none
-                                else Element.el [Element.spacing 10] (Element.text l)
+                                then none
+                                else el [spacing 10] (text l)
 
                             )
                     in
                     
-                    Element.textColumn 
+                    textColumn 
                     ( Palette.antiphon model.width )
-                    ([ Element.el (Palette.antiphonTitle model.width)
-                        ( Element.text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
+                    ([ el (Palette.antiphonTitle model.width)
+                        ( text (if a.label == "BLANK" then "" else a.label |> toTitleCase) )
                     , line1
                     ] ++ t)
                     
 
                 _  ->
-                    Element.paragraph [] [Element.text "Antiphon Error"]
+                    paragraph [] [text "Antiphon Error"]
 
         )
         Mark.string
 
-title : Mark.Block (Model -> Element.Element msg)
+title : Mark.Block (Model -> Element msg)
 title =
     Mark.block "Title"
         (\str model ->
-            Element.paragraph 
+            paragraph 
             [ Font.center
             , scaleFont model.width 32
             ]
-            [ Element.text str ]
+            [ text str ]
         )
         Mark.string
 
 
-season : Mark.Block (model -> Element.Element msg)
+season : Mark.Block (model -> Element msg)
 season =
     Mark.block "Season"
         (\str model ->
-            Element.el [] (Element.text ("season:" ++ str))
+            el [] (text ("season:" ++ str))
         )
         Mark.string
         
-seasonTitle : Mark.Block (model -> Element.Element msg)
+seasonTitle : Mark.Block (model -> Element msg)
 seasonTitle =
     Mark.block "SeasonTitle"
         (\str model ->
-            Element.el [] (Element.text ("seasonTitle:" ++ str))
+            el [] (text ("seasonTitle:" ++ str))
         )
         Mark.string
         
-pageNumber : Mark.Block (Model -> Element.Element msg)
+pageNumber : Mark.Block (Model -> Element msg)
 pageNumber =
     Mark.block "PageNumber"
         (\str model ->
-            Element.el (Palette.pageNumber model.width)
-            (Element.text str)
+            el (Palette.pageNumber model.width)
+            (text str)
         )
         Mark.string
 
-elsWithItalics : String -> List (Element.Element msg)
+elsWithItalics : String -> List (Element msg)
 elsWithItalics str =
     str 
     |> String.split "/"
@@ -204,31 +204,31 @@ elsWithItalics str =
     |> List.indexedMap (\i txt ->  
         if isEven i
         then 
-            Element.el [] (Element.text txt)
+            el [] (text txt)
         else
-            Element.el [ Font.italic ] (Element.text txt)
+            el [ Font.italic ] (text txt)
     )
     
 
-collectTitle : Mark.Block (Model -> Element.Element msg)
+collectTitle : Mark.Block (Model -> Element msg)
 collectTitle =
     Mark.block "CollectTitle"
         (\str model ->
-            Element.paragraph (Palette.collectTitle model.width) ( elsWithItalics (str |> toTitleCase) )
+            paragraph (Palette.collectTitle model.width) ( elsWithItalics (str |> toTitleCase) )
         )
         Mark.string
 
-section : Mark.Block (Model -> Element.Element msg)
+section : Mark.Block (Model -> Element msg)
 section =
     Mark.block "Section"
         (\str model -> 
-            Element.paragraph
+            paragraph
             ( Palette.section model.width )
-            [ Element.text (str |> toTitleCase) ]
+            [ text (str |> toTitleCase) ]
         )
         Mark.string
 
-psalmTitle :Mark.Block (Model -> Element.Element msg)
+psalmTitle :Mark.Block (Model -> Element msg)
 psalmTitle = 
     Mark.block "PsalmTitle"
         (\str model ->
@@ -237,48 +237,48 @@ psalmTitle =
                 line1 = lines |> List.head |> Maybe.withDefault "" |> toTitleCase
                 line2 = lines |> getAt 1 |> Maybe.withDefault "" |> toTitleCase
             in
-            Element.paragraph
+            paragraph
             ( Palette.psalmTitle model.width )
-            [ Element.el [] (Element.text line1)
-            , Element.el [ Font.italic, Element.paddingXY 20 0 ] (Element.text line2)
+            [ el [] (text line1)
+            , el [ Font.italic, paddingXY 20 0 ] (text line2)
             ]
         )
         Mark.string
 
-reference : Mark.Block (Model -> Element.Element msg)
+reference : Mark.Block (Model -> Element msg)
 reference =
     Mark.block "Ref"
         (\str model ->
-            Element.el
+            el
             (Palette.reference model.width)
-            (Element.text str)
+            (text str)
         )
         Mark.string
 
-plain : Mark.Block (Model -> Element.Element msg)
+plain : Mark.Block (Model -> Element msg)
 plain =
     Mark.block "Plain"
         (\str model ->
-            Element.paragraph
+            paragraph
             ( Palette.plain model.width )
-            [ Element.text (str |> collapseWhiteSpace)]
+            [ text (str |> collapseWhiteSpace)]
         )
         Mark.string
 
 
-versicals : Mark.Block (Model -> Element.Element msg)
+versicals : Mark.Block (Model -> Element msg)
 versicals =
     Mark.block "Versicals"
         (\str model ->
-            Element.column ( Palette.versicals model.width ) (listOfVersicals model str)
+            column ( Palette.versicals model.width ) (listOfVersicals model str)
         )
         Mark.string
 
-listOfVersicals : Model -> String -> List (Element.Element msg)
+listOfVersicals : Model -> String -> List (Element msg)
 listOfVersicals model str =
     str |> String.lines |> List.map (makeVersical model)
 
-makeVersical : Model -> String -> Element.Element msg
+makeVersical : Model -> String -> Element msg
 makeVersical model str =
     let
         word1 = str |> String.words |> List.head |> Maybe.withDefault ""
@@ -287,40 +287,40 @@ makeVersical model str =
             else (word1, (word1 |> String.length) + 1)
         -- get the length of the first word plus it's trailing space
         says = str |> String.dropLeft wordLen
-        el1 = Element.column [scaleWidth model.width 90] [ Element.text speaker ]
-        el2 = Element.column []
-            [ Element.paragraph [scaleWidth model.width 250] [Element.text says ]
+        el1 = column [scaleWidth model.width 90] [ text speaker ]
+        el2 = column []
+            [ paragraph [scaleWidth model.width 250] [text says ]
             ]
     in
-        Element.paragraph
+        paragraph
         [ ]
         [ el1
         , el2
         ]
     
 
-quote : Mark.Block (Model -> Element.Element msg)
+quote : Mark.Block (Model -> Element msg)
 quote =
     Mark.block "Quote"
         (\str model ->
-            Element.paragraph
+            paragraph
             ( Palette.quote model.width )
-            [ Element.text (str |> collapseWhiteSpace)]
+            [ text (str |> collapseWhiteSpace)]
         )
         Mark.string
 
 
-rubric : Mark.Block (Model -> Element.Element msg)
+rubric : Mark.Block (Model -> Element msg)
 rubric = 
     Mark.block "Rubric"
         (\str model ->
-            Element.paragraph
+            paragraph
             (Palette.rubric model.width)
-            [ Element.text (str |> collapseWhiteSpace) ]
+            [ text (str |> collapseWhiteSpace) ]
         )
         Mark.string
 
-prayer : Mark.Block (Model -> Element.Element msg)
+prayer : Mark.Block (Model -> Element msg)
 prayer =
     Mark.block "Prayer"
         (\str model -> 
@@ -328,14 +328,14 @@ prayer =
                 lns = str 
                     |> String.split "\n" 
                     |> List.map (\l -> 
-                        Element.paragraph [indent "3rem", Element.width (Element.px (model.width - 70))] 
-                        [ Element.el [outdent "3rem"] Element.none
-                        , Element.text (String.trimRight l)
+                        paragraph [indent "3rem", width (px (model.width - 70))] 
+                        [ el [outdent "3rem"] none
+                        , text (String.trimRight l)
                         ] 
                     )
             in
             
-            Element.column (Palette.prayer model.width) lns
+            column (Palette.prayer model.width) lns
         )
         Mark.string
 
@@ -382,7 +382,7 @@ parseOptionsHeader maybeStr =
 
         Nothing -> Parser.run optionsHeaderParser "" -- should throw the appropriate error
 
-parseTheOptions : Maybe (List String) -> List (Result (List DeadEnd) Option)
+parseTheOptions : Maybe (List String) -> List (Result (List DeadEnd) Models.Option)
 parseTheOptions maybeList =
     case maybeList of
         Just l ->

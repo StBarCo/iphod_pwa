@@ -1,7 +1,21 @@
 module Palette exposing (..)
 
 import Html.Attributes
-import Element exposing (Attribute, rgb255, rgba255, paddingEach, padding, paddingXY, spacing, px, width, height, moveLeft)
+import Element exposing ( Attribute
+                        , rgb255
+                        , rgba255
+                        , paddingEach
+                        , padding
+                        , paddingXY
+                        , spacing
+                        , spacingXY
+                        , px
+                        , width
+                        , height
+                        , moveLeft
+                        , centerX
+                        , centerY
+                        )
 import Element.Background as Background
 import Element.Border as Border
 import Element.Input as Input
@@ -37,6 +51,10 @@ english =
 whiteSpace : String -> Element.Attribute msg
 whiteSpace str =
     Html.Attributes.style "white-space" str |> Element.htmlAttribute
+
+placeholder : String -> Element.Attribute msg
+placeholder str =
+    Html.Attributes.placeholder str |> Element.htmlAttribute
 
 zIndex : Int -> Element.Attribute msg
 zIndex z =
@@ -141,6 +159,8 @@ button viewWidth =
     , spacing 10
     , Background.color darkRed
     , Font.color foggy
+    , centerX
+    , centerY
     ]
 
 calendarDay : Int -> List (Attribute msg)
@@ -226,6 +246,14 @@ plain viewWidth =
 prayer : Int -> List (Attribute msg)
 prayer viewWidth =
     [ Element.paddingEach { top = 0, right = 0, bottom = 0, left = 10}
+    ]
+
+prayerList : Int -> List (Attribute msg)
+prayerList width =
+    [ padding 5
+    , scaleWidth 350 width
+    , Border.width 1
+    , Border.rounded 6
     ]
 
 psalmTitle : Int -> List (Attribute msg)

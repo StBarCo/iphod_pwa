@@ -305,6 +305,7 @@ function dbKeys(refs) {
       parsedRefs.push(el);
     });
   });
+  if (title === "Psalms") { return psalmKeys(parsedRefs); }
   var keys = [];
   parsedRefs.forEach(function(r) { 
     keys.push(
@@ -316,6 +317,17 @@ function dbKeys(refs) {
     )
   })
   return keys;
+}
+
+function psalmKeys(refs) {
+  return refs.map( r => {
+    var chap = parseInt( r.chap )
+      , vsFrom = parseInt( r.vsFrom )
+      , vsTo = parseInt( r.vsTo )
+      , style = r.style
+      ;
+    return [chap, vsFrom, vsTo, style]
+  })
 }
 
 function lessonTitle(book, chap, from, to) {

@@ -1,8 +1,10 @@
 module Models exposing (..)
 
 import Element
-import Json.Decode as Decode exposing (Decoder, int, string, bool)
+import Json.Decode as Decode exposing (Decoder, int, string, bool, succeed)
 import Json.Decode.Pipeline exposing (required, optional, hardcoded)
+import Date exposing (Date, today)
+import Time exposing (Month(..))
 
 -- PARSER MODELS
 
@@ -257,6 +259,117 @@ dayDecoder =
     |> required "ep" serviceLessonsDecoder
     |> required "eu" serviceLessonsDecoder
 
+type PrayerType
+    = Sick
+    | SickChild
+    | Surgery
+    | Strength
+    | Sanctification
+    | Health
+    | Recovery
+    | LittleHope
+    | Other
+
+prayerTypeToTitle : PrayerType -> String
+prayerTypeToTitle pt =
+    case pt of
+        Sick -> "For A Sick Person"
+        SickChild -> "For A Sick Child"
+        Surgery -> "Before An Operation"
+        Strength -> "For Strength and Confidence"
+        Sanctification -> "For the Sanctification of Illness"
+        Health -> "For Health of Body and Soul"
+        Recovery -> "Thanksgiving For A Beginning Of Recovery"
+        LittleHope -> "Little Hope of Recovery"
+        Other -> "Other"
+
+
+prayerTypeToString : PrayerType -> String
+prayerTypeToString pt = 
+    case pt of
+        Sick -> "sick"
+        SickChild -> "sick_child"
+        Surgery -> "surgery"
+        Strength -> "strength"
+        Sanctification -> "sanctification"
+        Health -> "health"
+        Recovery -> "recovery"
+        LittleHope -> "little_hope"
+        Other -> "other"
+
+stringToPrayerType : String ->  Decoder PrayerType
+stringToPrayerType str =
+    case str of
+        "sick" ->  succeed Sick
+        "sick_child" ->  succeed SickChild
+        "surgery" ->  succeed Surgery
+        "strength" ->  succeed Strength
+        "santification" ->  succeed Sanctification
+        "health" ->  succeed Health
+        "recovery" ->  succeed Recovery
+        "little_hope" ->  succeed LittleHope
+        "other" ->  succeed Other
+        _ -> succeed Other
+
+
+type alias Prayer =
+    { id: String
+    , who: String
+    , why: String
+    , ofType: PrayerType
+    , tillWhen: Date
+    }
+
+prayerDecoder : Decoder Prayer
+prayerDecoder =
+    Decode.succeed Prayer
+    |> required "id" string
+    |> required "who" string
+    |> required "why" string
+    |> required "ofType" (string |> Decode.andThen stringToPrayerType)
+    |> hardcoded (Date.fromCalendarDate 1970 Jan 1)
+
+initPrayer : Prayer
+initPrayer =
+    { id = "new"
+    , who = ""
+    , why = ""
+    , ofType = Other
+    , tillWhen = Date.fromCalendarDate 1970 Jan 1
+    }
+
+type alias PrayerList =
+    { show : Bool
+    , edit : Bool
+    , prayers : List Prayer
+    }
+
+initPrayerList : PrayerList
+initPrayerList = 
+    { show = False
+    , edit = False
+    , prayers = []
+    }
+
+prayerListDecoder : Decoder PrayerList
+prayerListDecoder =
+    Decode.succeed PrayerList
+    |> hardcoded False
+    |> hardcoded False
+    |> required "prayers" (Decode.list prayerDecoder)
+
+prayerCategories =
+    { sick = "For the Sick"
+    , sickChild = "Sick Child"
+    , surgery = "Before an Surgery"
+    , strength = "Strength & Confidence"
+    , sanctification = "Sanctification of Illness"
+    , health = "Health of Body & Soul"
+    , recovery = "Beginning of Recovery"
+    , littleHope = "Little Hope of Recovery"
+    }
+
+
 type alias Model =
     { windowWidth : Int
     , width : Int
@@ -276,6 +389,7 @@ type alias Model =
     , options : List Options
     , calendar : List CalendarDay
     , showMenu : Bool
+    , prayerList : PrayerList
     , lessons : Lessons
     , eu : Lessons
     , mp : Lessons
@@ -305,6 +419,7 @@ initModel =
     , options       = []
     , calendar      = []
     , showMenu      = False
+    , prayerList    = initPrayerList
     , lessons       = initLessons
     , eu            = initLessons
     , mp            = initLessons

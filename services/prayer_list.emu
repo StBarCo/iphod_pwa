@@ -1,0 +1,27 @@
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = Prayer List
+    description =
+        Prayer List
+
+|> PrayerList
+    placeholder
+
+|> Section
+    Things to remember...
+
+|> Plain
+    This list is not particularly secure, *do not save sensitive information here!* 
+    What makes it not secure is 1) there is no way to know how other applications
+    might seek out and read this database and 2) it is not encrypted.
+
+|> Plain
+    This list is kept only on this device, it is not shared with any other devices.
+    Not sharing the list with other devices helps make the list more secure.
+
+|> Plain
+    The list is limited to 50 items.
+
+|> NewListItem
+    False
