@@ -1,0 +1,8 @@
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = OccasionalPrayers
+    description = Occasional Prayers
+
+|> OccasionalPrayers
+    placeholder

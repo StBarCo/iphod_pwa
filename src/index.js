@@ -19,6 +19,8 @@ var receivedLesson = undefined
   , receivedOffice = undefined
   , receivedCalendar = undefined
   , receivedPrayerList = undefined
+  , receivedOPCats = undefined
+  , receivedOPs = undefined
   , newWidth = undefined
   ;
 
@@ -36,23 +38,27 @@ var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
 import Pouchdb from 'pouchdb';
+import PouchFind from 'pouchdb-find'
+Pouchdb.plugin(PouchFind);
 // window.pdb = Pouchdb;
-var blork = new Pouchdb('blork');
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
 var service = new Pouchdb('service_dev')
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var prayerList = new Pouchdb('prayerList'); // never replicate!
+var ops = new Pouchdb('occasional_prayers');
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
   , remoteServiceURL =    "https://legereme.com/couchdb/service_dev"
   , remotePsalmsURL =     "https://legereme.com/couchdb/psalms"
   , remoteLectionaryURL = "https://legereme.com/couchdb/lectionary"
+  , remoteOpsURL = "https://legereme.com/couchdb/occasional_prayers"
   , remoteIphod = new Pouchdb(remoteIphodURL)
   , remoteService = new Pouchdb(remoteServiceURL)
   , remotePsalms = new Pouchdb(remotePsalmsURL)
   , remoteLectionary = new Pouchdb(remoteLectionaryURL)
+  , remoteOps = new Pouchdb(remoteOpsURL)
   , default_prefs = {
       _id: 'preferences'
     , ot: 'ESV'
@@ -77,6 +83,8 @@ window.onload = ( function() {
   receivedOffice = app.ports.receivedOffice;
   receivedCalendar = app.ports.receivedCalendar;
   receivedPrayerList = app.ports.receivedPrayerList;
+  receivedOPCats = app.ports.receivedOPCats;
+  receivedOPs = app.ports.receivedOPs
   newWidth = app.ports.newWidth;
   onlineStatus.send( "All Ready");
   iphod.info().then( function(resp) {
@@ -107,7 +115,10 @@ function sync() {
       .on("complete", function() {
         lectionary.replicate.from(remoteLectionary)
         .on("complete", function() {
-          send_status("Sync complete");
+          ops.replicate.from(remoteOps)
+          .on("complete", function() {
+            send_status("Sync complete");
+          })
         })
       })
     })
@@ -177,6 +188,7 @@ function service_db_name(s) {
     , about: "about"
     , calendar: "calendar"
     , prayerList: "prayer_list"
+    , occasionalPrayers: "occasional_prayers"
     };
   return dbName[s];
 }
@@ -385,11 +397,39 @@ app.ports.requestOffice.subscribe( function(request) {
     case "prayerList":
       get_service(request)
       get_prayer_list();
+      get_ops_categories()
+      break;
+
+    case "occasionalPrayers":
+      get_service(request)
+      get_ops_categories();
       break;
     default: 
       get_service(request);
   };
 });
+
+function get_ops_categories() {
+  ops.get("categories")
+  .then ( resp => {
+    receivedOPCats.send(resp.list)
+  })
+  .catch ( err => {
+    console.log("Error: getting occasional prayers categories: ", err)
+  })
+}
+
+app.ports.requestOPsByCat.subscribe( request => {
+  ops.find({selector: {category: request}})
+  .then( resp => {
+    var docs = resp.docs;
+    docs = docs.map( d => { d.id = d._id; return d } )
+    receivedOPs.send( JSON.stringify({cat: request, prayers: docs}) )
+  })
+  .catch( err => {
+    console.log("Error: OPs Cat", err)
+  })
+})
 
 function get_prayer_list() {
   prayerList.allDocs({include_docs: true, limit: 50})

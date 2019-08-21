@@ -259,64 +259,12 @@ dayDecoder =
     |> required "ep" serviceLessonsDecoder
     |> required "eu" serviceLessonsDecoder
 
-type PrayerType
-    = Sick
-    | SickChild
-    | Surgery
-    | Strength
-    | Sanctification
-    | Health
-    | Recovery
-    | LittleHope
-    | Other
-
-prayerTypeToTitle : PrayerType -> String
-prayerTypeToTitle pt =
-    case pt of
-        Sick -> "For A Sick Person"
-        SickChild -> "For A Sick Child"
-        Surgery -> "Before An Operation"
-        Strength -> "For Strength and Confidence"
-        Sanctification -> "For the Sanctification of Illness"
-        Health -> "For Health of Body and Soul"
-        Recovery -> "Thanksgiving For A Beginning Of Recovery"
-        LittleHope -> "Little Hope of Recovery"
-        Other -> "Other"
-
-
-prayerTypeToString : PrayerType -> String
-prayerTypeToString pt = 
-    case pt of
-        Sick -> "sick"
-        SickChild -> "sick_child"
-        Surgery -> "surgery"
-        Strength -> "strength"
-        Sanctification -> "sanctification"
-        Health -> "health"
-        Recovery -> "recovery"
-        LittleHope -> "little_hope"
-        Other -> "other"
-
-stringToPrayerType : String ->  Decoder PrayerType
-stringToPrayerType str =
-    case str of
-        "sick" ->  succeed Sick
-        "sick_child" ->  succeed SickChild
-        "surgery" ->  succeed Surgery
-        "strength" ->  succeed Strength
-        "santification" ->  succeed Sanctification
-        "health" ->  succeed Health
-        "recovery" ->  succeed Recovery
-        "little_hope" ->  succeed LittleHope
-        "other" ->  succeed Other
-        _ -> succeed Other
-
 
 type alias Prayer =
     { id: String
     , who: String
     , why: String
-    , ofType: PrayerType
+    , ofType: String
     , tillWhen: Date
     }
 
@@ -326,7 +274,7 @@ prayerDecoder =
     |> required "id" string
     |> required "who" string
     |> required "why" string
-    |> required "ofType" (string |> Decode.andThen stringToPrayerType)
+    |> required "ofType" string
     |> hardcoded (Date.fromCalendarDate 1970 Jan 1)
 
 initPrayer : Prayer
@@ -334,7 +282,7 @@ initPrayer =
     { id = "new"
     , who = ""
     , why = ""
-    , ofType = Other
+    , ofType = ""
     , tillWhen = Date.fromCalendarDate 1970 Jan 1
     }
 
@@ -358,15 +306,49 @@ prayerListDecoder =
     |> hardcoded False
     |> required "prayers" (Decode.list prayerDecoder)
 
-prayerCategories =
-    { sick = "For the Sick"
-    , sickChild = "Sick Child"
-    , surgery = "Before an Surgery"
-    , strength = "Strength & Confidence"
-    , sanctification = "Sanctification of Illness"
-    , health = "Health of Body & Soul"
-    , recovery = "Beginning of Recovery"
-    , littleHope = "Little Hope of Recovery"
+
+type alias OccasionalPrayer =
+    { id : String
+    , category : String
+    , title : String
+    , source : String
+    , prayer : String
+    , show : Bool
+    }
+  
+type alias OPList =
+    { cat: String
+    , prayers : List OccasionalPrayer 
+    }
+
+opDecoder : Decoder OccasionalPrayer
+opDecoder =
+    Decode.succeed OccasionalPrayer
+    |> required "id" string
+    |> required "category" string
+    |> required "title" string
+    |> required "source" string
+    |> required "prayer" string
+    |> hardcoded False
+
+
+opListDecoder : Decoder OPList
+opListDecoder =
+    Decode.succeed OPList
+    |> required "cat" string
+    |> required "prayers" (Decode.list opDecoder)
+
+type alias OccasionalPrayers =
+    { categories : String -- seperated by "\n"
+    , thisCat : String
+    , list : List OccasionalPrayer
+    }
+
+initOPs : OccasionalPrayers
+initOPs =
+    { categories = ""
+    , thisCat = ""
+    , list = []
     }
 
 
@@ -396,6 +378,7 @@ type alias Model =
     , ep : Lessons
     , openingSentences : List OpeningSentence
     , online : String
+    , ops : OccasionalPrayers
     }
     
 
@@ -426,5 +409,6 @@ initModel =
     , ep            = initLessons
     , openingSentences = []
     , online        = "loading"
+    , ops           = initOPs
     }
 

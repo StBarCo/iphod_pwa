@@ -7,7 +7,8 @@ module.exports = {
        // new CopyWebpackPlugin([{ from: 'static/', to: '../' }]),
        new webpack.ProvidePlugin({
         $: 'jquery',
-        jQuery: 'jquery'
+        jQuery: 'jquery',
+        PDBFind: 'pouchdb-find'
       })
      ]
 

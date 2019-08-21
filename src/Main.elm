@@ -76,10 +76,53 @@ document =
                 , prayerList
                 , newPrayerListItem
                 , openPrayerList
+                , occasionalPrayers
                 -- Toplevel Text
             --    , Mark.map (Html.p []) Mark.text
                 ]
         }
+
+
+occasionalPrayers : Mark.Block (Model -> Element Msg)
+occasionalPrayers =
+    Mark.block "OccasionalPrayers"
+    (\placeholder model ->
+        let
+            opCats = model.ops.categories |> String.split "\n"
+            elements =
+                model.ops.categories
+                |> String.split "\n"
+                |> List.map (\c ->
+                    let
+                        thesePrayers = if c == model.ops.thisCat
+                            then renderThisCat model.ops.list
+                            else []
+
+                    in
+                    paragraph [ Event.onClick (RequestOPsByCat c) ] [text c]
+                    :: thesePrayers
+                )
+        in
+        column [] (elements |> List.concat)
+    )
+    Mark.string
+
+
+renderThisCat : List OccasionalPrayer -> List (Element Msg)
+renderThisCat prayers =
+    prayers 
+    |> List.map
+    (\p ->
+        let
+            thisPrayer = if p.show
+                then paragraph [moveRight 30.0] [text p.prayer]
+                else none
+        in
+        [ paragraph [Event.onClick (ToggleOP p.id), moveRight 20.0] [text (toTitleCase p.title)]
+        , thisPrayer
+        ]
+    )
+    |> List.concat
 
 openPrayerList : Mark.Block (Model -> Element Msg)
 openPrayerList =
@@ -121,7 +164,7 @@ newPrayerListItem =
                     model.prayerList.prayers
                     |> List.head 
                     |> Maybe.withDefault initPrayer
-                    |> editPrayer model.width
+                    |> editPrayer model
                 else
                     model.prayerList.prayers
                     |> renderPrayerList True model.width
@@ -137,8 +180,33 @@ newPrayerListItem =
     Mark.bool
 
 
-editPrayer : Int -> Prayer -> List (Element Msg)
-editPrayer width prayer =
+editPrayer : Model -> Prayer -> List (Element Msg)
+editPrayer model prayer =
+    let
+        width = model.width
+        oPCats = model.ops.categories
+            |> String.split "\n"
+            |> (::) "Other"
+            |> List.map 
+            (\c -> 
+                if c == model.ops.thisCat
+                    then 
+                        model.ops.list
+                        |> List.map 
+                        (\ p -> 
+                            Input.option 
+                                p.title 
+                                ( column [] 
+                                    [ paragraph [] [ text (toTitleCase p.title) ]
+                                    , paragraph [] [ text p.prayer ] 
+                                    ]
+                                )
+                        )
+                        |> (::) (Input.option c (text c) )
+                    else [ Input.option c (text c) ]
+            )
+            |> List.concat
+    in
     [ row []
         [ column []
             [ paragraph
@@ -160,25 +228,23 @@ editPrayer width prayer =
             , label = Input.labelAbove [] (text "New Prayer")
             , spellcheck = True
             }
+        
         ] -- end of row
-    , Input.radio
-        [ padding 5
-        , spacing 10
-        ]
-        { onChange = PrayerCategory
-        , selected = Just (prayer.ofType)
-        , label = Input.labelAbove [] (text "Prayer Type")
-        , options =
-            [ Input.option Sick (text "For the Sick")
-            , Input.option SickChild (text "Sick Child")
-            , Input.option Surgery (text "Before an Surgery")
-            , Input.option Strength (text "Strength & Confidence")
-            , Input.option Sanctification (text "Sanctification of Illness")
-            , Input.option Health (text "Health of Body & Soul")
-            , Input.option Recovery (text "Beginning of Recovery")
-            , Input.option LittleHope (text "Little Hope of Recovery")
+    , paragraph 
+        [ Font.color Palette.darkBlue, moveRight 70.0] 
+        [ text (toTitleCase prayer.ofType)] 
+    , column [ Palette.scaleWidth 200 width ]
+        [   Input.radio
+            [ padding 5
+            , spacing 10
+            , Palette.wordBreak
             ]
-        }
+            { onChange = PrayerCategory
+            , selected = Just prayer.ofType
+            , label = Input.labelAbove [] (text "Prayer Type")
+            , options = oPCats
+            }
+        ]
     ]
 
 
@@ -211,7 +277,7 @@ renderPrayerList editable width prayers =
             clickable
             [ paragraph [] [ text p.who ]
             , paragraph [] [ text p.why ]
-            , paragraph [Font.color Palette.darkBlue] [ text (p.ofType |> prayerTypeToTitle) ]
+            , paragraph [Font.color Palette.darkBlue] [ text (toTitleCase p.ofType) ]
             ]
         , removable
         ]
@@ -377,6 +443,7 @@ menuOptions model =
         ]
     , column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
         [ clickOption "prayerList" "Prayer List"
+        , clickOption "occasionalPrayers" "Occasional Prayers"
         , clickOption "about" "About"
         , clickOption "sync" "How to Install"
         , clickOption "sync" "Update Database"
@@ -896,6 +963,7 @@ port requestReference : (List String) -> Cmd msg
 port requestOffice : String -> Cmd msg
 -- port requestReadings : String -> Cmd msg
 port requestLessons : String -> Cmd msg
+port requestOPsByCat : String -> Cmd msg
 port calendarReadingRequest : ServiceReadingRequest -> Cmd msg
 port toggleButtons : (List String) -> Cmd msg
 -- port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
@@ -912,6 +980,8 @@ port receivedCalendar : (String -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
 port receivedLesson : (String -> msg) -> Sub msg
 port receivedPrayerList : (String -> msg) -> Sub msg
+port receivedOPCats : (String -> msg) -> Sub msg
+port receivedOPs : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
 port onlineStatus : (String -> msg) -> Sub msg
 -- port receivedPsalms : (String -> msg) -> Sub msg
@@ -930,6 +1000,8 @@ subscriptions model =
         , receivedPrayerList UpdatePrayerList
         , newWidth NewWidth
         , onlineStatus UpdateOnlineStatus
+        , receivedOPCats UpdateOPCats
+        , receivedOPs UpdateOPs
         ]
 
 serviceToString : Service -> String
@@ -981,9 +1053,13 @@ type Msg
     | CancelPrayerItem
     | UpdateNewPrayer String
     | SavePrayerItem
-    | PrayerCategory PrayerType
+    | PrayerCategory String
     | UpdatePrayerList String -- json
     | ShowPrayerList
+    | UpdateOPCats String
+    | RequestOPsByCat String
+    | UpdateOPs String
+    | ToggleOP String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -1230,7 +1306,8 @@ update msg model =
                     | prayers = updatedPrayers
                     }
             in
-            ( { model | prayerList = newList }, Cmd.none )
+            ( { model | prayerList = newList }
+            , Cmd.batch [ requestOPsByCat ofType, Cmd.none] )
                     
 
         UpdateNewPrayer str ->
@@ -1243,14 +1320,20 @@ update msg model =
 
         SavePrayerItem ->
             let
-                thisPrayer = model.prayerList.prayers |> getAt 0 |> Maybe.withDefault initPrayer
+                thisPrayer = 
+                    model.prayerList.prayers 
+                    |> getAt 0 
+                    |> Maybe.withDefault initPrayer
                 plist = thisPrayer.who |> String.split "\n"
                 who = plist |> getAt 0 |> Maybe.withDefault ""
                 why = plist
                     |> List.tail
                     |> Maybe.withDefault []
                     |> String.join "\n"
-                newPrayer = { thisPrayer | who = who, why = why }
+                thisType = if thisPrayer.ofType |> String.isEmpty
+                    then "Other"
+                    else thisPrayer.ofType
+                newPrayer = { thisPrayer | who = who, why = why, ofType = thisType }
             in
             ( model, Cmd.batch [prayerListCommand "save" newPrayer, Cmd.none] 
             )
@@ -1277,7 +1360,45 @@ update msg model =
                         
             in
             (newModel, Cmd.none)
-            
+
+        UpdateOPCats str ->
+            let
+                ops = model.ops
+                newOps = { ops | categories = str }
+            in
+            ( { model | ops = newOps }, Cmd.none )
+
+        RequestOPsByCat str ->
+            ( model
+            , Cmd.batch [ requestOPsByCat str, Cmd.none ]
+            )
+
+        UpdateOPs str ->
+            let
+                newOPs = case Decode.decodeString opListDecoder str of
+                    Ok ops ->
+                        { categories = model.ops.categories
+                        , thisCat = ops.cat
+                        , list = ops.prayers
+                        }
+
+                    Err err ->
+                        model.ops
+            in
+            ( { model | ops = newOPs }, Cmd.none )
+
+        ToggleOP id ->
+            let
+                opList = model.ops.list
+                newList = case findIndex (\p -> p.id == id) opList of
+                    Just i ->
+                        opList |> updateAt i (\p -> { p | show = not p.show} )
+                    Nothing ->
+                        opList
+                ops = model.ops
+                newOPs = { ops | list = newList }
+            in
+            ( { model | ops = newOPs }, Cmd.none)
             
 prayerListCommand : String -> Prayer -> Cmd msg
 prayerListCommand cmd thisPrayer =
@@ -1292,7 +1413,7 @@ prayerListCommand cmd thisPrayer =
         , thisPrayer.id
         , thisPrayer.who
         , thisPrayer.why
-        , thisPrayer.ofType |> prayerTypeToString
+        , thisPrayer.ofType
         , "date goes here"
         ]
 

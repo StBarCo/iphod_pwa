@@ -36,6 +36,10 @@ black = rgb255 0 0 0
 edges : { top: Int, right: Int, bottom: Int, left: Int }
 edges = { top = 0, right = 0, bottom = 0, left = 0 }
 
+wordBreak : Element.Attribute msg
+wordBreak =
+    Html.Attributes.style "word-break"  "break-word" |> Element.htmlAttribute
+
 fixedPosition : Element.Attribute msg
 fixedPosition =
     Html.Attributes.style "position" "fixed" |> Element.htmlAttribute
