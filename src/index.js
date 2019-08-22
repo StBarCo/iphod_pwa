@@ -47,7 +47,7 @@ var service = new Pouchdb('service_dev')
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var prayerList = new Pouchdb('prayerList'); // never replicate!
-var ops = new Pouchdb('occasional_prayers');
+var occasional_prayers = new Pouchdb('occasional_prayers');
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
   , remoteServiceURL =    "https://legereme.com/couchdb/service_dev"
@@ -115,7 +115,7 @@ function sync() {
       .on("complete", function() {
         lectionary.replicate.from(remoteLectionary)
         .on("complete", function() {
-          ops.replicate.from(remoteOps)
+          occasional_prayers.replicate.from(remoteOps)
           .on("complete", function() {
             send_status("Sync complete");
           })
@@ -278,11 +278,13 @@ function initElmHeader() {
 // PRAYER LIST
 
 app.ports.prayerListDB.subscribe( function(request) {
-  var [cmd, id, who, why, ofType, date] = request;
+  var [cmd, id, who, why, ofType, opId, date] = request;
+  console.log("SAVE: ", request)
   var prayer =
     { who: who
     , why: why
     , ofType: ofType
+    , opId: opId
     , date: date
     };
   switch (cmd) {
@@ -410,7 +412,7 @@ app.ports.requestOffice.subscribe( function(request) {
 });
 
 function get_ops_categories() {
-  ops.get("categories")
+  occasional_prayers.get("categories")
   .then ( resp => {
     receivedOPCats.send(resp.list)
   })
@@ -420,7 +422,7 @@ function get_ops_categories() {
 }
 
 app.ports.requestOPsByCat.subscribe( request => {
-  ops.find({selector: {category: request}})
+  occasional_prayers.find({selector: {category: request}})
   .then( resp => {
     var docs = resp.docs;
     docs = docs.map( d => { d.id = d._id; return d } )
@@ -435,14 +437,27 @@ function get_prayer_list() {
   prayerList.allDocs({include_docs: true, limit: 50})
   .then( function(resp) {
     var prayers = resp.rows.map( r => {
-      return  { id: r.doc._id
-              , who: r.doc.who
-              , why: r.doc.why
-              , ofType: r.doc.ofType
-              , tillWhen: r.doc.tillWhen
-            }
+      r.doc.id = r.doc._id;
+      if (r.doc.opId === undefined) { r.doc.opId = "op000"}
+      return r.doc;
+    })
+    prayers.sort( (a, b) => { 
+      if (a.opId > b.opId) { return 1; } 
+      return -1;
     })
     receivedPrayerList.send( JSON.stringify( {prayers: prayers} ))
+    // get a set of unique OPs, sort
+    var keys = [ ... new Set( prayers.map( p => { return p.opId }) ) ].sort();
+    occasional_prayers.allDocs(
+      { include_docs: true
+      , keys: keys
+      }
+    )
+    .then ( resp => {
+      var docs = resp.rows.map( r => { return r.doc });
+      docs = docs.map( d => { d.id = d._id; return d } )
+      receivedOPs.send( JSON.stringify({cat: "multiple", prayers: docs}) )
+    })
   })
   .catch( function(err) {
     console.log("ERROR GETTING PRAYER LIST: ", err);

@@ -265,6 +265,7 @@ type alias Prayer =
     , who: String
     , why: String
     , ofType: String
+    , opId: String
     , tillWhen: Date
     }
 
@@ -275,6 +276,7 @@ prayerDecoder =
     |> required "who" string
     |> required "why" string
     |> required "ofType" string
+    |> optional "opId" string "op000"
     |> hardcoded (Date.fromCalendarDate 1970 Jan 1)
 
 initPrayer : Prayer
@@ -283,6 +285,7 @@ initPrayer =
     , who = ""
     , why = ""
     , ofType = ""
+    , opId = "op000"
     , tillWhen = Date.fromCalendarDate 1970 Jan 1
     }
 
@@ -314,6 +317,16 @@ type alias OccasionalPrayer =
     , source : String
     , prayer : String
     , show : Bool
+    }
+
+initOccassionalPrayer : OccasionalPrayer
+initOccassionalPrayer = 
+    { id = "id000"
+    , category = "Other"
+    , title = ""
+    , source = "Self"
+    , prayer = ""
+    , show = False
     }
   
 type alias OPList =

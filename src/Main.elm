@@ -8,6 +8,7 @@ import Element.Input as Input
 import Element.Events as Event
 import Element.Font as Font
 import Element.Region as Region
+import Element.Border as Border
 -- import Html
 import Html.Attributes
 import Html.Parser
@@ -134,7 +135,7 @@ openPrayerList =
                 else
                     if model.prayerList.show
                         then prayerListButton "Hide Prayer List" model.width
-                             :: renderPrayerList False model.width model.prayerList.prayers
+                             :: renderOfficePrayerList model False
                              
                         else prayerListButton "Show Prayer List" model.width
                              :: [none]
@@ -282,6 +283,48 @@ renderPrayerList editable width prayers =
         , removable
         ]
     )
+
+renderOfficePrayerList : Model -> Bool -> List (Element Msg)
+renderOfficePrayerList model show = 
+    let
+        width = model.width
+        thisPrayerList = model.prayerList.prayers
+        elements = model.ops.list
+            -- map the occasional prayers
+            |> List.map
+            (\op ->
+                let 
+                    -- render this prayer
+                    thisPrayer = 
+                        [ paragraph 
+                            [ Font.bold ] 
+                            [ text (op.category ++ ": " ++ (toTitleCase op.title)) ]
+                        , paragraph [] [ text op.prayer ]
+                        ]
+                    -- render those that goes along with thisPrayer
+                    forThese =
+                        thisPrayerList
+                        |> List.filter 
+                        (\p -> p.opId == op.id)
+                        |> List.map
+                        (\p ->
+                            column []
+                            [ paragraph [ paddingXY 20 0, Font.bold ] [ text p.who ]
+                            , paragraph [ paddingXY 20 0] [ text p.why]
+                            ]
+                        )
+                in
+                column 
+                    [ padding 20
+                    , Border.width 1
+                    , Border.rounded 5
+                    , Palette.scaleWidth 350 width
+                    , moveRight 10
+                    ]
+                    (List.concat [thisPrayer ++ forThese])
+            )
+    in
+    elements
 
 
 prayerList : Mark.Block (Model -> Element Msg)
@@ -1298,9 +1341,12 @@ update msg model =
         PrayerCategory ofType ->
             let 
                 pl = model.prayerList
+                thisOP = model.ops.list
+                    |> find (\o -> o.title == ofType)
+                    |> Maybe.withDefault initOccassionalPrayer
                 updatedPrayers = 
                     pl.prayers
-                    |> updateAt 0 (\p -> { p | ofType = ofType} )
+                    |> updateAt 0 (\p -> { p | ofType = ofType, opId = thisOP.id} )
                 newList =
                     { pl
                     | prayers = updatedPrayers
@@ -1414,6 +1460,7 @@ prayerListCommand cmd thisPrayer =
         , thisPrayer.who
         , thisPrayer.why
         , thisPrayer.ofType
+        , thisPrayer.opId
         , "date goes here"
         ]
 
