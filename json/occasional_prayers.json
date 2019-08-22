@@ -1,5 +1,11 @@
 { "docs": [ 
-    { "category": "The Church"
+    { "category": "Other"
+    , "_id": "op000"
+    , "title": "Private Prayer"
+    , "source": "Self"
+    , "prayer" : ""
+    }
+,   { "category": "The Church"
     , "_id": "op001"
     , "title": "for the universal church (1)"
     , "source": "bcp2019"
