@@ -1112,9 +1112,9 @@ update msg model =
         NoOp -> (model, Cmd.none)
 
         Swiped state ->
-            let
-                _ = Debug.log "SWIPED" state
-            in
+            -- let
+            --     _ = Debug.log "SWIPED" state
+            -- in
             (model, Cmd.none)
 
         GotSrc result ->
