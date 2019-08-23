@@ -28,6 +28,7 @@ import Palette exposing (scaleFont, pageWidth, indent, outdent, show, hide, edge
 import Models exposing (..)
 import Json.Decode as Decode
 import Date
+import Swiper
 
 
 getSeason : Model -> String
@@ -1072,6 +1073,7 @@ serviceTitle s =
 
 type Msg 
     = NoOp
+    | Swiped Swiper.SwipeEvent
     | GotSrc (Result Http.Error String)
     | UpdateOption Options
     | ClickOption String String Options
@@ -1108,6 +1110,12 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
+
+        Swiped state ->
+            let
+                _ = Debug.log "SWIPED" state
+            in
+            (model, Cmd.none)
 
         GotSrc result ->
             case result of
@@ -1525,18 +1533,30 @@ view model =
         [ case model.source of
             Nothing ->
                 layout []
-                (renderHeader "Getting Service" "Patience is a virtue" model)
-            
+                -- (renderHeader "Getting Service" "Patience is a virtue" model)
+                -- ( image [] {src = "https://media.giphy.com/media/ByuDOrJgpKCeA/source.gif", description = "Getting Service"})
+                ( column []
+                    [ renderHeader "Getting Service" "Patience is a virtue" model
+                    , image [ Palette.scaleWidth 200 model.width, centerX, centerY, paddingXY 0 20 ] 
+                        { src = "https://media.giphy.com/media/ByuDOrJgpKCeA/source.gif"
+                        , description = "Getting Service"
+                        }
+                    ]
+                )
             Just source ->
                 case Mark.compile document source of
                     Mark.Success thisService ->
                         let
                             rez = List.map (\fn -> fn model) thisService.body
                         in
-                        layout 
-                        [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
-                        , Palette.scaleFont model.width 14
-                        ] 
+                        layout
+                        ( 
+                            [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
+                            , Palette.scaleFont model.width 14
+                            ] 
+                        -- ++ Swiper.onSwipeEvents Swiped 
+                        --     |> List.map (\s -> htmlAttribute s)
+                        )
                         ( column [ ] rez )
 
                     -- Mark.Almost {resp, errors} ->
