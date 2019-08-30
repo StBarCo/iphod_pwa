@@ -14,14 +14,7 @@ import List.Extra exposing (getAt)
 import String.Extra exposing (toTitleCase, toSentence)
 import Palette exposing(scaleFont, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
-
-isEven : Int -> Bool
-isEven n = 
-    modBy 2 n == 0
-
-stringNotEmpty : String -> Bool
-stringNotEmpty str =
-    not (String.isEmpty str)
+import Candy exposing (..)
 
 restOfLine : String -> Parser String
 restOfLine str =
@@ -190,42 +183,21 @@ seasonTitle =
 pageNumber : Mark.Block (Model -> Element msg)
 pageNumber =
     Mark.block "PageNumber"
-        (\str model ->
-            el (Palette.pageNumber model.width)
+        (\str model -> el (Palette.pageNumber model.width)
             (text str)
         )
         Mark.string
 
-elsWithItalics : String -> List (Element msg)
-elsWithItalics str =
-    str 
-    |> String.split "/"
-    |> List.filter stringNotEmpty
-    |> List.indexedMap (\i txt ->  
-        if isEven i
-        then 
-            el [] (text txt)
-        else
-            el [ Font.italic ] (text txt)
-    )
-    
-
 collectTitle : Mark.Block (Model -> Element msg)
 collectTitle =
     Mark.block "CollectTitle"
-        (\str model ->
-            paragraph (Palette.collectTitle model.width) ( elsWithItalics (str |> toTitleCase) )
-        )
+        (\str model -> renderCollectTitle model.width str )
         Mark.string
 
 section : Mark.Block (Model -> Element msg)
 section =
     Mark.block "Section"
-        (\str model -> 
-            paragraph
-            ( Palette.section model.width )
-            [ text (str |> toTitleCase) ]
-        )
+        (\str model -> renderSectionTitle model.width str )
         Mark.string
 
 psalmTitle :Mark.Block (Model -> Element msg)
@@ -258,11 +230,7 @@ reference =
 plain : Mark.Block (Model -> Element msg)
 plain =
     Mark.block "Plain"
-        (\str model ->
-            paragraph
-            ( Palette.plain model.width )
-            [ text (str |> collapseWhiteSpace)]
-        )
+        (\str model -> renderPlainText model.width str )
         Mark.string
 
 
@@ -323,32 +291,8 @@ rubric =
 prayer : Mark.Block (Model -> Element msg)
 prayer =
     Mark.block "Prayer"
-        (\str model -> 
-            let
-                lns = str 
-                    |> String.split "\n" 
-                    |> List.map (\l -> 
-                        paragraph [indent "3rem", width (px (model.width - 70))] 
-                        [ el [outdent "3rem"] none
-                        , text (String.trimRight l)
-                        ] 
-                    )
-            in
-            
-            column (Palette.prayer model.width) lns
-        )
+        (\str model -> renderPrayer model.width str )
         Mark.string
-
-collapseWhiteSpace : String -> String
-collapseWhiteSpace str =
-    let
-        tabsEtc = Maybe.withDefault Regex.never <|
-            Regex.fromString "[\\t\\n\\r]"
-        multipleWhiteSpace = Maybe.withDefault Regex.never <|
-            Regex.fromString "\\s\\s+"
-    in
-        str |> replace tabsEtc (\_ -> " ")
-            |> replace multipleWhiteSpace (\_ -> " ")
 
 
 stringToOptions : String -> Options
