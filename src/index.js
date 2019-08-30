@@ -19,6 +19,7 @@ var receivedLesson = undefined
   , receivedOffice = undefined
   , receivedCalendar = undefined
   , receivedPrayerList = undefined
+  , receivedCollect = undefined
   , receivedOPCats = undefined
   , receivedOPs = undefined
   , newWidth = undefined
@@ -40,17 +41,18 @@ var DailyPsalms = require( "./js/dailyPsalms.js");
 import Pouchdb from 'pouchdb';
 import PouchFind from 'pouchdb-find'
 Pouchdb.plugin(PouchFind);
-// window.pdb = Pouchdb;
+window.pdb = Pouchdb;
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
-var service = new Pouchdb('service_dev')
+var service = new Pouchdb('service')
+var old_service = new Pouchdb('service_dev');
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var prayerList = new Pouchdb('prayerList'); // never replicate!
 var occasional_prayers = new Pouchdb('occasional_prayers');
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
-  , remoteServiceURL =    "https://legereme.com/couchdb/service_dev"
+  , remoteServiceURL =    "https://legereme.com/couchdb/service"
   , remotePsalmsURL =     "https://legereme.com/couchdb/psalms"
   , remoteLectionaryURL = "https://legereme.com/couchdb/lectionary"
   , remoteOpsURL = "https://legereme.com/couchdb/occasional_prayers"
@@ -83,13 +85,18 @@ window.onload = ( function() {
   receivedOffice = app.ports.receivedOffice;
   receivedCalendar = app.ports.receivedCalendar;
   receivedPrayerList = app.ports.receivedPrayerList;
+  receivedCollect = app.ports.receivedCollect;
   receivedOPCats = app.ports.receivedOPCats;
   receivedOPs = app.ports.receivedOPs
   newWidth = app.ports.newWidth;
-  onlineStatus.send( "All Ready");
+  // onlineStatus.send( "All Ready");
+  requestOffice('currentOffice')
   iphod.info().then( function(resp) {
     if (resp.doc_count > 0) { sync(); }
   })
+  // make sure the old service isn't kept on mobile device
+  old_service.destroy()
+  .then ( r => { old_service = undefined } );
 }) // end of window.onload
 
 
@@ -166,11 +173,67 @@ function service_header_response(now, season, named, resp, euResp) {
     , euResp.colors[0]
     , named
   ]
+  requestSeasonalCollect(euResp._id);
+  getCollect(dailyId(named), "daily");
   request_lessons(named, now); // promise the lessons will be sent
 
   receivedOffice.send(serviceHeader.concat(resp.service))
 
 }
+
+
+app.ports.requestCollect.subscribe( id => {
+  var ofType = "traditional";
+  // I think this request for a collect should always have
+  // a read id - not a 'fake' one e.g. "daily" or "seasonal"
+  // if (id == "daily") {
+  //   ofType = id;
+  //   id = dailyId();
+  // }
+  getCollect(id, ofType)
+})
+
+function dailyId(service) {
+  // service should either be "morning_prayer" or "evening_prayer"
+  var mpep = service === "morning_prayer" ? "_mp" : "_ep";
+  return "collect_" + 
+    ["sunday", "monday", "tuesday"
+    , "wednesday", "thursday", "friday"
+    , "saturday"
+    ][moment().weekday()]
+    + mpep;
+}
+
+function getCollect(id, ofType) {
+  // send t/f as string so I don't have to convert an object
+  // to json and srite another decoder
+  // 'cause I'm beig lazy
+  iphod.get(id)
+  .then ( resp => {
+    var id = resp._id;
+    if (ofType === "seasonal" || ofType === "daily") { id = ofType; }
+    receivedCollect.send( [ofType, id, resp.title, resp.text[0] ] )
+  })
+  .catch ( err => {
+    console.log("Error: getting collect:", err)
+  })
+}
+
+function requestSeasonalCollect(season) {
+  var id = 'collect_' + season;
+
+  // if the collectId ends with a,b, or c - drop the last char
+  switch (id.slice(-1)) {
+    case 'a' :
+    case 'b' :
+    case 'c' :
+      id = id.slice(0,-1)
+  }
+  getCollect(id, "seasonal")
+
+}
+
+
 
 function service_db_name(s) {
   var dbName = 
@@ -196,7 +259,7 @@ function service_db_name(s) {
 function get_service(named) {
   // have to map offices here
   // we might want to add offices other than acna
-  send_status("getting " + named )
+  // send_status("getting " + named )
   if (named === "sync") { return sync() }
   service.get( service_db_name(named) )
   .then ( function(resp) {
@@ -279,7 +342,6 @@ function initElmHeader() {
 
 app.ports.prayerListDB.subscribe( function(request) {
   var [cmd, id, who, why, ofType, opId, date] = request;
-  console.log("SAVE: ", request)
   var prayer =
     { who: who
     , why: why
@@ -378,7 +440,9 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
 })
 
 
-app.ports.requestOffice.subscribe( function(request) {
+app.ports.requestOffice.subscribe( r => { requestOffice(r) });
+
+function requestOffice(request) {
   var now = new moment().local();
   switch (request) {
     case "currentOffice": 
@@ -409,7 +473,7 @@ app.ports.requestOffice.subscribe( function(request) {
     default: 
       get_service(request);
   };
-});
+};
 
 function get_ops_categories() {
   occasional_prayers.get("categories")

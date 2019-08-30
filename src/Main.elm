@@ -20,15 +20,14 @@ import Mark
 import Mark.Error exposing (Error)
 import Parser exposing (..)
 import Regex exposing(replace)
-import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile, dropWhile, updateAt, filterNot)
--- import Parser.Advanced exposing ((|.), (|=), Parser)
+import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile, dropWhile, updateAt, updateIf, filterNot)
 import String.Extra exposing (toTitleCase, countOccurrences)
 import MyParsers exposing (..)
 import Palette exposing (scaleFont, pageWidth, indent, outdent, show, hide, edges)
 import Models exposing (..)
 import Json.Decode as Decode
 import Date
-import Swiper
+import Candy exposing (..)
 
 
 getSeason : Model -> String
@@ -66,6 +65,7 @@ document =
                 , pageNumber
                 , MyParsers.section
                 , collectTitle
+                , thisCollect
                 , openingSentence
                 , toggle
                 , optionalPrayer
@@ -85,6 +85,92 @@ document =
         }
 
 
+thisCollect : Mark.Block (Model -> Element Msg)
+thisCollect =
+    Mark.record "ThisCollect"
+    (\ofType title id model ->
+        let
+            element = case ofType of 
+                "seasonal" -> renderTodaysCollect ofType model
+                "daily" -> renderTodaysCollect ofType model
+                _ -> renderOtherCollects title id model
+        in
+        element    
+    
+    )
+    |> Mark.field "ofType" Mark.string
+    |> Mark.field "title" Mark.string
+    |> Mark.field "id" Mark.string
+    |> Mark.toBlock
+
+renderTodaysCollect : String -> Model -> Element msg
+renderTodaysCollect ofType model = 
+    let
+        width = model.width
+        dayName = " /" ++ model.day ++ "/"
+        collect = case model.collects |> find (\c -> c.id == ofType) of
+                    Just c -> c
+                    Nothing -> initCollect
+        title = if ofType == "daily"
+                then collect.title ++ " /" ++ model.day ++ "/"
+                else collect.title
+
+    in
+    renderDailyCollect width title collect.text
+    
+
+renderOtherCollects : String -> String -> Model -> Element Msg
+renderOtherCollects title id model = 
+    -- if today is Tuesday and name is "Peace" then skip, etc
+    let
+        skip = case (model.day, id) of
+            ("Tuesday", "collect_tuesday_mp") -> True -- collect for peace
+            ("Wednesday", "collect_wednesday_mp") -> True -- collect for grace
+            ("Monday", "collect_monday_ep") -> True -- ep collect for peace
+            ("Tuesday", "collect_tuesday_ep") -> True
+            _ -> False
+        element = if skip 
+            then none
+            else 
+                renderAdditionalConditionalCollect model id title
+    in
+    element
+    
+getCollect : Model -> String -> Collect
+getCollect model id =
+    case ( model.collects |> find (\c -> c.id == id) ) of
+        Just coll -> coll
+        Nothing -> initCollect 
+
+renderAdditionalConditionalCollect : Model -> String -> String -> Element Msg
+renderAdditionalConditionalCollect model id title =
+    -- the collect may or may not be present
+    -- if it's not present, use the show button to go get it
+    let
+        width = model.width
+        (collect, show) = case model.collects |> find (\c -> c.id == id) of
+            Just c -> (c, c.show)
+            Nothing -> (initCollect, False)
+    in
+    if show
+    then
+        column [ padding 10 ]
+            [ paragraph 
+                ( Event.onClick (ToggleCollect id) :: Palette.button width )
+                [ text ("Hide: " ++ title) ]
+            , renderCollectTitle width collect.title
+            , renderPlainText width collect.text
+            ]
+    else
+        column [ padding 10 ]
+            [ paragraph
+                ( Event.onClick (ToggleCollect id) :: Palette.button width )
+                [ text ("Show: " ++ title) ]
+            ]
+
+
+
+
 occasionalPrayers : Mark.Block (Model -> Element Msg)
 occasionalPrayers =
     Mark.block "OccasionalPrayers"
@@ -97,7 +183,7 @@ occasionalPrayers =
                 |> List.map (\c ->
                     let
                         thesePrayers = if c == model.ops.thisCat
-                            then renderThisCat model.ops.list
+                            then renderThisCat model.width model.ops.list
                             else []
 
                     in
@@ -110,14 +196,14 @@ occasionalPrayers =
     Mark.string
 
 
-renderThisCat : List OccasionalPrayer -> List (Element Msg)
-renderThisCat prayers =
+renderThisCat : Int -> List OccasionalPrayer -> List (Element Msg)
+renderThisCat width prayers =
     prayers 
     |> List.map
     (\p ->
         let
             thisPrayer = if p.show
-                then paragraph [moveRight 30.0] [text p.prayer]
+                then paragraph [moveRight 30.0, Palette.scaleWidth width 350, padding 10] [text p.prayer]
                 else none
         in
         [ paragraph [Event.onClick (ToggleOP p.id), moveRight 20.0] [text (toTitleCase p.title)]
@@ -199,8 +285,8 @@ editPrayer model prayer =
                             Input.option 
                                 p.title 
                                 ( column [] 
-                                    [ paragraph [] [ text (toTitleCase p.title) ]
-                                    , paragraph [] [ text p.prayer ] 
+                                    [ renderSectionTitle width p.title
+                                    , renderPlainText width p.prayer
                                     ]
                                 )
                         )
@@ -277,9 +363,9 @@ renderPrayerList editable width prayers =
         row (Palette.prayerList width)
         [ column 
             clickable
-            [ paragraph [] [ text p.who ]
-            , paragraph [] [ text p.why ]
-            , paragraph [Font.color Palette.darkBlue] [ text (toTitleCase p.ofType) ]
+            [ renderPlainText width p.who
+            , renderPlainText width p.why
+            , renderSectionTitle width p.ofType
             ]
         , removable
         ]
@@ -296,12 +382,8 @@ renderOfficePrayerList model show =
             (\op ->
                 let 
                     -- render this prayer
-                    thisPrayer = 
-                        [ paragraph 
-                            [ Font.bold ] 
-                            [ text (op.category ++ ": " ++ (toTitleCase op.title)) ]
-                        , paragraph [] [ text op.prayer ]
-                        ]
+                    thisPrayer = renderPrayerListItem width op
+                    
                     -- render those that goes along with thisPrayer
                     forThese =
                         thisPrayerList
@@ -672,46 +754,6 @@ finish =
     )
     Mark.string
 
-backgroundGradient : String -> List (Attribute msg)
-backgroundGradient s =
-    let
-        ang = 3.0
-        (foreground, grad) = case s of
-            "white" ->
-                ( Palette.darkBlue
-                , {angle = ang, steps = [rgb255 233 255 2, rgb255 237 239 210]}
-                )
-            "green" ->
-                ( Palette.darkPurple
-                , {angle = ang, steps = [rgb255 23 102 10, rgb255 226 255 221]}
-                )
-            "red"   ->
-                ( Palette.foggy
-                , {angle = ang, steps = [rgb255 119 2 14, rgb255 255 226 229]}
-                )
-            "violet"->
-                ( Palette.foggy
-                , {angle = ang, steps = [rgb255 60 1 99, rgb255 241 229 249]}
-                )
-            "blue"  ->
-                ( Palette.foggy
-                , {angle = ang, steps = [rgb255 0 5 99, rgb255 220 230 239]}
-                )
-            "rose"  ->
-                ( Palette.darkGrey
-                , {angle = ang, steps = [rgb255 188 9 103, rgb255 239 220 230]}
-                )
-            "gold"  ->
-                ( Palette.darkGrey
-                , {angle = ang, steps = [rgb255 233 255 2, rgb255 237 239 210]}
-                )
-            _       ->
-                ( Palette.foggy
-                , {angle = 1.0, steps = [Palette.foggy, Palette.foggy]}
-                )
-    in
-    [ Font.color foreground, Background.gradient grad ]
-
 clickOption : String -> String -> Element Msg
 clickOption request label =
     el
@@ -855,7 +897,7 @@ optionalPrayer =
             in
 
             column [paddingXY 10 0, Palette.maxWidth model.width] 
-            [ paragraph [] [text opts.label]
+            [ renderPlainText model.width opts.label
             , wrappedRow [ spacing 10, padding 10] opts.btns
             , el [ alignLeft, Palette.maxWidth model.width ] (text opts.text)
             ]
@@ -1005,13 +1047,11 @@ init  list =
 
 port requestReference : (List String) -> Cmd msg
 port requestOffice : String -> Cmd msg
--- port requestReadings : String -> Cmd msg
 port requestLessons : String -> Cmd msg
 port requestOPsByCat : String -> Cmd msg
+port requestCollect : String -> Cmd msg
 port calendarReadingRequest : ServiceReadingRequest -> Cmd msg
 port toggleButtons : (List String) -> Cmd msg
--- port requestTodaysLessons : (String, CalendarDay) -> Cmd msg
--- port clearLessons : String -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
 port prayerListDB : (List String) -> Cmd msg
 
@@ -1019,20 +1059,15 @@ port prayerListDB : (List String) -> Cmd msg
 -- SUBSCRIPTIONS
 
 
---port receivedReading : (Reading -> msg) -> Sub msg
 port receivedCalendar : (String -> msg) -> Sub msg
 port receivedOffice : (List String -> msg) -> Sub msg
 port receivedLesson : (String -> msg) -> Sub msg
 port receivedPrayerList : (String -> msg) -> Sub msg
+port receivedCollect : (List String -> msg) -> Sub msg
 port receivedOPCats : (String -> msg) -> Sub msg
 port receivedOPs : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
 port onlineStatus : (String -> msg) -> Sub msg
--- port receivedPsalms : (String -> msg) -> Sub msg
--- port receivedLesson1 : (String -> msg) -> Sub msg
--- port receivedLesson2 : (String -> msg) -> Sub msg
--- port receivedGospel : (String -> msg) -> Sub msg
-
 
 
 subscriptions : Model -> Sub Msg
@@ -1042,6 +1077,7 @@ subscriptions model =
         , receivedOffice UpdateOffice
         , receivedLesson UpdateLesson
         , receivedPrayerList UpdatePrayerList
+        , receivedCollect UpdateCollect
         , newWidth NewWidth
         , onlineStatus UpdateOnlineStatus
         , receivedOPCats UpdateOPCats
@@ -1073,13 +1109,13 @@ serviceTitle s =
 
 type Msg 
     = NoOp
-    | Swiped Swiper.SwipeEvent
     | GotSrc (Result Http.Error String)
     | UpdateOption Options
     | ClickOption String String Options
     | ClickToggle String String Options
     | UpdateCalendar String
     | UpdateOffice (List String)
+    | UpdateCollect (List String)
     | UpdateLesson String
     | UpdateOnlineStatus String
     | UpdateOpeningSentences (List OpeningSentence)
@@ -1105,17 +1141,13 @@ type Msg
     | RequestOPsByCat String
     | UpdateOPs String
     | ToggleOP String
+    | ToggleCollect String
+    | RequestCollect String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
-
-        Swiped state ->
-            -- let
-            --     _ = Debug.log "SWIPED" state
-            -- in
-            (model, Cmd.none)
 
         GotSrc result ->
             case result of
@@ -1189,17 +1221,26 @@ update msg model =
             
             (newModel, requestLessons newModel.pageName )
 
+        UpdateCollect coll ->
+            let
+                ofType = coll |> getAt 0 |> Maybe.withDefault "traditional"
+                id = coll |> getAt 1 |> Maybe.withDefault "id0"
+                t = coll |> getAt 2 |> Maybe.withDefault "Collect of the Day"
+                c = coll |> getAt 3 |> Maybe.withDefault "Goes Here"
+                newCollects = if ofType == "True"
+                    then [ Collect id t c True ]
+                    else ( Collect id t c True ) :: model.collects 
+
+            in
+            ( { model | collects = newCollects }
+            , Cmd.none
+            )
+
         UpdateLesson s ->
             (addNewLesson s model, Cmd.none)
 
         UpdateOnlineStatus s ->
-            let
-                thisCmd = if s == "All Ready"
-                    then requestOffice "currentOffice"
-                    else Cmd.none
-            in
-            
-            ( {model | online = s}, thisCmd )
+            ( {model | online = s}, Cmd.none )
 
         UpdateOpeningSentences l ->
             ( {model | openingSentences = l}, Cmd.none)
@@ -1317,10 +1358,7 @@ update msg model =
                     _ -> 
                         [Cmd.none]
 
-                -- newList = pl.prayers |> dropWhile (\el -> el.id == id)
-                -- newPl = { pl | prayers = newList }
             in
-            -- ({ model | prayerList = newPl }, Cmd.batch cmds)
             (model, Cmd.batch cmds)
 
         AddToPrayerList ->
@@ -1335,16 +1373,6 @@ update msg model =
 
         CancelPrayerItem ->
             ( model, Cmd.batch [ requestOffice "prayerList", Cmd.none ])
-            -- -- this is weird: we use the who field as a temporary buffer of who ++ why
-            -- -- thus, if we cancel the edit, we have to take the who field apart
-            -- -- and replace the why field, just like saving
-            -- -- but if it's new, we just drop it
-            -- let
-            --     newPrayers = model.prayerList.prayers |> dropWhile (\el -> el.id == "new")
-            -- in
-            -- ( { model | prayerList = { edit = False, prayers = newPrayers} }
-            -- , Cmd.none
-            -- )
 
         PrayerCategory ofType ->
             let 
@@ -1453,6 +1481,25 @@ update msg model =
                 newOPs = { ops | list = newList }
             in
             ( { model | ops = newOPs }, Cmd.none)
+
+        ToggleCollect id ->
+            let
+                cmd = case model.collects |> find (\c -> c.id == id) of
+                    Just c -> Cmd.none
+                    Nothing -> requestCollect id
+
+                newCollects = 
+                    model.collects
+                    |> updateIf 
+                        (\c -> c.id == id) 
+                        (\c -> { c | show = not c.show } )
+            in
+            ( { model | collects = newCollects }, cmd )
+
+        RequestCollect id ->
+            (model, Cmd.batch[ requestCollect id, Cmd.none ] )
+            
+
             
 prayerListCommand : String -> Prayer -> Cmd msg
 prayerListCommand cmd thisPrayer =
@@ -1533,8 +1580,6 @@ view model =
         [ case model.source of
             Nothing ->
                 layout []
-                -- (renderHeader "Getting Service" "Patience is a virtue" model)
-                -- ( image [] {src = "https://media.giphy.com/media/ByuDOrJgpKCeA/source.gif", description = "Getting Service"})
                 ( column []
                     [ renderHeader "Getting Service" "Patience is a virtue" model
                     , image [ Palette.scaleWidth 200 model.width, centerX, centerY, paddingXY 0 20 ] 
@@ -1554,8 +1599,6 @@ view model =
                             [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
                             , Palette.scaleFont model.width 14
                             ] 
-                        -- ++ Swiper.onSwipeEvents Swiped 
-                        --     |> List.map (\s -> htmlAttribute s)
                         )
                         ( column [ ] rez )
 

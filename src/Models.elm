@@ -5,7 +5,6 @@ import Json.Decode as Decode exposing (Decoder, int, string, bool, succeed)
 import Json.Decode.Pipeline exposing (required, optional, hardcoded)
 import Date exposing (Date, today)
 import Time exposing (Month(..))
-import Swiper
 
 -- PARSER MODELS
 
@@ -365,18 +364,31 @@ initOPs =
     , list = []
     }
 
+type alias Collect =
+    { id : String
+    , title : String
+    , text : String
+    , show : Bool
+    }
+
+initCollect : Collect
+initCollect =
+    { id = ""
+    , title = ""
+    , text = ""
+    , show = False
+    }
 
 type alias Model =
     { windowWidth : Int
     , width : Int
-    , swipingState : Swiper.SwipingState
     , pageTitle : String
     , pageName : String
     , source : Maybe String
     , requestLesson : String
     , currentAlt : String
     , today : String -- date string
-    , day : String
+    , day : String -- day of week string
     , week : String
     , year : String
     , season : (String, TempSeason)
@@ -387,6 +399,7 @@ type alias Model =
     , calendar : List CalendarDay
     , showMenu : Bool
     , prayerList : PrayerList
+    , collects : List Collect
     , lessons : Lessons
     , eu : Lessons
     , mp : Lessons
@@ -401,7 +414,6 @@ initModel : Model
 initModel =
     { windowWidth = 375
     , width = 355 -- iphone minus 20
-    , swipingState  = Swiper.initialSwipingState
     , pageTitle     = "Legereme"
     , pageName      = "currentOffice"
     , source        = Nothing
@@ -419,6 +431,7 @@ initModel =
     , calendar      = []
     , showMenu      = False
     , prayerList    = initPrayerList
+    , collects      = []
     , lessons       = initLessons
     , eu            = initLessons
     , mp            = initLessons
