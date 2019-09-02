@@ -1,0 +1,6 @@
+Deployment
+of iphod_pwa
+1. ssh to legereme.com
+2. cd iphod_pwa
+3. sudo git pull
+4. sudo elm-app build
