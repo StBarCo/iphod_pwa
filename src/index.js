@@ -131,7 +131,7 @@ function sync() {
     })
   })
   .on("error", function(err) {
-    console.log("SYNC ERROR: ", error);
+    console.log("SYNC ERROR: ", err);
     send_status("Sync failed");
   })
 }
@@ -145,7 +145,7 @@ function syncError() {};
 
 // NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
 var isOnline = navigator.onLine; 
-var esvOK = navigator.onLine && false; // false because don't have key yet
+var esvOK = navigator.onLine; // false because don't have key yet
 
 
 // window.addEventListener('online', updateOnlineIndicator() );  // only on Firefox
@@ -683,19 +683,36 @@ function get_from_esv(dbs, office, lesson, lessonKeys, spa_location) {
   });
   return Promise.all( allPromises )
   .then( function(resp) {
-    var thisLesson = [];
-    resp.forEach( function(r, i){
-      thisLesson[i] =
-        { ref: r.data.canonical
-        , style: lessonKeys[i].style
-        , vss: [{ vss: r.data.passages.join("<br />") }]
-        }
-    })
-    receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson, spa_location: spa_location}) );
+      var thisLesson = [];
+      // here's the problem - a request might have multiple parts, 
+      // so we get multiple responses - it's possible, although HIGHLY
+      // unlikely for one response to succeed and another fail
+      // What to do in that case? Beats me.
+      // Here we will ASSUME if the first response succeeds they all succeed
+      // and if the first fails - they all fail.
+      // The frustrating thing in the ESV API is, if you ask for a bogus
+      // Biblical reference, the request will succeed and return no text
+      // .e.g. Blork 1:1-10 succeeds, but returns no text, canonical name
+      // With an invalid ref. the ESV API will return an empty reference
+      // per following test
+      if (resp[0].data.canonical.length > 0) {
+        resp.forEach( function(r, i){
+            // if r.data.passages.length == 0 ESV API returned no text
+            // probably apacrophyal 
+            thisLesson[i] =
+              { ref: r.data.canonical
+              , style: lessonKeys[i].style
+              , vss: [{ vss: r.data.passages.join("<br />") }]
+              }
+        })
+        receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson, spa_location: spa_location}) );
+      }
+      else { 
+        get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location); }
   })
   .catch( function(err) {
     console.log("ESV ERROR: ", err)
-    get_from_scripture_db(dbs, office, lesson, resp);
+    get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location);
   })
 }
 

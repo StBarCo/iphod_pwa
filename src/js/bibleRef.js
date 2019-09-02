@@ -35,6 +35,7 @@ var bookName = {
     "dan": "daniel", "daniel": "daniel",  "da": "daniel", "dn": "daniel",
     "deu": "deuteronomy", "deuteronomy": "deuteronomy", "deut": "deuteronomy", "dt": "deuteronomy",
     "ecc": "ecclesiastes", "ecclesiastes": "ecclesiastes",  "eccles": "ecclesiastes", "ec": "ecclesiastes", "eccl": "ecclesiastes", "qoh": "ecclesiastes", "qoheleth": "ecclesiastes",
+    "ecclesiasticus" : "ecclesiasticus", "ecclus" : "ecclesiasticus", // aka Sirach
     "eph": "ephesians", "ephesians": "ephesians", "ephes": "ephesians", 
     "epistle to the laodiceans": "epistle to the laodiceans", "laodiceans": "epistle to the laodiceans", "laod": "epistle to the laodiceans", "ep laod": "epistle to the laodiceans", "epist laodiceans": "epistle to the laodiceans", "epistle laodiceans": "epistle to the laodiceans", "epistle to laodiceans": "epistle to the laodiceans",
     "est": "esther", "esther": "esther",  "esth": "esther", "es": "esther",
@@ -123,6 +124,7 @@ var bookName = {
     "daniel" :  "DAN",
     "deuteronomy" :  "DEU",
     "ecclesiastes" :  "ECC",
+    "ecclesiasticus" : "SIR",  // aka Sirach
     "ephesians" :  "EPH",
     "esther (greek)" :  "ESG",
     "esther" :  "EST",
@@ -291,7 +293,7 @@ function dbKeys(refs) {
     , book = ""
     , bookKey = ""
     ;
-
+  console.log("DEKEYS:", refs)
   refs.forEach( function(r, i) {
     // must add style and reference to each of the parsed refs
     var pr = parser.parse(r.read);
