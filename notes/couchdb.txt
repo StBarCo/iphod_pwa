@@ -5,3 +5,6 @@ curl -X POST -H "Content-Type: application/json" -d @./json/occasional_prayers.j
 
 with username and password...
 curl -u username:password -X POST -H "Content-Type: application/json" -d @./json/daily_collects.json http://legereme.com:5984/iphod/_bulk_docs
+
+RESTART COUCHDB
+sudo service couchdb restart
