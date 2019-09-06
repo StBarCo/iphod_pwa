@@ -76,6 +76,7 @@ var dbOpts = { live: true, retry: true }
   , lectionaryOK = false
   , psalmsOK = false
   , esv_key = "77f1ef822a19e06867cf335a168713f9d2159bfc"
+  , pageTops = [];
   ;
 
   import $ from 'jquery';
@@ -208,15 +209,11 @@ function getCollect(id, ofType) {
   // send t/f as string so I don't have to convert an object
   // to json and srite another decoder
   // 'cause I'm beig lazy
-  iphod.get(id)
-  .then ( resp => {
+  iphodGet( id, [remoteIphod, iphod], ( resp => {
     var id = resp._id;
     if (ofType === "seasonal" || ofType === "daily") { id = ofType; }
     receivedCollect.send( [ofType, id, resp.title, resp.text[0] ] )
-  })
-  .catch ( err => {
-    console.log("Error: getting collect:", err)
-  })
+  }))
 }
 
 function requestSeasonalCollect(season) {
@@ -256,42 +253,50 @@ function service_db_name(s) {
   return dbName[s];
 }
 
-function get_service(named) {
+function get_service(named, dbs) {
+  var thisServiceDB = dbs.pop();
+
   // have to map offices here
   // we might want to add offices other than acna
   // send_status("getting " + named )
-  if (named === "sync") { return sync() }
-  service.get( service_db_name(named) )
-  .then ( function(resp) {
-    service_response(named, resp);
-    get_prayer_list();
-  })
-  .catch( function(err) {
-    db_fail("Service " + named)
-  })
+  if (thisServiceDB) {
+    if (named === "sync") { return sync() }
+    thisServiceDB.get( service_db_name(named) )
+    .then ( function(resp) {
+      pageTops = []; // global, reset with new service
+      service_response(named, resp);
+      get_prayer_list();
+    })
+    .catch( function(err) {
+      if (dbs.length > 0) {
+        get_service(named, dbs);
+      }
+      else { db_fail("Service " + named) }
+    }) 
+  }
+  else { send_status("Service Database Unavailable"); }
 }
 
+function iphodGet(key, dbs, callback) {
+  var thisIphod = dbs.pop();
+  thisIphod.get(key)
+  .then ( resp => { callback(resp) })
+  .catch( err => {
+    if ( updateOnlineIndicator() && dbs.length > 0) { iphodGet(key, dbs, callback) }
+    else {
+      console.log("Error: Iphod DB not available - ", err)
+        send_status("Error: Iphod DB not available")
+    }
+  })
+}
 
 function service_response(named, resp) {
   var now = moment();
   var season = LitYear.toSeason(now);
   var iphodKey = season.iphodKey;
-
-  iphod.get(iphodKey).then( function(euResp){
-    service_header_response(now, season, named, resp, euResp)
-  })
-  .catch( function(err) {
-    if ( updateOnlineIndicator() ) {
-      remoteIphod.get(iphodKey).then (function(euResp) {
-        service_header_response(now, season, named, resp, euResp);
-      })
-      .catch( function(err) {
-        console.log("ERROR GETTING REMOTE IPHOD: ", err)
-      })
-
-    }
-    console.log("ERROR GETTING IPHOD: ", err)
-  })
+  iphodGet(iphodKey, [remoteIphod, iphod], (euresp => {
+    service_header_response(now, season, named, resp, euresp)
+  }))
 }
 
 function get_preferences(do_this_too) {
@@ -442,7 +447,7 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
 
 app.ports.requestOffice.subscribe( r => { requestOffice(r) });
 
-function requestOffice(request) {
+function requestOffice(request, dbs) {
   var now = new moment().local();
   switch (request) {
     case "currentOffice": 
@@ -451,51 +456,83 @@ function requestOffice(request) {
         , ep = new moment().local().hour(15).minute(0).second(0)
         , cmp = new moment().local().hour(20).minute(0).second(0)
         ;
-      if ( now.isBefore(mid)) { get_service("morning_prayer") }
-      else if ( now.isBefore(ep) ) { get_service("midday")} // { get_service("midday")}
-      else if ( now.isBefore(cmp) ) { get_service("evening_prayer")} // { get_service ("evening_prayer") }
-      else { get_service("compline")}
+      if ( now.isBefore(mid)) { get_service("morning_prayer", [remoteService, service]) }
+      else if ( now.isBefore(ep) ) { get_service("midday", [remoteService, service])} // { get_service("midday")}
+      else if ( now.isBefore(cmp) ) { get_service("evening_prayer", [remoteService, service])} // { get_service ("evening_prayer") }
+      else { get_service("compline", [remoteService, service])}
       break;
     case "calendar":
-      get_service("calendar");
+      get_service("calendar", [remoteService, service]);
       Calendar.get_calendar( now, receivedCalendar );
       break;
     case "prayerList":
-      get_service(request)
+      get_service(request, [remoteService, service])
       get_prayer_list();
       get_ops_categories()
       break;
 
     case "occasionalPrayers":
-      get_service(request)
+      get_service(request, [remoteService, service])
       get_ops_categories();
       break;
     default: 
-      get_service(request);
+      get_service(request, [remoteService, service]);
   };
 };
 
-function get_ops_categories() {
-  occasional_prayers.get("categories")
+function getOccasionalPrayers(key, dbs, callback) {
+  var thisOPsDB = dbs.pop();
+  thisOPsDB.get(key)
   .then ( resp => {
-    receivedOPCats.send(resp.list)
+    callback(resp);
   })
   .catch ( err => {
-    console.log("Error: getting occasional prayers categories: ", err)
+    if (dbs.length > 0) { getOccasionalPrayers( key, dbs, callback ); }
+    else { send_status( "Error: Occasional Prayer DB (get) not available" ); }
+  })
+}
+
+function get_ops_categories() {
+  getOccasionalPrayers( "categories", [remoteOps, occasional_prayers], ( resp => {
+    receivedOPCats.send(resp.list)
+  }) )
+}
+
+function findOccassionalPrayer( selector, dbs, callback) {
+  var thisOPsDB = dbs.pop();
+  thisOPsDB.find(selector)
+  .then ( resp => { 
+    if ( resp.warning ) { findOccassionalPrayer(selector, dbs, callback); } 
+    else { callback( resp ) }
+  })
+  .catch ( err => {
+    if ( dbs.length > 0) { findOccassionalPrayer(selector, dbs, callback); }
+    else { send_status("Error: Occasion Prayer DB (find) not available"); }
   })
 }
 
 app.ports.requestOPsByCat.subscribe( request => {
-  occasional_prayers.find({selector: {category: request}})
-  .then( resp => {
-    var docs = resp.docs;
-    docs = docs.map( d => { d.id = d._id; return d } )
-    receivedOPs.send( JSON.stringify({cat: request, prayers: docs}) )
-  })
-  .catch( err => {
-    console.log("Error: OPs Cat", err)
-  })
+  findOccassionalPrayer( 
+      {selector: {category: request}}
+    , (resp => {
+      var docs = resp.docs;
+      docs = docs.map( d => { d.id = d._id; return d } )
+      receivedOPs.send( JSON.stringify({cat: request, prayers: docs}) )
+    }) )
 })
+
+function allOPsDocs( selector, dbs, callback ) {
+  var thisOPsDB = dbs.pop();
+  thisOPsDB.allDocs( selector )
+  .then ( resp => {
+    if ( resp.warning ) { allOPsDocs(selector, dbs, callback); }
+    else { callback(resp) }
+  })
+  .catch ( err => {
+    if ( dbs.length > 0 ) { allOPsDocs(selector, dbs, callback); }
+    else { send_status( "Error: Occasional Prayer DB (allDocs) not available"); }
+  })
+}
 
 function get_prayer_list() {
   prayerList.allDocs({include_docs: true, limit: 50})
@@ -512,19 +549,18 @@ function get_prayer_list() {
     receivedPrayerList.send( JSON.stringify( {prayers: prayers} ))
     // get a set of unique OPs, sort
     var keys = [ ... new Set( prayers.map( p => { return p.opId }) ) ].sort();
-    occasional_prayers.allDocs(
-      { include_docs: true
-      , keys: keys
-      }
+    allOPsDocs(
+        { include_docs: true
+        , keys: keys
+        }
+      , [remoteOps, occasional_prayers]
+      , ( resp => {
+          var docs = resp.rows.map( r => { return r.doc });
+          docs = docs.map( d => { d.id = d._id; return d } )
+          receivedOPs.send( JSON.stringify({cat: "multiple", prayers: docs})
+        )}
+      )
     )
-    .then ( resp => {
-      var docs = resp.rows.map( r => { return r.doc });
-      docs = docs.map( d => { d.id = d._id; return d } )
-      receivedOPs.send( JSON.stringify({cat: "multiple", prayers: docs}) )
-    })
-  })
-  .catch( function(err) {
-    console.log("ERROR GETTING PRAYER LIST: ", err);
   })
 }
 
@@ -578,8 +614,36 @@ app.ports.requestReference.subscribe(  function(request) {
   })
 })
 
+app.ports.swipeLeftRight.subscribe( swipe => {
+  var headerOffset = 60;
+  var topNow = window.scrollY;
+  var breakNow = false;
+  var goto = topNow;
+  if (pageTops.length === 0) {
+    pageTops = []
+      .slice
+      .call( document.getElementsByClassName('page'))
+      .map( p => { return p.getBoundingClientRect().top - headerOffset} )
+  }
+  for( let i = 0; i < pageTops.length; i++ ) {
+    var p = pageTops[i]
+    if (swipe === 'right') {
+      goto = p;
+      if (p > topNow) { break; }
+    }
+    else {
+      if (p > topNow) { 
+        goto = pageTops[i-2] ? pageTops[i-2] : 0
+        break; 
+      };
+    }
+  }
+  window.scroll(0, goto)
+})
+
 app.ports.requestLessons.subscribe(  function(request) {
   var today = new moment().local();
+  var pages = document.getElementsByClassName['page']
   request_lessons(request, today );
 })
 
@@ -616,8 +680,7 @@ function insertLesson(lesson, office, key, spa_location) {
 }
 
 function get_from_eucharist( lesson, key, spa_location ) {
-  iphod.get(key)
-  .then( function(resp) {
+  iphodGet(key, [remoteIphod, iphod], ( resp => {
     var eu_key = 
     { lesson1: "ot"
     , lesson2: "nt"
@@ -626,19 +689,24 @@ function get_from_eucharist( lesson, key, spa_location ) {
     }[lesson];
     var lessonKeys = resp[eu_key];
     get_from_scripture_db([iphod, 'esv'], "eu", lesson, lessonKeys, spa_location)
-  })
+  }))
 }
 
+function getLectionary(key, dbs, callback) {
+  var thisLectionaryDB = dbs.pop();
+  thisLectionaryDB.get(key)
+  .then ( resp => { callback(resp); })
+  .catch ( err => {
+    if (dbs.length > 0) { getLectionary(key, dbs, callback); }
+    else { send_status("Error: Lectionary DB not available")}
+  })
+}
 function get_from_lectionary_db(office, lesson, mpepKey, spa_location) {
-  lectionary.get(mpepKey)
-  .then( function(resp) { 
+  getLectionary(mpepKey, [remoteLectionary, lectionary], (resp =>{
     // first db to check is at end of list
     var lessonKeys = resp[office + lesson.substr(-1)];
     get_from_scripture_db([ iphod, 'esv'], office, lesson, lessonKeys, spa_location); 
-  })
-  .catch( function(err) { 
-    db_fail("Lectionary");
-  })
+  }) )
 }
 
 function get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location) {
@@ -725,14 +793,10 @@ function insertCollect(office) {
   if ( ! ["ashWednesday", "annunciation", "allSaints"].includes(season.season) ) {
     key = key + season.week
   } 
-  iphod.get(key).then(  function(resp) {
+  iphodGet(key, [remoteIphod, iphod], ( resp => {
     $(collectDiv + " .collectTitle").append("Collect of The Day <em>" + resp.title + "</em>")
     $(collectDiv + " .collectContent").append(resp.text[0])
-  })
-  .catch(  function(err) {
-    console.log("GET COLLET ERROR: ". err)
-  })
-
+  }))
 }
 
 function try_esv(mpep, lesson, resp) {
@@ -743,15 +807,11 @@ function try_esv(mpep, lesson, resp) {
 function insertProper(office) {}
 
 function insertEucharistPsalms(spa_location, key) {
-  iphod.get(key)
-  .then( function(resp) {
+  iphodGet(key, [remoteIphod, iphod], ( resp => {
     var psalms = resp.ps
     var psalmRefs = BibleRef.dbKeys(psalms)
     allPsalms(psalmRefs, spa_location);
-  })
-  .catch( function(err) {
-    console.log("Eucharist Psalms fail:  " + err)
-  })
+  }))
 }
 
 function insertPsalms(office, spa_location) {
@@ -776,7 +836,7 @@ function allPsalms(psalmRefs, spa_location) {
         .then( function(resp) { psalm_response(psalmRefs, resp, spa_location) })
         .catch( function(err) { console.log("PROBLEM GETTING REMOTE PSALMS: " + err) });
       }
-      console.log("PROBLEM GETTING PSALMS: " + err);
+      else { console.log("PROBLEM GETTING PSALMS: " + err); }
     })
 }
 
