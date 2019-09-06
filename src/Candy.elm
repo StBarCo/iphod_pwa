@@ -51,6 +51,11 @@ collapseWhiteSpace str =
             |> replace multipleWhiteSpace (\_ -> " ")
 
 
+pageBreak : String -> Element.Element msg
+pageBreak str =
+    ( Html.a [ Html.Attributes.class "page" ] [] )
+    |> Element.html
+
 
 renderPlainText : Int -> String -> (Element msg)
 renderPlainText width str =
@@ -60,9 +65,14 @@ renderPlainText width str =
 
 renderSectionTitle : Int -> String -> (Element msg)
 renderSectionTitle width str =
+    let 
+        link = str |> String.replace " " "_"
+    in
     paragraph
     (Palette.section width)
-    [ text (str |> toTitleCase) ]
+    [ pageBreak link
+    , text (str |> toTitleCase) 
+    ]
 
 renderCollectTitle : Int -> String -> (Element msg)
 renderCollectTitle width str =
