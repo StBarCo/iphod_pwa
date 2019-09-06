@@ -266,6 +266,7 @@ function get_service(named, dbs) {
       pageTops = []; // global, reset with new service
       service_response(named, resp);
       get_prayer_list();
+      sync();
     })
     .catch( function(err) {
       if (dbs.length > 0) {
