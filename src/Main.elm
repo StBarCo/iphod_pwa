@@ -28,6 +28,7 @@ import Models exposing (..)
 import Json.Decode as Decode
 import Date
 import Candy exposing (..)
+import MySwiper as Swiper exposing (..)
 
 
 getSeason : Model -> String
@@ -454,13 +455,17 @@ calendar =
                         
                     in
                     [ column [Font.alignLeft]
-                        [ serviceReadings Eucharist day model
+                        [ Input.button (moveDown 20.0 :: Palette.button model.width)
+                            { onPress = Just ShowCalendar
+                            , label = text "Return to Calendar"
+                            }
+                        , serviceReadings Eucharist day model
                         , serviceReadings MorningPrayer day model
                         , serviceReadings EveningPrayer day model
                         , Input.button (moveDown 20.0 :: Palette.button model.width)
-                        { onPress = Just ShowCalendar
-                        , label = text "Return to Calendar"
-                        }
+                            { onPress = Just ShowCalendar
+                            , label = text "Return to Calendar"
+                            }
                         ]
                     ]
 
@@ -782,7 +787,11 @@ renderHeader : String -> String -> (Model -> Element Msg)
 renderHeader title description =
     \model ->
         column []
-        [ column (List.append (backgroundGradient model.color) (Palette.menu model.width) )
+        [ column 
+            ( backgroundGradient model.color
+            ++ (Palette.menu model.width) 
+            ++ Palette.swipe (onSwipeEvents HeaderMenu)
+            )
             [ row [paddingXY 20 0, Palette.maxWidth model.width]
                 [ image 
                     ( List.append (backgroundGradient model.color)
@@ -1054,6 +1063,7 @@ port calendarReadingRequest : ServiceReadingRequest -> Cmd msg
 port toggleButtons : (List String) -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
 port prayerListDB : (List String) -> Cmd msg
+port swipeLeftRight : String -> Cmd msg
 
 
 -- SUBSCRIPTIONS
@@ -1143,6 +1153,8 @@ type Msg
     | ToggleOP String
     | ToggleCollect String
     | RequestCollect String
+    | HeaderMenu SwipeEvent
+    | PageSwipe SwipeEvent
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -1498,9 +1510,62 @@ update msg model =
 
         RequestCollect id ->
             (model, Cmd.batch[ requestCollect id, Cmd.none ] )
-            
+
+
+        HeaderMenu evt ->
+            let
+                (newState, swipedDown) =
+                    hasSwipedDown 20 evt model.swipingState
+                (newState2, swipedUp) =
+                    hasSwipedUp 20 evt model.swipingState
+
+                swipeDirection = 
+                    if swipedDown then Down
+                    else if swipedUp then Up
+                    else Neither
+
+                newModel = 
+                    if touchFinished evt
+                    then 
+                        case (swipeDirection, model.showMenu) of
+                            (Down, True) -> { model | swipingState = newState }
+                            (Up, False) -> { model | swipingState = newState }
+                            (Up, True) -> { model | swipingState = newState, showMenu = False }
+                            (Down, False) -> { model | swipingState = newState, showMenu = True }
+                            (_, _) -> model
+                                -- case model.swipingState of
+                                --     Nothing -> { model | swipingState = newState }
+                                --     _ -> model
+                    else 
+                        { model | swipingState = newState }
+            in
+            ( newModel, Cmd.none )
+
+
+        PageSwipe evt ->
+            let
+                (newState, swipedLeft) =
+                    hasSwipedLeft 50 evt model.swipingState
+                (newState2, swipedRight) =
+                    hasSwipedRight 50 evt model.swipingState
+                swipeCmd = 
+                    if swipedLeft then swipeLeftRight "left"
+                    else if swipedRight then swipeLeftRight "right"
+                    else Cmd.none
+
+            in
+            ( { model | swipingState = newState }, swipeCmd )
 
             
+
+type SwipeDirection
+    = Up
+    | Down
+    | Left
+    | Right
+    | Neither
+
+
 prayerListCommand : String -> Prayer -> Cmd msg
 prayerListCommand cmd thisPrayer =
     let
@@ -1572,6 +1637,7 @@ updateOptions opt oList =
 optionsIndex : String -> List Options -> Maybe Int
 optionsIndex tag olist =
     olist |> findIndex (\o -> o.tag == tag)
+
     
 view : Model -> Document Msg
 view model =
@@ -1599,6 +1665,8 @@ view model =
                             [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
                             , Palette.scaleFont model.width 14
                             ] 
+                            ++ Palette.swipe (onSwipeEvents PageSwipe)
+                             
                         )
                         ( column [ ] rez )
 
