@@ -293,7 +293,6 @@ function dbKeys(refs) {
     , book = ""
     , bookKey = ""
     ;
-  console.log("DEKEYS:", refs)
   refs.forEach( function(r, i) {
     // must add style and reference to each of the parsed refs
     var pr = parser.parse(r.read);
