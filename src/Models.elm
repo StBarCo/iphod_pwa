@@ -5,6 +5,8 @@ import Json.Decode as Decode exposing (Decoder, int, string, bool, succeed)
 import Json.Decode.Pipeline exposing (required, optional, hardcoded)
 import Date exposing (Date, today)
 import Time exposing (Month(..))
+import MySwiper as Swiper
+
 
 -- PARSER MODELS
 
@@ -382,6 +384,7 @@ initCollect =
 type alias Model =
     { windowWidth : Int
     , width : Int
+    , swipingState : Swiper.SwipingState
     , pageTitle : String
     , pageName : String
     , source : Maybe String
@@ -414,6 +417,7 @@ initModel : Model
 initModel =
     { windowWidth = 375
     , width = 355 -- iphone minus 20
+    , swipingState  = Swiper.initialSwipingState
     , pageTitle     = "Legereme"
     , pageName      = "currentOffice"
     , source        = Nothing
