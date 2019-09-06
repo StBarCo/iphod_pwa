@@ -1,6 +1,7 @@
 module Palette exposing (..)
 
 import Html.Attributes
+import Html
 import Element exposing ( Attribute
                         , rgb255
                         , rgba255
@@ -118,6 +119,9 @@ show =
     Html.Attributes.style "display" "block"
     |> Element.htmlAttribute
 
+swipe : List (Html.Attribute msg) -> List (Attribute msg)
+swipe msgs = 
+    msgs |> List.map (\m -> Element.htmlAttribute m)
 
 -- these classes come from an API and need to be mapped from text
 class : String -> List (Attribute msg)
