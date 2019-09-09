@@ -1545,9 +1545,9 @@ update msg model =
         PageSwipe evt ->
             let
                 (newState, swipedLeft) =
-                    hasSwipedLeft 50 evt model.swipingState
+                    hasSwipedLeft 100 evt model.swipingState
                 (newState2, swipedRight) =
-                    hasSwipedRight 50 evt model.swipingState
+                    hasSwipedRight 100 evt model.swipingState
                 swipeCmd = 
                     if swipedLeft then swipeLeftRight "left"
                     else if swipedRight then swipeLeftRight "right"
