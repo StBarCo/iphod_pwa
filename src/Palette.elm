@@ -216,8 +216,9 @@ menu viewWidth =
 
 officeTitle : Int -> List (Attribute msg)
 officeTitle viewWidth = 
-    [ paddingEach { edges | top = 65 }
+    [ paddingEach { edges | top = 80 }
     , Element.centerX
+    , Html.Attributes.id "officeTitle" |> Element.htmlAttribute
     ]
 
 openingSentenceTitle : Int -> List (Attribute msg)
