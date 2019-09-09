@@ -616,15 +616,16 @@ app.ports.requestReference.subscribe(  function(request) {
 })
 
 app.ports.swipeLeftRight.subscribe( swipe => {
-  var headerOffset = 60;
+  var headerOffset = 70;
   var topNow = window.scrollY;
   var breakNow = false;
   var goto = topNow;
+
   if (pageTops.length === 0) {
     pageTops = []
       .slice
       .call( document.getElementsByClassName('page'))
-      .map( p => { return p.getBoundingClientRect().top - headerOffset} )
+      .map( p => { return parseInt(p.getBoundingClientRect().top) - headerOffset} )
   }
   for( let i = 0; i < pageTops.length; i++ ) {
     var p = pageTops[i]
@@ -639,7 +640,8 @@ app.ports.swipeLeftRight.subscribe( swipe => {
       };
     }
   }
-  window.scroll(0, goto)
+  // parseInt below because x,y location may magically become a float
+  window.scroll({top:goto, behavior: "smooth"})
 })
 
 app.ports.requestLessons.subscribe(  function(request) {
