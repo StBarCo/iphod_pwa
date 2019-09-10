@@ -280,7 +280,7 @@ toSeason: function (moment_date) {
     return {season: "trinity",      week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksTillAdvent, 1, 27)):
-    wk = (30 - weeksTillAdvent).toString();
+    wk = (29 - weeksTillAdvent).toString();
     ik = "proper" + wk + yrABC;
     return {season: "proper",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
