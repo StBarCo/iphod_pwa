@@ -1049,7 +1049,7 @@ init  list =
         firstModel = { initModel | width = wd, windowWidth = winWd }
     in
     
-    ( firstModel, Cmd.none )
+    ( firstModel, Cmd.batch [ requestOffice "currentOffice", Cmd.none ] )
 
 -- REQUEST PORTS
 
