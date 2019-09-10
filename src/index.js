@@ -91,9 +91,9 @@ window.onload = ( function() {
   receivedOPs = app.ports.receivedOPs
   newWidth = app.ports.newWidth;
   // onlineStatus.send( "All Ready");
-  requestOffice('currentOffice')
+  // requestOffice('currentOffice')
   iphod.info().then( function(resp) {
-    if (resp.doc_count > 0) { sync(); }
+    if (resp.doc_count > 0) { sync(); } // this test makes no sense, explain?
   })
   // make sure the old service isn't kept on mobile device
   old_service.destroy()
