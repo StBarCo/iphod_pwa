@@ -616,17 +616,27 @@ app.ports.requestReference.subscribe(  function(request) {
 })
 
 app.ports.swipeLeftRight.subscribe( swipe => {
-  var headerOffset = 70;
   var topNow = window.scrollY;
-  var breakNow = false;
+  var offset = (70 - topNow); // 70 ==n offset from the header
   var goto = topNow;
+
+  // if pageTops is empty...
+  // 1. calculate the header offset
+  // 2. get the location of all the page breaks
+  // 3. subtract offset from top position of each page break
+  // 4. add 0 to the front of the list of page breaks
 
   if (pageTops.length === 0) {
     pageTops = []
       .slice
       .call( document.getElementsByClassName('page'))
-      .map( p => { return parseInt(p.getBoundingClientRect().top) - headerOffset} )
+      .map( p => { 
+        return parseInt( p.getBoundingClientRect().top - offset );
+      } )
+
+    pageTops.unshift(0)
   }
+
   for( let i = 0; i < pageTops.length; i++ ) {
     var p = pageTops[i]
     if (swipe === 'right') {
