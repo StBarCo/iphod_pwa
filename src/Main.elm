@@ -455,7 +455,7 @@ calendar =
                         
                     in
                     [ column [Font.alignLeft]
-                        [ Input.button (moveDown 20.0 :: Palette.button model.width)
+                        [ Input.button (padding 20 :: Palette.button model.width)
                             { onPress = Just ShowCalendar
                             , label = text "Return to Calendar"
                             }
