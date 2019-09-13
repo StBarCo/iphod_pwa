@@ -206,8 +206,8 @@ makeIphodKey: function(season, week, year) {
   return season + week + year;
 },
 toSeason: function (moment_date) {
-//  var sunday = this.isSunday(moment_date) ? date : this.dateLastSunday(moment(moment_date))
   var sunday = moment_date.clone().day('Sunday')
+  var properOffset = this.isSunday(moment_date) ? 30 : 29
   var y = this.litYear(sunday);
   var yrABC = this.litYearName(sunday);
   var weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday, 1));
@@ -280,7 +280,7 @@ toSeason: function (moment_date) {
     return {season: "trinity",      week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksTillAdvent, 1, 27)):
-    wk = (29 - weeksTillAdvent).toString();
+    wk = (properOffset - weeksTillAdvent).toString();
     ik = "proper" + wk + yrABC;
     return {season: "proper",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
