@@ -617,7 +617,7 @@ app.ports.requestReference.subscribe(  function(request) {
 
 app.ports.swipeLeftRight.subscribe( swipe => {
   var topNow = window.scrollY;
-  var offset = (70 - topNow); // 70 ==n offset from the header
+  var offset = (70 - topNow); // 70 === offset from the header
   var goto = topNow;
 
   // if pageTops is empty...
