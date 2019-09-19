@@ -515,6 +515,7 @@ function findOccassionalPrayer( selector, dbs, callback) {
 app.ports.requestOPsByCat.subscribe( request => {
   findOccassionalPrayer( 
       {selector: {category: request}}
+    , [remoteOps, occasional_prayers]
     , (resp => {
       var docs = resp.docs;
       docs = docs.map( d => { d.id = d._id; return d } )
