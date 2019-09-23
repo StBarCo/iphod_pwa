@@ -579,6 +579,7 @@ menuOptions model =
         , clickOption "sync" "How to Install"
         , clickOption "sync" "Update Database"
         , clickOption "about" "Contact"
+        , clickOption "angChurchChat" "Join Anglican Church Chat"
         ]
     ]
     

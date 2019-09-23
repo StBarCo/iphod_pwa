@@ -476,6 +476,12 @@ function requestOffice(request, dbs) {
       get_service(request, [remoteService, service])
       get_ops_categories();
       break;
+
+    case "angChurchChat":
+      var win = window.open("https://discord.gg/ARF5Et5", "_blank")
+      win.focus();
+      break;
+
     default: 
       get_service(request, [remoteService, service]);
   };
