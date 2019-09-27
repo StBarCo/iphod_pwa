@@ -381,6 +381,49 @@ initCollect =
     , show = False
     }
 
+type alias Canticle =
+    { id : String
+    , name : String
+    , title : String
+    , number : String
+    , reference : String
+    , notes : String
+    , text : String
+    }
+
+canticleDecoder : Decoder Canticle
+canticleDecoder =
+    Decode.succeed Canticle
+    |> required "_id" string
+    |> required "name" string
+    |> required "title" string
+    |> required "number" string
+    |> required "reference" string
+    |> required "notes" string
+    |> required "text" string
+
+type alias CanticleList = 
+    { canticles: List Canticle }
+
+canticleListDecoder : Decoder CanticleList
+canticleListDecoder = 
+    Decode.succeed CanticleList
+    |> required "canticles" (Decode.list canticleDecoder)
+
+
+initCanticle : Canticle
+initCanticle = 
+    { id = ""
+    , name = ""
+    , title = ""
+    , number = ""
+    , reference = ""
+    , notes = ""
+    , text = ""
+    }
+
+
+
 type alias Model =
     { windowWidth : Int
     , width : Int
@@ -403,6 +446,7 @@ type alias Model =
     , showMenu : Bool
     , prayerList : PrayerList
     , collects : List Collect
+    , canticles : List Canticle
     , lessons : Lessons
     , eu : Lessons
     , mp : Lessons
@@ -436,6 +480,7 @@ initModel =
     , showMenu      = False
     , prayerList    = initPrayerList
     , collects      = []
+    , canticles     = []
     , lessons       = initLessons
     , eu            = initLessons
     , mp            = initLessons

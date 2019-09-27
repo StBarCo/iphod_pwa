@@ -80,6 +80,7 @@ document =
                 , newPrayerListItem
                 , openPrayerList
                 , occasionalPrayers
+                , canticle
                 -- Toplevel Text
             --    , Mark.map (Html.p []) Mark.text
                 ]
@@ -170,6 +171,40 @@ renderAdditionalConditionalCollect model id title =
             ]
 
 
+canticle : Mark.Block (Model -> Element Msg)
+canticle =
+    Mark.record "Canticle"
+    (\id model ->
+        let
+            width = model.width
+            c = getCanticle model id
+            lines = c.text 
+                |> String.split "\n" 
+                |> List.map (\t -> paragraph [ paddingXY 10 0] [ text t ])
+        in
+        column [ paddingXY 0 20, Font.family [ Font.typeface "Georgia"] ]
+        ( [ paragraph [ Font.center, Palette.scaleFont width 22 ] [ text c.number ]
+        , paragraph [ Font.center ] [ text (String.toUpper c.name) ]
+        , paragraph [ Font.center, Font.italic ] [ text c.title ]
+        , paragraph (Palette.rubric width) [ text c.notes ]
+        ] 
+        ++ lines
+        ++ [ paragraph 
+            [ Font.alignRight, Palette.scaleFont width 10, paddingXY 10 5 ]
+            [ text (String.toUpper c.reference) ]
+           ]
+        )
+    
+    )
+    |> Mark.field "canticle" Mark.string
+    |> Mark.toBlock
+
+
+getCanticle : Model -> String -> Canticle
+getCanticle model id =
+    case ( model.canticles |> find (\c -> c.id == id) ) of
+        Just coll -> coll
+        Nothing -> initCanticle
 
 
 occasionalPrayers : Mark.Block (Model -> Element Msg)
@@ -575,6 +610,7 @@ menuOptions model =
     , column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
         [ clickOption "prayerList" "Prayer List"
         , clickOption "occasionalPrayers" "Occasional Prayers"
+        , clickOption "canticles" "Canticles"
         , clickOption "about" "About"
         , clickOption "sync" "How to Install"
         , clickOption "sync" "Update Database"
@@ -674,7 +710,7 @@ renderPsSection width title sectionName =
 
 renderPsLine1 : Int -> Int -> String -> Element Msg
 renderPsLine1 width lineNumber ln1 =
-    paragraph [ indent "3rem", Palette.maxWidth width ]
+    paragraph [ indent "3rem", Palette.maxWidth (width - 30) ]
     [ el [outdent "3rem"] none
     , el 
         [ Font.color Palette.darkRed
@@ -686,7 +722,7 @@ renderPsLine1 width lineNumber ln1 =
 
 renderPsLine2 : Int -> String -> Element Msg
 renderPsLine2 width ln2 =
-    paragraph [ indent "4rem" , Palette.maxWidth width ]
+    paragraph [ indent "4rem" , Palette.maxWidth (width - 30) ]
     [ el [ outdent "2rem"] none
     , text ln2
     ]
@@ -790,6 +826,7 @@ renderHeader title description =
         column []
         [ column 
             ( backgroundGradient model.color
+            ++ borderShadow model.color
             ++ (Palette.menu model.width) 
             ++ Palette.swipe (onSwipeEvents HeaderMenu)
             )
@@ -1079,6 +1116,7 @@ port receivedOPCats : (String -> msg) -> Sub msg
 port receivedOPs : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
 port onlineStatus : (String -> msg) -> Sub msg
+port receivedAllCanticles : (String -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -1093,6 +1131,7 @@ subscriptions model =
         , onlineStatus UpdateOnlineStatus
         , receivedOPCats UpdateOPCats
         , receivedOPs UpdateOPs
+        , receivedAllCanticles UpdateAllCanticles
         ]
 
 serviceToString : Service -> String
@@ -1156,6 +1195,7 @@ type Msg
     | RequestCollect String
     | HeaderMenu SwipeEvent
     | PageSwipe SwipeEvent
+    | UpdateAllCanticles String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -1557,6 +1597,21 @@ update msg model =
             in
             ( { model | swipingState = newState }, swipeCmd )
 
+        UpdateAllCanticles json ->
+            let
+                newModel = case Decode.decodeString canticleListDecoder json of
+                    Ok c ->
+                        { model | canticles = c.canticles }
+                        
+                    _  -> 
+                        let
+                            _ = Debug.log "DECODER FAIL" json
+                        in
+                        model
+
+            in
+            (newModel, Cmd.none)
+
             
 
 type SwipeDirection
@@ -1646,7 +1701,7 @@ view model =
     , body = 
         [ case model.source of
             Nothing ->
-                layout []
+                layout ( Palette.layout model.width )
                 ( column []
                     [ renderHeader "Getting Service" "Patience is a virtue" model
                     , image [ Palette.scaleWidth 200 model.width, centerX, centerY, paddingXY 0 20 ] 
@@ -1665,6 +1720,7 @@ view model =
                         ( 
                             [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
                             , Palette.scaleFont model.width 14
+                            , Font.family [ Font.typeface "Georgia"]
                             ] 
                             ++ Palette.swipe (onSwipeEvents PageSwipe)
                              

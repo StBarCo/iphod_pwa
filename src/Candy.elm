@@ -151,3 +151,16 @@ backgroundGradient s =
     in
     [ Font.color foreground, Background.gradient grad ]
 
+borderShadow : String -> List (Attribute msg)
+borderShadow color = 
+    case color of
+        "white" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litWhite} ]
+        "green" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litGreen} ]
+        "red" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litRed} ]
+        "violet" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litPurple} ]
+        "blue" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litBlue} ]
+        "rose" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litRose} ]
+        "gold" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.darkGrey} ]
+        _ -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.foggy} ]
+
+

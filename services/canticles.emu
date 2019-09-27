@@ -1,0 +1,55 @@
+|> Service
+    maintainer = PASutcliffe+
+    contact = frpaulas@gmail.com
+    title = Canticles
+    description =
+        All Prayer Book Canticles in one place
+
+|> Canticle
+    canticle = magna_et_mirabilia
+    
+|> Canticle
+    canticle = surge_illuminare
+    
+|> Canticle
+    canticle = kyrie_pantokrator
+    
+|> Canticle
+    canticle = quaerite_dominum
+    
+|> Canticle
+    canticle = cantemu_domino
+    
+|> Canticle
+    canticle = dignus_es
+    
+|> Canticle
+    canticle = cantate_domino
+    
+|> Canticle
+    canticle = ecce_deus
+    
+|> Canticle
+    canticle = deus_misereatur
+    
+|> Canticle
+    canticle = benedicite_omnia_opera_domini
+    
+|> Canticle
+    canticle = te_deum_laudamus
+    
+|> Canticle
+    canticle = benedictus_es_domine
+    
+|> Canticle
+    canticle = benedictus
+    
+|> Canticle
+    canticle = magnificat
+    
+|> Canticle
+    canticle = nunc_dimittis
+    
+|> Canticle
+    canticle = pascha_nostrum
+    

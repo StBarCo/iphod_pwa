@@ -31,7 +31,9 @@ foggy = rgb255 250 250 250
 litGreen = rgb255 16 104 16
 litWhite = rgb255 255 226 12
 litPurple = rgb255 109 8 168
+litBlue = rgb255 0 5 99 -- this might not be right
 litRed = rgb255 188 5 33
+litRose = rgb255 188 9 103 -- this might not be right
 black = rgb255 0 0 0
 
 edges : { top: Int, right: Int, bottom: Int, left: Int }
@@ -80,10 +82,6 @@ scalePx viewWidth n =
 scaleWidth : Int -> Int -> Attribute msg
 scaleWidth viewWidth n =
     Element.width (scalePx viewWidth n)
-
---maxWidth : Int -> Attribute msg
---maxWidth viewWidth =
---    scaleWidth viewWidth (viewWidth - 25)
 
 adjustWidth : Int -> Int -> Attribute msg
 adjustWidth viewWidth adj =
@@ -191,6 +189,13 @@ collectTitle viewWidth =
     , maxWidth viewWidth
     ]
 
+layout : Int -> List (Attribute msg)
+layout viewWidth =
+    [ Font.family [ Font.typeface "Georgia"]
+    , maxWidth viewWidth
+    , paddingEach { edges | left = 10, right = 10 }
+    ]
+
 lesson : Int -> List (Attribute msg)
 lesson viewWidth =
     [ paddingXY 3 0 
@@ -234,7 +239,7 @@ openingSentence : Int -> List (Attribute msg)
 openingSentence viewWidth =
     [ maxWidth viewWidth
     , paddingXY 10 0
-    ]                                       
+    ]  
 
 pageNumber : Int -> List (Attribute msg)
 pageNumber viewWidth =

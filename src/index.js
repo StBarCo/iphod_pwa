@@ -22,6 +22,7 @@ var receivedLesson = undefined
   , receivedCollect = undefined
   , receivedOPCats = undefined
   , receivedOPs = undefined
+  , receivedAllCanticles = undefined
   , newWidth = undefined
   ;
 
@@ -49,17 +50,20 @@ var old_service = new Pouchdb('service_dev');
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var prayerList = new Pouchdb('prayerList'); // never replicate!
+var canticles = new Pouchdb('canticles');
 var occasional_prayers = new Pouchdb('occasional_prayers');
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
   , remoteServiceURL =    "https://legereme.com/couchdb/service"
   , remotePsalmsURL =     "https://legereme.com/couchdb/psalms"
   , remoteLectionaryURL = "https://legereme.com/couchdb/lectionary"
+  , remoteCanticles = "https://legereme.com/couchdb/canticles"
   , remoteOpsURL = "https://legereme.com/couchdb/occasional_prayers"
   , remoteIphod = new Pouchdb(remoteIphodURL)
   , remoteService = new Pouchdb(remoteServiceURL)
   , remotePsalms = new Pouchdb(remotePsalmsURL)
   , remoteLectionary = new Pouchdb(remoteLectionaryURL)
+  , remoteCanticles = new Pouchdb(remoteCanticles)
   , remoteOps = new Pouchdb(remoteOpsURL)
   , default_prefs = {
       _id: 'preferences'
@@ -89,7 +93,9 @@ window.onload = ( function() {
   receivedCollect = app.ports.receivedCollect;
   receivedOPCats = app.ports.receivedOPCats;
   receivedOPs = app.ports.receivedOPs
+  receivedAllCanticles = app.ports.receivedAllCanticles
   newWidth = app.ports.newWidth;
+
   // onlineStatus.send( "All Ready");
   // requestOffice('currentOffice')
   iphod.info().then( function(resp) {
@@ -125,7 +131,10 @@ function sync() {
         .on("complete", function() {
           occasional_prayers.replicate.from(remoteOps)
           .on("complete", function() {
-            send_status("Sync complete");
+            cantiles.replicate.from(remoteCanticles)
+              .on("complete", function() {
+                send_status("Sync complete");
+              })
           })
         })
       })
@@ -249,6 +258,7 @@ function service_db_name(s) {
     , calendar: "calendar"
     , prayerList: "prayer_list"
     , occasionalPrayers: "occasional_prayers"
+    , canticles: "canticles"
     };
   return dbName[s];
 }
@@ -475,6 +485,11 @@ function requestOffice(request, dbs) {
     case "occasionalPrayers":
       get_service(request, [remoteService, service])
       get_ops_categories();
+      break;
+
+    case "canticles":
+      get_service(request, [remoteService, service])
+      get_all_canticles([remoteCanticles, canticles]);
       break;
 
     case "angChurchChat":
@@ -909,4 +924,87 @@ function showPsalms(pss) {
     }
   })
   return pss;
+}
+
+function get_all_canticles(dbs) {
+  var db = dbs.pop();
+  console.log("DB = ", db)
+  db.allDocs( {include_docs: true})
+  .then( resp => {
+    console.log("CANTICLES", resp.rows)
+    if (resp.total_rows === 0) { get_all_canticles(dbs) }
+    var cants = resp.rows.map( c => { return c.doc } )
+    receivedAllCanticles.send(JSON.stringify({canticles: cants}));
+  })
+  .catch( err => {
+    if (dbs.length > 0 ) { get_all_canticles(dbs) }
+    else { console.log("Error getting Canticles: " + err) }
+  })
+}
+
+function get_canticle(office, lesson) {
+  office = office === "mp" ? "mp" : "ep";
+  lesson = lesson === "lesson1" ? office + "1" : office + "2";
+  var now = new moment();
+  var season = LitYear.toSeason(now);
+  var day = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][now.day()]; 
+  var canticle = undefined;
+  var otherwise = true;
+  switch ([lesson, season, day]) {
+    case ["mp1", "advent", "sun"] : canticle = "surge_illuminare"; break;
+
+    case ["mp1", "easter", "sun"] :
+    case ["mp1", "easter", "fri"] : canticle = "cantemus_domino"; break;
+    case ["mp1", "easterWeek", "fri"] : canticle = "te_deum"; break;
+
+    case ["mp1", "lent", "sun"] : 
+    case ["mp1", "lent", "wed"] : 
+    case ["mp1", "lent", "fri"] : 
+    case ["mp1", "ashWednesday", "sun"] : 
+    case ["mp1", "advashWednesdayent", "wed"] : 
+    case ["mp1", "adashWednesdayvent", "wed"] : canticle = "kyrie_pantokrator"; break;
+
+    case ["mp1", otherwise, "sun"] : canticle = "benedictus"; break;
+    case ["mp1", otherwise, "mon"] : canticle = "ecce_deus"; break;
+    case ["mp1", otherwise, "tue"] : canticle = "benedictis_es_domine"; break;
+    case ["mp1", otherwise, "wed"] : canticle = "surge_illuminare"; break;
+    case ["mp1", otherwise, "thu"] : canticle = "cantemu_domino"; break;
+    case ["mp1", otherwise, "fri"] : canticle = "quaerite_dominum"; break;
+    case ["mp1", otherwise, "sat"] : canticle = "surge_illuminare"; break;
+
+    case ["mp2", "advent", "sun"] : canticle = "benedictus"; break;
+    case ["mp2", "advent", "thu"] : canticle = "magna_et_mirabilia"; break;
+    case ["mp2", "lent", "Sunday"] :
+    case ["mp2", "ashWednesday", "Sunday"] : canticle = "benedictus"; break;
+    case ["mp2", "lent", "thu"] :
+    case ["mp2", "ashWednesday", "thu"] : canticle = "magna_et_mirabilia"; break;
+
+    case ["mp2", otherwise, "sun"] : canticle = "te_deum_laudamus"; break;
+    case ["mp2", otherwise, "mon"] : 
+    case ["mp2", otherwise, "tue"] : 
+    case ["mp2", otherwise, "wed"] : 
+    case ["mp2", otherwise, "thu"] : 
+    case ["mp2", otherwise, "fri"] : 
+    case ["mp2", otherwise, "sat"] : canticle = "benedictus"; break;
+
+    case ["ep1", "lent", "mon"] : 
+    case ["ep1", "ashWednesday", "mon"] : canticle = "kyrie_pantokrator"; break;
+
+    case ["ep1", otherwise, "sun"] : canticle = "magnificat"; break;
+    case ["ep1", otherwise, "mon"] : canticle = "cantemu_domino"; break;
+    case ["ep1", otherwise, "tue"] : canticle = "quaerite_dominum"; break;
+    case ["ep1", otherwise, "wed"] : canticle = "benedicite_omnia_opera_domini"; break;
+    case ["ep1", otherwise, "thu"] : canticle = "surge_illuminare"; break;
+    case ["ep1", otherwise, "fri"] : canticle = "benedictis_es_domine"; break;
+    case ["ep1", otherwise, "sat"] : canticle = "ecce_deus"; break;
+
+    case ["ep2", otherwise, "sun"] : canticle = "nunc_dimittis"; break;
+    case ["ep2", otherwise, "mon"] : canticle = "nunc_dimittis"; break;
+    case ["ep2", otherwise, "tue"] : canticle = "magnificat"; break;
+    case ["ep2", otherwise, "wed"] : canticle = "nunc_dimittis"; break;
+    case ["ep2", otherwise, "thu"] : canticle = "magnificat"; break;
+    case ["ep2", otherwise, "fri"] : canticle = "nunc_dimittis"; break;
+    case ["ep2", otherwise, "sat"] : canticle = "magnificat"; break;
+  }
+  // now what???
 }
