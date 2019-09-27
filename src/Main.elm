@@ -1604,9 +1604,6 @@ update msg model =
                         { model | canticles = c.canticles }
                         
                     _  -> 
-                        let
-                            _ = Debug.log "DECODER FAIL" json
-                        in
                         model
 
             in
