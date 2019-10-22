@@ -81,6 +81,7 @@ document =
                 , openPrayerList
                 , occasionalPrayers
                 , canticle
+                , randomCanticle
                 -- Toplevel Text
             --    , Mark.map (Html.p []) Mark.text
                 ]
@@ -175,36 +176,68 @@ canticle : Mark.Block (Model -> Element Msg)
 canticle =
     Mark.record "Canticle"
     (\id model ->
-        let
-            width = model.width
-            c = getCanticle model id
-            lines = c.text 
-                |> String.split "\n" 
-                |> List.map (\t -> paragraph [ paddingXY 10 0] [ text t ])
-        in
-        column [ paddingXY 0 20, Font.family [ Font.typeface "Georgia"] ]
-        ( [ paragraph [ Font.center, Palette.scaleFont width 22 ] [ text c.number ]
-        , paragraph [ Font.center ] [ text (String.toUpper c.name) ]
-        , paragraph [ Font.center, Font.italic ] [ text c.title ]
-        , paragraph (Palette.rubric width) [ text c.notes ]
-        ] 
-        ++ lines
-        ++ [ paragraph 
-            [ Font.alignRight, Palette.scaleFont width 10, paddingXY 10 5 ]
-            [ text (String.toUpper c.reference) ]
-           ]
-        )
+        renderCanticle (getCanticle model id) model.width
     
     )
     |> Mark.field "canticle" Mark.string
     |> Mark.toBlock
 
 
+renderCanticle : Canticle -> Int -> Element Msg
+renderCanticle c width =
+    let
+        lines = c.text
+            |> String.lines
+            |> List.map (\t -> t |> indentableParagraph 10 30 )
+
+        (alt, number) = if c.officeId == "invitatory"
+            -- if it's the invitatory, add the alt button and leave off the Canticle number
+            then
+                ( Input.button
+                    ( Palette.buttonAltInvitatory width )
+                    --[ text ("Other Invitatories") ]
+                    { onPress = Just (RollInvitatory c.id)
+                    , label = text "Other Invitatories"
+                    }
+                , none
+                )
+            -- if it's not the invitatory, leave off the alt button and add the Canticle number
+            else (none, paragraph [ Font.center, Palette.scaleFont width 22 ] [ text c.number ])
+
+    in
+    column [ paddingXY 0 20, Font.family [ Font.typeface "Georgia"] ]
+    ( [ alt, number
+    , paragraph [ Font.center ] [ text (String.toUpper c.name) ]
+    , paragraph [ Font.center, Font.italic ] [ text c.title ]
+    , paragraph (Palette.rubric width) [ text c.notes ] 
+    ] 
+    ++ lines
+    ++ [ paragraph 
+        [ Font.alignRight, Palette.scaleFont width 10, paddingXY 10 5 ]
+        [ text (String.toUpper c.reference) ]
+       ]
+    )
+
 getCanticle : Model -> String -> Canticle
 getCanticle model id =
     case ( model.canticles |> find (\c -> c.id == id) ) of
         Just coll -> coll
         Nothing -> initCanticle
+
+
+randomCanticle : Mark.Block (Model -> Element Msg)
+randomCanticle =
+    Mark.record "RandomCanticle"
+    (\officeId model ->
+        let
+            cant = case (model.officeCanticles |> find (\c -> c.officeId == officeId) ) of
+               Just c -> c
+               Nothing -> initCanticle
+        in
+        renderCanticle cant model.width
+    )
+    |> Mark.field "for" Mark.string
+    |> Mark.toBlock
 
 
 occasionalPrayers : Mark.Block (Model -> Element Msg)
@@ -638,7 +671,6 @@ lesson =
             ( List.concat
                 [ [ paragraph (Palette.lessonTitle model.width) [ text "A Reading From..." ] ]
                 , thisLesson
-                , [ paragraph [] [ text "The Word of the Lord" ] ]
                 ]
             )
         )
@@ -1097,6 +1129,7 @@ port requestOffice : String -> Cmd msg
 port requestLessons : String -> Cmd msg
 port requestOPsByCat : String -> Cmd msg
 port requestCollect : String -> Cmd msg
+port requestNextInvitatory : String -> Cmd msg
 port calendarReadingRequest : ServiceReadingRequest -> Cmd msg
 port toggleButtons : (List String) -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
@@ -1117,6 +1150,8 @@ port receivedOPs : (String -> msg) -> Sub msg
 port newWidth : (Int -> msg) -> Sub msg
 port onlineStatus : (String -> msg) -> Sub msg
 port receivedAllCanticles : (String -> msg) -> Sub msg
+port receivedOfficeCanticles : (String -> msg) -> Sub msg
+port receivedNewCanticle : (String -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -1132,6 +1167,8 @@ subscriptions model =
         , receivedOPCats UpdateOPCats
         , receivedOPs UpdateOPs
         , receivedAllCanticles UpdateAllCanticles
+        , receivedOfficeCanticles UpdateOfficeCanticles
+        , receivedNewCanticle UpdateOneOfficeCanticle
         ]
 
 serviceToString : Service -> String
@@ -1196,6 +1233,9 @@ type Msg
     | HeaderMenu SwipeEvent
     | PageSwipe SwipeEvent
     | UpdateAllCanticles String
+    | UpdateOfficeCanticles String
+    | UpdateOneOfficeCanticle String
+    | RollInvitatory String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -1609,8 +1649,38 @@ update msg model =
             in
             (newModel, Cmd.none)
 
-            
+        UpdateOfficeCanticles json ->
+            let
+                newModel = case Decode.decodeString canticleListDecoder json of
+                    Ok c ->
+                        { model | officeCanticles = c.canticles }
 
+                    _ -> 
+                        model
+            in
+            (newModel, Cmd.none)
+
+        UpdateOneOfficeCanticle json ->
+            let
+                newModel = case Decode.decodeString canticleListDecoder json of
+                    Ok list ->
+                        let
+                            -- we only want the first canticle
+                            c = list.canticles |> getAt 0 |> Maybe.withDefault initCanticle
+                            newCanticles = model.officeCanticles 
+                                -- remove the old officeCanticle (by officeId)
+                                |> filterNot(\cant -> cant.officeId == c.officeId )
+                                -- push in the new one
+                                |> (::) c
+                        in
+                        {model | officeCanticles = newCanticles}
+                    _ -> -- for errors
+                        model
+            in
+            ( newModel, Cmd.none )
+            
+        RollInvitatory inv ->
+            (model, requestNextInvitatory inv)
 type SwipeDirection
     = Up
     | Down

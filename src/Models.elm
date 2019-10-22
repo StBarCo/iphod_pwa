@@ -46,6 +46,9 @@ type alias TempSeason =
     , today: String
     }
 
+type alias RandomCanticle =
+    { for: String }
+
 type Service
     = Eucharist
     | MorningPrayer
@@ -383,6 +386,7 @@ initCollect =
 
 type alias Canticle =
     { id : String
+    , officeId: String
     , name : String
     , title : String
     , number : String
@@ -395,6 +399,7 @@ canticleDecoder : Decoder Canticle
 canticleDecoder =
     Decode.succeed Canticle
     |> required "_id" string
+    |> required "officeId" string
     |> required "name" string
     |> required "title" string
     |> required "number" string
@@ -414,6 +419,7 @@ canticleListDecoder =
 initCanticle : Canticle
 initCanticle = 
     { id = ""
+    , officeId = ""
     , name = ""
     , title = ""
     , number = ""
@@ -447,6 +453,7 @@ type alias Model =
     , prayerList : PrayerList
     , collects : List Collect
     , canticles : List Canticle
+    , officeCanticles : List Canticle
     , lessons : Lessons
     , eu : Lessons
     , mp : Lessons
@@ -481,6 +488,7 @@ initModel =
     , prayerList    = initPrayerList
     , collects      = []
     , canticles     = []
+    , officeCanticles = []
     , lessons       = initLessons
     , eu            = initLessons
     , mp            = initLessons

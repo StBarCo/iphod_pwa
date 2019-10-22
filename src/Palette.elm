@@ -169,6 +169,19 @@ button viewWidth =
     , centerY
     ]
 
+buttonAltInvitatory : Int -> List (Attribute msg)
+buttonAltInvitatory viewWidth =
+    [ Border.color darkRed
+    , Border.rounded 5
+    , Border.width 5
+    , padding 10
+    , spacing 10
+    , Background.color darkRed
+    , Font.color foggy
+    , centerY
+    ]
+
+
 calendarDay : Int -> List (Attribute msg)
 calendarDay viewWidth =
     [ Border.width 1
