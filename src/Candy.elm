@@ -26,6 +26,20 @@ stringNotEmpty str =
     not (String.isEmpty str)
 
 
+leadingSpaces : String -> Bool
+leadingSpaces s =
+    String.left 4 s == "    "
+
+-- if the string begins with 4 spaces, indent
+indentableParagraph : Int -> Int -> String -> Element msg
+indentableParagraph normal indent s =
+    let
+        x = if leadingSpaces s
+            then indent
+            else normal
+    in
+    paragraph [ paddingXY x 0 ] [ text s ]
+
 elsWithItalics : String -> List (Element msg)
 elsWithItalics str =
     str 
@@ -95,7 +109,11 @@ renderPrayer width str =
         lns = str 
             |> String.split "\n" 
             |> List.map (\l -> 
-                paragraph [indent "3rem", Element.width (px (width - 70))] 
+                let
+                    x = if leadingSpaces l then 30 else 10
+                in
+                
+                paragraph [indent "3rem", Element.width (px (width - 70)), paddingXY x 0 ] 
                 [ el [outdent "3rem"] none
                 , text (String.trimRight l)
                 ] 
