@@ -297,8 +297,8 @@ function get_service(named, dbs) {
 }
 
 function iphodGet(key, dbs, callback) {
-  var thisIphod = dbs.pop();
-  thisIphod.get(key)
+  var db = dbs.pop();
+  db.get(key)
   .then ( resp => { callback(resp) })
   .catch( err => {
     if ( updateOnlineIndicator() && dbs.length > 0) { iphodGet(key, dbs, callback) }
@@ -858,16 +858,22 @@ function insertEucharistPsalms(spa_location, key) {
   iphodGet(key, [remoteIphod, iphod], ( resp => {
     var psalms = resp.ps
     var psalmRefs = BibleRef.dbKeys(psalms)
-    allPsalms(psalmRefs, spa_location);
+    allPsalms(psalmRefs);
   }))
 }
 
-function insertPsalms(office, spa_location) {
-  var now = moment()
-    , mpep = (office === "morning_prayer") ? "mp" : "ep"
-    , dayOfMonth = now.date()
-    , psalmRefs = DailyPsalms.dailyPsalms[dayOfMonth][mpep]
-    allPsalms(psalmRefs);
+function insertPsalms(office) {
+  var mpep = undefined
+    , dayOfMonth = moment().date()
+    ;
+  switch (office) {
+    case "evening_prayer" :
+    case "ep" : mpep = "ep"; break;
+    default : // morning_prayer, "mp"
+      mpep = "mp";
+  }
+  var psalmRefs = DailyPsalms.dailyPsalms[dayOfMonth][mpep]
+  allPsalms(psalmRefs);
 }
 
 function allPsalms(psalmRefs, spa_location) {
