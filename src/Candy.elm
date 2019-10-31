@@ -15,8 +15,12 @@ import List.Extra exposing (getAt)
 import String.Extra exposing (toTitleCase, toSentence)
 import Palette exposing(scaleFont, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
+import Time exposing (..)
 
 
+timeIsAfter : Posix -> Posix -> Bool
+timeIsAfter t1 t2 =
+    (posixToMillis t2) > (posixToMillis t1)
 isEven : Int -> Bool
 isEven n = 
     modBy 2 n == 0

@@ -4,7 +4,8 @@ import Element
 import Json.Decode as Decode exposing (Decoder, int, string, bool, succeed)
 import Json.Decode.Pipeline exposing (required, optional, hardcoded)
 import Date exposing (Date, today)
-import Time exposing (Month(..))
+import Time exposing (Month(..), utc, millisToPosix)
+import Task
 import MySwiper as Swiper
 
 
@@ -428,11 +429,22 @@ initCanticle =
     , text = ""
     }
 
+type alias Timer =
+    { id : String
+    , end : Time.Posix
+    }
 
+initTimer : Timer
+initTimer =
+    { id = ""
+    , end = millisToPosix 0
+    }
 
 type alias Model =
     { windowWidth : Int
     , width : Int
+    , time : Time.Posix
+    , timers : List Timer
     , swipingState : Swiper.SwipingState
     , pageTitle : String
     , pageName : String
@@ -468,6 +480,8 @@ initModel : Model
 initModel =
     { windowWidth = 375
     , width = 355 -- iphone minus 20
+    , time = millisToPosix 0
+    , timers = []
     , swipingState  = Swiper.initialSwipingState
     , pageTitle     = "Legereme"
     , pageName      = "currentOffice"

@@ -20,13 +20,15 @@ import Mark
 import Mark.Error exposing (Error)
 import Parser exposing (..)
 import Regex exposing(replace)
-import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile, dropWhile, updateAt, updateIf, filterNot)
+import List.Extra exposing (getAt, find, findIndex, setAt, groupWhile, dropWhile, takeWhile, updateAt, updateIf, filterNot)
 import String.Extra exposing (toTitleCase, countOccurrences)
 import MyParsers exposing (..)
 import Palette exposing (scaleFont, pageWidth, indent, outdent, show, hide, edges)
 import Models exposing (..)
 import Json.Decode as Decode
 import Date
+import Task
+import Time exposing (..)
 import Candy exposing (..)
 import MySwiper as Swiper exposing (..)
 
@@ -1111,6 +1113,10 @@ openingSentence =
 
 -- MODEL 
 
+-- getTimeNow : Cmd Msg
+-- getTimeNow = 
+--     Task.perform NewTime Time.now
+
 init : List Int -> ( Model, Cmd Msg )
 init  list =
     let
@@ -1119,7 +1125,12 @@ init  list =
         firstModel = { initModel | width = wd, windowWidth = winWd }
     in
     
-    ( firstModel, Cmd.batch [ requestOffice "currentOffice", Cmd.none ] )
+    ( firstModel
+    , Cmd.batch 
+        [ requestOffice "currentOffice"
+        , Task.perform Tick Time.now 
+        ] 
+    )
 
 -- REQUEST PORTS
 
@@ -1169,6 +1180,7 @@ subscriptions model =
         , receivedAllCanticles UpdateAllCanticles
         , receivedOfficeCanticles UpdateOfficeCanticles
         , receivedNewCanticle UpdateOneOfficeCanticle
+        , Time.every 1000 Tick
         ]
 
 serviceToString : Service -> String
@@ -1196,6 +1208,9 @@ serviceTitle s =
 
 type Msg 
     = NoOp
+    | Tick Time.Posix
+    | NewTimer String Int Time.Posix
+    | FinishedTimers (List Timer)
     | GotSrc (Result Http.Error String)
     | UpdateOption Options
     | ClickOption String String Options
@@ -1241,6 +1256,41 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
+
+        Tick t -> 
+            let 
+                finishedTimers = model.timers
+                    |> takeWhile (\tx -> t |> timeIsAfter tx.end)
+                newTimers = model.timers
+                    |> dropWhile (\tx -> t |> timeIsAfter tx.end)
+            in
+            -- ({ model | time = t, timers = newTimers }, Task.perform FinishedTimers (Never finishedTimers) )
+            update (FinishedTimers finishedTimers) {model | time = t, timers = newTimers}
+
+        NewTimer name msec t ->
+            let
+                timeOut = t |> posixToMillis |> (+) msec |> millisToPosix
+                newTimers = model.timers
+                    |> dropWhile (\tx -> tx.id == name)
+                    |> (::) { id = name, end = timeOut}
+            in
+            ({model | timers = newTimers}, Cmd.none)
+
+        FinishedTimers list ->
+            let
+                h = list |> List.head
+                t = list |> List.tail |> Maybe.withDefault []
+                doThis = case h of
+                    Just job -> 
+                        case job.id of
+                            "status" -> -- ({model | online = ""}, Task.perform FinishedTimers (Never t) )
+                                update (FinishedTimers t) {model | online = ""}
+                            _ -> (model, Cmd.none)
+                    Nothing ->
+                        (model, Cmd.none)
+
+            in
+            doThis
 
         GotSrc result ->
             case result of
@@ -1333,7 +1383,7 @@ update msg model =
             (addNewLesson s model, Cmd.none)
 
         UpdateOnlineStatus s ->
-            ( {model | online = s}, Cmd.none )
+            ( {model | online = s}, Task.perform (NewTimer "status" 5000) Time.now )
 
         UpdateOpeningSentences l ->
             ( {model | openingSentences = l}, Cmd.none)
