@@ -290,19 +290,11 @@
 |> Lesson
     lesson1
 
-|> Versicals
-    BLANK The Word of the Lord.
-    People Thanks be to God.
-
 |> RandomCanticle
     for = lesson1
 
 |> Lesson
     lesson2
-
-|> Versicals
-    BLANK The Word of the Lord.
-    People Thanks be to God.
 
 |> RandomCanticle
     for = lesson2

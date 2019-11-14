@@ -400,7 +400,7 @@ canticleDecoder : Decoder Canticle
 canticleDecoder =
     Decode.succeed Canticle
     |> required "_id" string
-    |> required "officeId" string
+    |> optional "officeId" string "unknown"
     |> required "name" string
     |> required "title" string
     |> required "number" string
@@ -440,8 +440,30 @@ initTimer =
     , end = millisToPosix 0
     }
 
+type alias Device =
+    { readingCycle : String
+    , psalmsCycle : String
+    , fontSize : Int
+    }
+
+initDevice : Device
+initDevice =
+    { readingCycle = "OneYear"
+    , psalmsCycle = "ThirtyDay"
+    , fontSize = 14
+    }
+
+deviceDecoder : Decoder Device
+deviceDecoder =
+    Decode.succeed Device
+    |> required "readingCycle" string
+    |> required "psalmsCycle" string
+    |> required "fontSize" int
+
+
 type alias Model =
-    { windowWidth : Int
+    { config : Device
+    , windowWidth : Int
     , width : Int
     , time : Time.Posix
     , timers : List Timer
@@ -457,6 +479,7 @@ type alias Model =
     , year : String
     , season : (String, TempSeason)
     , color : String
+    , showConfig : Bool
     , showCalendar : Bool
     , showThisCalendarDay : Int
     , options : List Options
@@ -478,7 +501,8 @@ type alias Model =
 
 initModel : Model
 initModel =
-    { windowWidth = 375
+    { config = initDevice
+    , windowWidth = 375
     , width = 355 -- iphone minus 20
     , time = millisToPosix 0
     , timers = []
@@ -494,6 +518,7 @@ initModel =
     , year          = ""
     , season        = ("", initTempSeason)
     , color         = ""
+    , showConfig    = False
     , showCalendar  = False
     , showThisCalendarDay = -1
     , options       = []

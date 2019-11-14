@@ -18,9 +18,26 @@ import Models exposing (..)
 import Time exposing (..)
 
 
+addWordOfTheLord : List (Element msg) -> List (Element msg)
+addWordOfTheLord vss =
+    [ vss
+    ,   [ paragraph [ indent "6rem", paddingXY 10 0 ] [ text "The Word of the Lord" ]
+        , paragraph [ paddingXY 10 0 ] 
+            [ el [ ] ( text "People")
+            , el [ indent "3.2rem" ] ( text "Thanks be to God" )
+            ]
+        ]
+    ]
+    |> List.concat
+
 timeIsAfter : Posix -> Posix -> Bool
 timeIsAfter t1 t2 =
     (posixToMillis t2) > (posixToMillis t1)
+
+skipLesson2 : Model -> String -> Bool
+skipLesson2 model lesson =
+    model.config.readingCycle == "TwoYear" && (lesson == "lesson2" || lesson == "canticle2")
+
 isEven : Int -> Bool
 isEven n = 
     modBy 2 n == 0

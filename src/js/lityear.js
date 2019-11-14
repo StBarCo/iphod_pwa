@@ -138,6 +138,9 @@ secondMondayAfterEaster: function (moment_date) {
 ascension: function (moment_date) { 
   return this.easter(moment_date).add(39, 'days');
 },
+isAscension: function(moment_date) {
+  return moment_date.isSame(this.ascension(moment_date));
+},
 rightAfterAscension: function (moment_date) {
   var a = this.ascension(moment_date)
     , ascen = moment_date.isSameOrAfter(a)
@@ -150,6 +153,9 @@ sundayAfterAscension: function (moment_date) {
 },
 pentecost: function (moment_date, n) { 
   return this.easter(moment_date).add(n + 6, 'weeks') ;
+},
+isPentecost: function(moment_date) {
+  return moment_date.isSame(this.pentecost(moment_date));
 },
 trinity: function (moment_date) { 
   return this.pentecost(moment_date, 2) ;
@@ -196,11 +202,26 @@ lent: function (moment_date, n) {
 palmSunday: function (moment_date) { 
   return this.easter(moment_date).add( -1, 'weeks') ;
 },
+maundayThursday: function(moment_date) {
+  return this.easter(moment_date).add( -3, 'days');
+},
+isMaundyThursday: function(moment_date) {
+  return moment_date.isSame(this.maundayThursday(moment_date));
+},
 goodFriday: function (moment_date) { 
   return this.easter(moment_date).add( -2, 'days') ;
 },
 isGoodFriday: function (moment_date) { 
   return moment_date.isSame(this.goodFriday(moment_date)) ;
+},
+holySaturday: function (moment_date) {
+  return this.easter(moment_date).add( -1, 'days');
+},
+isHolySaturday: function (moment_date) {
+  return moment_date.isSame(this.holySaturday(moment_date));
+},
+isEasterDay: function(moment_date)  {
+  return moment_date.isSame(this.easter(moment_date));
 },
 makeIphodKey: function(season, week, year) {
   return season + week + year;
@@ -568,31 +589,6 @@ holyDay: function (moment_date) {
 
 },
 
-// nextHolyDay: function (moment_date) {
-//   var now = moment_date.clone()
-//     , keys = Object.keys(rlds)
-//     , key = undefined
-//     , last_key = keys[keys.length - 1]
-//     , yr = now.year()
-//     , m_d = now.format(mdFormat) // month_day
-//     ;
-// 
-//   for (var i = 0; i < keys.length; i++) {
-//     if ( m_d < keys[i]) {
-//       key = keys[i];
-//       break;
-//     }
-//   }
-//   // if this loop falls through then the date is 12/29 - 12/30
-//   // and the next RLD is the first in the list
-//   if (key === undefined) {
-//     yr += 1;
-//     key = keys[0];
-//   }
-//   return [moment(yr + "-" + key), rlds[key].id ];
-// 
-// },
-
 namedDayDate: function (name, moment_date, wk) {
   var yr = this.thisYear(moment_date);
   switch (name) {
@@ -605,6 +601,26 @@ namedDayDate: function (name, moment_date, wk) {
     case "easterWeek":      return this.easter(moment_date).add( wk, 'days');
     default:                return moment_date;
   }
+},
+
+thirtyDayKey: function(moment_date) {
+  var key = this.specialPsalmDay(moment_date);
+  return key ? key : moment_date.date();
+},
+
+sixtyDayKey: function(moment_date) {
+  var key = this.specialPsalmDay( moment_date );
+  return key ? key : moment_date.format("M/D");
+},
+
+specialPsalmDay:function(moment_date)  {
+  if ( this.isMaundyThursday(moment_date) ) return "maundy_thursday"; 
+  if ( this.isGoodFriday(moment_date) ) return "good_friday"; 
+  if ( this.isHolySaturday(moment_date) ) return "holy_saturday"; 
+  if ( this.isEasterDay(moment_date) ) return "easter_day"; 
+  if ( this.isAscension(moment_date) ) return "ascension"; 
+  if ( this.isPentecost(moment_date) ) return "pentecost"; 
+  return false;
 },
 
 translateFromSunday: function (moment_date) { 

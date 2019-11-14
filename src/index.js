@@ -9,6 +9,8 @@ window.app = Elm.Main.init({
 
 registerServiceWorker();
 
+// axios is an HTTP lib, used for accessing the ESV API
+// thought you'd like to know
 import axios from 'axios';
 axios.defaults.headers.common['Authorization'] = "Token 77f1ef822a19e06867cf335a168713f9d2159bfc";
 
@@ -25,8 +27,48 @@ var receivedLesson = undefined
   , receivedAllCanticles = undefined
   , receivedOfficeCanticles = undefined
   , receivedNewCanticle = undefined
+  , receivedConfig = undefined
   , newWidth = undefined
+  , CurrentPage = undefined
+  , Config = 
+    { _id: "config"
+    , readingCycle: "OneYear"
+    , psalmsCycle: "ThirtyDay"
+    , fontSize: 14 
+    };
+// for global configuration access, set later
   ;
+
+// Config helpers ...
+function skipSecondLesson(lesson) {
+  return (lesson === "lesson2" && twoYearCycle() )
+}
+
+function twoYearCycle() { return Config.readingCycle === "TwoYear"}
+function oneYearCycle() { return Config.readingCycle === "OneYear"}
+function thirtyDayCycle() { return Config.psalmsCycle === "ThirtyDay"}
+function sixtyDayCycle() { return Config.psalmsCycle === "SixtyDay"}
+
+function twoYearKey(office) {
+  var officeYear = office + (moment().year() % 2);
+  switch (officeYear) {
+    case "morning_prayer0":
+    case "mp0": return "mp1";
+      break;
+    case "morning_prayer1":
+    case "mp1": return "ep1";
+      break;
+    case "evening_prayer0":
+    case "ep0": return "mp2";
+      break;
+    case "evening_prayer1":
+    case "ep1": return "ep2";
+      break;
+    default: return undefined;
+  }
+}
+
+// end of Config helpers
 
 
 // // var popper = require('popper.js');
@@ -47,15 +89,16 @@ Pouchdb.plugin(PouchFind);
 window.pdb = Pouchdb; // remove this for production
 var preferences = new Pouchdb('preferences');
 var iphod = new Pouchdb('iphod')
-var service = new Pouchdb('service')
+var service = new Pouchdb('service') // for production
 var psalms = new Pouchdb('psalms')
 var lectionary = new Pouchdb('lectionary')
 var prayerList = new Pouchdb('prayerList'); // never replicate!
+var config = new Pouchdb('config'); // never replicate!
 var canticles = new Pouchdb('canticles');
 var occasional_prayers = new Pouchdb('occasional_prayers');
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://legereme.com/couchdb/iphod"
-  //, remoteServiceURL =    "https://legereme.com/couchdb/service_dev" // for development
+  // , remoteServiceURL =    "https://legereme.com/couchdb/service_dev" // for development
   , remoteServiceURL =    "https://legereme.com/couchdb/service" // for production
   , remotePsalmsURL =     "https://legereme.com/couchdb/psalms"
   , remoteLectionaryURL = "https://legereme.com/couchdb/lectionary"
@@ -98,13 +141,14 @@ window.onload = ( function() {
   receivedAllCanticles = app.ports.receivedAllCanticles
   receivedOfficeCanticles = app.ports.receivedOfficeCanticles
   receivedNewCanticle = app.ports.receivedNewCanticle
+  receivedConfig = app.ports.receivedConfig
   newWidth = app.ports.newWidth;
-
   // onlineStatus.send( "All Ready");
   // requestOffice('currentOffice')
   iphod.info().then( function(resp) {
     if (resp.doc_count > 0) { sync(); } // this test makes no sense, explain?
   })
+
 }) // end of window.onload
 
 
@@ -122,7 +166,7 @@ lectionary.info()
 
 // sync can hold things up unless you sync one at a time
 function sync() {
-  // return; // remove after you figure out the problem
+  if (!isOnline) return send_status("Offline")
   send_status("Syncing Iphod")
   iphod.replicate.from(remoteIphod)
   .on("complete", function(){
@@ -170,7 +214,7 @@ var esvOK = navigator.onLine; // false because don't have key yet
 // window.addEventListener('offline', updateOnlineIndicator() );  // only on Firefox
 function updateOnlineIndicator() {
   isOnline = navigator.onLine;
-  onlineStatus.send( isOnline ? "" : "off line")
+  send_status( isOnline ? "" : "off line")
   return isOnline
 }
 
@@ -283,6 +327,7 @@ function get_service(named, dbs) {
     .then ( function(resp) {
       pageTops = []; // global, reset with new service
       service_response(named, resp);
+      get_config();
       get_prayer_list();
       sync();
     })
@@ -468,6 +513,7 @@ app.ports.requestOffice.subscribe( r => { requestOffice(r) });
 
 function requestOffice(request, dbs) {
   var now = new moment().local();
+  CurrentPage = request;
   switch (request) {
     case "currentOffice": 
      // redirect to correct office based on local time
@@ -480,7 +526,7 @@ function requestOffice(request, dbs) {
       else if ( now.isBefore(ep) ) { co = "midday" }
       else if ( now.isBefore(cmp) ) { co = "evening_prayer" }
       else { co = "compline" }
-      
+      CurrentPage = co
       get_service(co, [remoteService, service]);
       get_office_canticles(co, [remoteCanticles, canticles]);
       break;
@@ -514,6 +560,28 @@ function requestOffice(request, dbs) {
       get_office_canticles(request, [remoteCanticles, canticles]);
   };
 };
+
+
+function get_config() {
+  config.get('config')
+  .then( resp => {
+    Config = resp
+    receivedConfig.send( Json.stringify( Config ))
+  })
+  .catch( err => {
+    init_config();
+  })
+}
+
+function init_config() {
+  config.put( Config )
+  .then( resp => {
+    receivedConfig.send(JSON.stringify( Config) )
+  })
+  .catch( err => {
+    console.log("Config DB error: ", err)
+  })
+}
 
 function getOccasionalPrayers(key, dbs, callback) {
   var thisOPsDB = dbs.pop();
@@ -623,6 +691,32 @@ app.ports.toggleButtons.subscribe(  function(request) {
   $("#" + section_id).show(); // show the selected alternative
 })
 
+app.ports.saveConfig.subscribe( thisConfig => {
+  config.get('config')
+  .then( resp => {
+    resp.readingCycle = thisConfig.readingCycle;
+    resp.psalmsCycle = thisConfig.psalmsCycle;
+    resp.fontSize = thisConfig.fontSize;
+    config.put( resp );
+    // check Config to see what changed
+    // then set Config to current DB config
+    // and update the psalms or the readings as appropriate
+    // only one will change at a time
+    if (thisConfig.psalmsCycle != Config.psalmCycle) {
+      Config = resp;
+      insertPsalms(CurrentPage);
+    }
+    if (thisConfig.readingCycle != Config.readingCycle) {
+      Config = resp;
+      request_lessons( CurrentPage, moment() )
+    }
+  })
+  .catch( err => {
+    console.log("Config DB error on saving: ", err)
+  })
+
+})
+
 app.ports.requestReference.subscribe(  function(request) {
   var [id, ref] = request
     , keys = BibleRef.dbKeys(ref)
@@ -703,13 +797,13 @@ function request_lessons(request, today) {
     }
     , office = offices[request]
     ;
-  if ( office ) { 
-    var mpepKey = LitYear.toSeason(today).mpepKey
-    insertPsalms( office, "office" )
-    insertLesson( "lesson1", office, mpepKey, "office" )
+  if ( !office ) return undefined;
+  var mpepKey = LitYear.toSeason(today).mpepKey
+  insertPsalms( office, "office" )
+  insertLesson( "lesson1", office, mpepKey, "office" )
+  if ( oneYearCycle() ) {
     insertLesson( "lesson2", office, mpepKey, "office" )
   }
-  // otherwise, don't do anything
 }
 
 function insertLesson(lesson, office, key, spa_location) {
@@ -750,9 +844,12 @@ function getLectionary(key, dbs, callback) {
   })
 }
 function get_from_lectionary_db(office, lesson, mpepKey, spa_location) {
-  getLectionary(mpepKey, [remoteLectionary, lectionary], (resp =>{
+  if ( skipSecondLesson(lesson) ) return undefined;
+  getLectionary(mpepKey, [remoteLectionary, lectionary], (resp => {
     // first db to check is at end of list
-    var lessonKeys = resp[office + lesson.substr(-1)];
+    var lessonKeys = twoYearCycle() 
+      ? resp[ twoYearKey(office) ]
+      : resp[office + lesson.substr(-1)];
     get_from_scripture_db([ iphod, 'esv'], office, lesson, lessonKeys, spa_location); 
   }) )
 }
@@ -863,17 +960,27 @@ function insertEucharistPsalms(spa_location, key) {
 }
 
 function insertPsalms(office) {
-  var mpep = undefined
-    , dayOfMonth = moment().date()
+  var mpep = false
+    , now = moment()
     ;
   switch (office) {
     case "evening_prayer" :
     case "ep" : mpep = "ep"; break;
-    default : // morning_prayer, "mp"
-      mpep = "mp";
+    case "morning_prayer":
+    case "mp": mpep = "mp"; break;
   }
-  var psalmRefs = DailyPsalms.dailyPsalms[dayOfMonth][mpep]
-  allPsalms(psalmRefs);
+  if (!mpep) return undefined;
+  Config.psalmsCycle === "SixtyDay"
+    ? sixtyDayPsalmCycle(mpep, LitYear.sixtyDayKey(now))
+    : thirtyDayPsalmCycle(mpep, LitYear.thirtyDayKey(now))
+}
+
+function thirtyDayPsalmCycle(office, key) {
+  allPsalms( DailyPsalms.dailyPsalms[key][office] );
+}
+
+function sixtyDayPsalmCycle(office, key) {
+  allPsalms( DailyPsalms.dailyPsalms60Day[key][office])
 }
 
 function allPsalms(psalmRefs, spa_location) {
@@ -997,10 +1104,11 @@ function request_canticles(canticles, dbs) {
 function get_office_canticles( office, dbs ) {
   // carry on if mp or ep
   if ( !(office === "morning_prayer" || office === "evening_prayer") ) { return; }
-  var names = [ get_invitatory(office)
-              , get_canticle(office, "lesson1")
-              , get_canticle(office, "lesson2")
-              ]
+  var names = 
+      [ get_invitatory(office)
+      , get_canticle(office, "lesson1")
+      , get_canticle(office, "lesson2")
+      ]
     , cants = []
     , officeIds = [ "invitatory", "lesson1", "lesson2"]
   names.forEach( (el, i) => {
@@ -1046,9 +1154,16 @@ function get_invitatory(office) {
 }
 
 function get_canticle(office, lesson) {
+  if ( skipSecondLesson(lesson) ) return undefined;
 
   office = office === "morning_prayer" ? "mp" : "ep";
-  lesson = lesson === "lesson1" ? office + "1" : office + "2";
+  if ( twoYearCycle() ) {
+    lesson = twoYearKey(office)
+  } 
+  else {
+    lesson = lesson === "lesson1" ? office + "1" : office + "2";
+  }
+  
   var now = new moment();
   var season = LitYear.toSeason(now).season;
   var day = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][now.day()]; 

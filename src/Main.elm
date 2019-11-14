@@ -236,7 +236,9 @@ randomCanticle =
                Just c -> c
                Nothing -> initCanticle
         in
-        renderCanticle cant model.width
+        if skipLesson2 model officeId
+            then none
+            else renderCanticle cant model.width
     )
     |> Mark.field "for" Mark.string
     |> Mark.toBlock
@@ -628,41 +630,138 @@ showMenu bool =
 
 menuOptions : Model -> Element Msg
 menuOptions model =
-    row []
-    [ column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0 ]
-        [ clickOption "calendar" "Calendar"
-        , clickOption "morning_prayer" "Morning Prayer"
-        , clickOption "midday" "Midday Prayer"
-        , clickOption "evening_prayer" "Evening Prayer"
-        , clickOption "compline" "Compline"
-        , clickOption "family" "Family Prayer"
-        , clickOption "reconciliation" "Reconciliation"
-        , clickOption "toTheSick" "To the Sick"
-        , clickOption "communionToSick" "Communion to Sick"
-        , clickOption "timeOfDeath" "Time of Death"
-        , clickOption "vigil" "Prayer for a Vigil"
+    let 
+        showConfig = if model.showConfig
+            then renderConfig model
+            else none
+    in
+    column []
+        [ row []
+            [ column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
+                [ clickOption "calendar" "Calendar"
+                , clickOption "morning_prayer" "Morning Prayer"
+                , clickOption "midday" "Midday Prayer"
+                , clickOption "evening_prayer" "Evening Prayer"
+                , clickOption "compline" "Compline"
+                , clickOption "family" "Family Prayer"
+                , clickOption "reconciliation" "Reconciliation"
+                , clickOption "toTheSick" "To the Sick"
+                , clickOption "communionToSick" "Communion to Sick"
+                , clickOption "timeOfDeath" "Time of Death"
+                , clickOption "vigil" "Prayer for a Vigil"
+                ]
+            , column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
+                [ clickOption "prayerList" "Prayer List"
+                , clickOption "occasionalPrayers" "Occasional Prayers"
+                , clickOption "canticles" "Canticles"
+                , clickOption "about" "About"
+                , clickOption "sync" "How to Install"
+                , clickOption "sync" "Update Database"
+                , clickOption "about" "Contact"
+                , clickOption "angChurchChat" "Church Chat"
+                , clickOption "config" "Config"
+                ]
+            ]
+        , showConfig
         ]
-    , column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
-        [ clickOption "prayerList" "Prayer List"
-        , clickOption "occasionalPrayers" "Occasional Prayers"
-        , clickOption "canticles" "Canticles"
-        , clickOption "about" "About"
-        , clickOption "sync" "How to Install"
-        , clickOption "sync" "Update Database"
-        , clickOption "about" "Contact"
-        , clickOption "angChurchChat" "Join Anglican Church Chat"
-        ]
-    ]
     
+renderConfig : Model -> Element Msg
+renderConfig model =
+    column 
+        [ Palette.scaleWidth model.width 300
+        , Border.width 2
+        , Border.rounded 4
+        , Border.glow Palette.darkGrey 5.0
+        , padding 20
+        , centerX
+        , Background.color Palette.foggy
+        ]
+        [ paragraph [] 
+            [ Input.radioRow
+                [ padding 10
+                , spacing 20
+                ]
+                { onChange = Configure
+                , selected = Just model.config.readingCycle
+                , label = Input.labelAbove [] (text "Reading Cycle")
+                , options =
+                    [ Input.option "OneYear" (text "One Year")
+                    , Input.option "TwoYear" (text "Two Year")
+                    ]
+                }
+            ]
+        , paragraph []
+            [ Input.radioRow
+                [ padding 10
+                , spacing 20
+                ]
+                { onChange = Configure
+                , selected = Just model.config.psalmsCycle
+                , label = Input.labelAbove [] (text "Psalm Cycle")
+                , options =
+                    [ Input.option "ThirtyDay" (text "30 Day")
+                    , Input.option "SixtyDay" (text "60 Day")
+                    ]
+                }
+            ]
+        , row [] 
+            [ column [] 
+                [ Input.slider
+                    [ Element.height (Element.px 30)
+
+                    -- Here is where we're creating/styling the "track"
+                    , Element.behindContent
+                        (Element.el
+                            [ Element.width Element.fill
+                            , Element.height (Element.px 2)
+                            , Element.centerY
+                            , Background.color Palette.darkGrey
+                            , Border.rounded 2
+                            ]
+                            Element.none
+                        )
+                    ]
+                    { onChange = round >> AdjustFont
+                    , label =
+                        Input.labelAbove []
+                            (text "Font Size")
+                    , min = 4
+                    , max = 24
+                    , step = Just 1
+                    , value = toFloat model.config.fontSize
+                    , thumb =
+                        Input.defaultThumb
+                    }
+                ]
+            , column []
+                [ el [  Palette.scaleFont model.width model.config.fontSize ] 
+                    ( text "Font Size")
+                ]
+            ]
+        ]
+
 
 lesson : Mark.Block (Model -> Element Msg)
 lesson =
     Mark.block "Lesson"
         (\request model ->
             let
-                thisLesson = case request |> String.trim of
+                thisRequest = request |> String.trim
+                thisIntro = 
+                    if skipLesson2 model thisRequest
+                        then
+                            [ none ]
+                        else
+                            [ paragraph (Palette.lessonTitle model.width) [ text "A Reading From..." ] ]
+
+                thisLesson = case thisRequest of
                     "lesson1" -> showLesson model.lessons.lesson1.content model.width
-                    "lesson2" -> showLesson model.lessons.lesson2.content model.width
+                    "lesson2" -> 
+                        if skipLesson2 model thisRequest
+                            then
+                                [ none ]
+                            else
+                                showLesson model.lessons.lesson2.content model.width
                     "psalms"  -> showPsalms model.lessons.psalms.content model.width
                     "gospel"  -> showLesson model.lessons.gospel.content model.width
                     _         -> [none]
@@ -671,7 +770,7 @@ lesson =
             
             column (Palette.lesson model.width)
             ( List.concat
-                [ [ paragraph (Palette.lessonTitle model.width) [ text "A Reading From..." ] ]
+                [ thisIntro
                 , thisLesson
                 ]
             )
@@ -784,7 +883,7 @@ versesFromLesson width readings =
             )
 
     in
-    vss
+    addWordOfTheLord vss
     
 
 
@@ -1146,6 +1245,7 @@ port toggleButtons : (List String) -> Cmd msg
 port changeMonth : (String, Int, Int) -> Cmd msg
 port prayerListDB : (List String) -> Cmd msg
 port swipeLeftRight : String -> Cmd msg
+port saveConfig : Models.Device -> Cmd msg
 
 
 -- SUBSCRIPTIONS
@@ -1163,6 +1263,7 @@ port onlineStatus : (String -> msg) -> Sub msg
 port receivedAllCanticles : (String -> msg) -> Sub msg
 port receivedOfficeCanticles : (String -> msg) -> Sub msg
 port receivedNewCanticle : (String -> msg) -> Sub msg
+port receivedConfig : (String -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -1180,6 +1281,7 @@ subscriptions model =
         , receivedAllCanticles UpdateAllCanticles
         , receivedOfficeCanticles UpdateOfficeCanticles
         , receivedNewCanticle UpdateOneOfficeCanticle
+        , receivedConfig UpdateConfig
         , Time.every 1000 Tick
         ]
 
@@ -1208,6 +1310,9 @@ serviceTitle s =
 
 type Msg 
     = NoOp
+    | Configure String
+    | UpdateConfig String
+    | AdjustFont Int
     | Tick Time.Posix
     | NewTimer String Int Time.Posix
     | FinishedTimers (List Timer)
@@ -1257,6 +1362,54 @@ update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
 
+        Configure opt ->
+            let
+                config = model.config
+                lessons = model.lessons
+                newModel = case opt of
+                    "OneYear" ->
+                        let
+                            newConfig = { config | readingCycle = opt }
+                            
+                        in
+                        { model | config = newConfig}
+                    "TwoYear" ->
+                        let
+                            newConfig = { config | readingCycle = opt }
+                            newLessons = { lessons | lesson2 = initLesson }
+                        in
+                        { model | config = newConfig, lessons = newLessons }
+                    "ThirtyDay" ->
+                        let
+                            newConfig = { config | psalmsCycle = opt }
+                        in
+                        { model | config = newConfig }
+                    "SixtyDay" ->
+                        let
+                            newConfig = { config | psalmsCycle = opt }
+                        in
+                        { model | config = newConfig }
+                    _ -> model
+            in
+            ( newModel, saveConfig newModel.config)
+
+        UpdateConfig json ->
+            let
+                newModel = case Decode.decodeString deviceDecoder json of
+                    Ok c ->
+                        { model | config = c }
+                    _ ->
+                        model
+            in
+            (newModel, Cmd.none)
+
+        AdjustFont i ->
+            let
+                config = model.config
+                newConfig = { config | fontSize = i }
+            in
+            ( { model | config = newConfig }, saveConfig newConfig)
+
         Tick t -> 
             let 
                 finishedTimers = model.timers
@@ -1264,7 +1417,6 @@ update msg model =
                 newTimers = model.timers
                     |> dropWhile (\tx -> t |> timeIsAfter tx.end)
             in
-            -- ({ model | time = t, timers = newTimers }, Task.perform FinishedTimers (Never finishedTimers) )
             update (FinishedTimers finishedTimers) {model | time = t, timers = newTimers}
 
         NewTimer name msec t ->
@@ -1280,7 +1432,7 @@ update msg model =
             let
                 h = list |> List.head
                 t = list |> List.tail |> Maybe.withDefault []
-                doThis = case h of
+                updateThis = case h of
                     Just job -> 
                         case job.id of
                             "status" -> -- ({model | online = ""}, Task.perform FinishedTimers (Never t) )
@@ -1290,7 +1442,7 @@ update msg model =
                         (model, Cmd.none)
 
             in
-            doThis
+            updateThis
 
         GotSrc result ->
             case result of
@@ -1404,9 +1556,14 @@ update msg model =
             ( newModel, Cmd.none )
                     
         Office o ->
-            ( { model | showMenu = False}
-            , Cmd.batch [requestOffice o, Cmd.none] 
-            )
+            let
+                updateThis = case o of
+                    "config" ->
+                        ( { model | showConfig = not model.showConfig }, Cmd.none )
+                    _ ->
+                        ( { model | showMenu = False, showConfig = False }, requestOffice o)
+            in
+            updateThis
 
         AltButton altDiv buttonLabel ->
             (model, Cmd.batch [toggleButtons [altDiv, buttonLabel], Cmd.none] )  
@@ -1463,7 +1620,7 @@ update msg model =
             (model, Cmd.batch [changeMonth (toWhichMonth, month, year), Cmd.none] ) 
 
         ToggleMenu ->
-            ( { model | showMenu = not model.showMenu }, Cmd.none )
+            ( { model | showMenu = not model.showMenu, showConfig = False }, Cmd.none )
 
         NewWidth i ->
             ( { model 
