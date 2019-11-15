@@ -220,7 +220,7 @@ lessonTitle : Int -> List (Attribute msg)
 lessonTitle viewWidth =
     [ Font.color darkBlue
     , Font.variant Font.smallCaps
-    , scaleFont viewWidth 16
+    , scaleFont viewWidth 20
     , paddingEach { top = 10, right = 0, bottom = 5, left = 10}
     ]
 

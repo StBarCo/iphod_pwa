@@ -154,6 +154,7 @@ type alias Lesson =
     { lesson: String
     , content: List Reading 
     , spa_location: String
+    , bookName: String
     }
 
 initLesson : Lesson
@@ -161,6 +162,7 @@ initLesson =
     { lesson = ""
     , content = [] 
     , spa_location = ""
+    , bookName = ""
     }
 
 lessonDecoder : Decoder Lesson
@@ -169,6 +171,7 @@ lessonDecoder =
     |> optional "lesson" string ""
     |> required "content" (Decode.list readingDecoder)
     |> optional "spa_location" string "office"
+    |> optional "bookName" string ""
 
 
 type alias Lessons =

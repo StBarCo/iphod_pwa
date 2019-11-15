@@ -747,13 +747,6 @@ lesson =
         (\request model ->
             let
                 thisRequest = request |> String.trim
-                thisIntro = 
-                    if skipLesson2 model thisRequest
-                        then
-                            [ none ]
-                        else
-                            [ paragraph (Palette.lessonTitle model.width) [ text "A Reading From..." ] ]
-
                 thisLesson = case thisRequest of
                     "lesson1" -> showLesson model.lessons.lesson1.content model.width
                     "lesson2" -> 
@@ -770,7 +763,7 @@ lesson =
             
             column (Palette.lesson model.width)
             ( List.concat
-                [ thisIntro
+                [ readingIntroduction model thisRequest
                 , thisLesson
                 ]
             )
@@ -1993,7 +1986,7 @@ view model =
                         layout
                         ( 
                             [ Html.Attributes.style "overflow" "hidden" |> htmlAttribute
-                            , Palette.scaleFont model.width 14
+                            , Palette.scaleFont model.width model.config.fontSize
                             , Font.family [ Font.typeface "Georgia"]
                             ] 
                             ++ Palette.swipe (onSwipeEvents PageSwipe)

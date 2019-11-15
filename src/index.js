@@ -44,28 +44,23 @@ function skipSecondLesson(lesson) {
   return (lesson === "lesson2" && twoYearCycle() )
 }
 
-function twoYearCycle() { return Config.readingCycle === "TwoYear"}
-function oneYearCycle() { return Config.readingCycle === "OneYear"}
-function thirtyDayCycle() { return Config.psalmsCycle === "ThirtyDay"}
-function sixtyDayCycle() { return Config.psalmsCycle === "SixtyDay"}
+function twoYearCycle() { return (Config.readingCycle === "TwoYear") }
+function oneYearCycle() { return (Config.readingCycle === "OneYear")}
+function thirtyDayCycle() { return (Config.psalmsCycle === "ThirtyDay")}
+function sixtyDayCycle() { return (Config.psalmsCycle === "SixtyDay")}
 
 function twoYearKey(office) {
   var officeYear = office + (moment().year() % 2);
-  switch (officeYear) {
-    case "morning_prayer0":
-    case "mp0": return "mp1";
-      break;
-    case "morning_prayer1":
-    case "mp1": return "ep1";
-      break;
-    case "evening_prayer0":
-    case "ep0": return "mp2";
-      break;
-    case "evening_prayer1":
-    case "ep1": return "ep2";
-      break;
-    default: return undefined;
-  }
+    return { 
+      morning_prayer0: "mp1"
+    , mp0: "mp1"
+    , morning_prayer1: "ep1"
+    , mp1: "ep1"
+    , evening_prayer0: "mp2"
+    , ep0: "mp2"
+    , evening_prayer1: "ep2"
+    , ep1: "ep2"
+    }[officeYear]; 
 }
 
 // end of Config helpers
@@ -872,14 +867,24 @@ function get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location) {
     return Promise.all( allPromises )
       .then( function(resp) {
         var thisLesson = [];
+        var bookName = BibleRef.bookTitle(resp[0].rows[0].doc.book)
         resp.forEach( function(r, i) {
           thisLesson[i] =
             { ref: keys[i].ref
             , style: keys[i].style
             , vss: r.rows.map( function(el) { return el.doc } )
             }
+            
         })
-        receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson, spa_location: spa_location}) );
+        receivedLesson.send( 
+          JSON.stringify(
+            { lesson: lesson
+            , content: thisLesson
+            , spa_location: spa_location
+            , bookName: bookName
+            }
+          ) 
+        );
       })
       .catch( function(err) {
         if ( dbs.length > 0 ) {  get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location) }
@@ -962,13 +967,12 @@ function insertEucharistPsalms(spa_location, key) {
 function insertPsalms(office) {
   var mpep = false
     , now = moment()
-    ;
-  switch (office) {
-    case "evening_prayer" :
-    case "ep" : mpep = "ep"; break;
-    case "morning_prayer":
-    case "mp": mpep = "mp"; break;
-  }
+    , mpep =
+      { evening_prayer: "ep"
+      , ep: "ep"
+      , morning_prayer: "mp"
+      , mp: "mp"
+      }[office]
   if (!mpep) return undefined;
   Config.psalmsCycle === "SixtyDay"
     ? sixtyDayPsalmCycle(mpep, LitYear.sixtyDayKey(now))
@@ -1157,12 +1161,7 @@ function get_canticle(office, lesson) {
   if ( skipSecondLesson(lesson) ) return undefined;
 
   office = office === "morning_prayer" ? "mp" : "ep";
-  if ( twoYearCycle() ) {
-    lesson = twoYearKey(office)
-  } 
-  else {
-    lesson = lesson === "lesson1" ? office + "1" : office + "2";
-  }
+  lesson = lesson === "lesson1" ? office + "1" : office + "2";
   
   var now = new moment();
   var season = LitYear.toSeason(now).season;
@@ -1170,58 +1169,56 @@ function get_canticle(office, lesson) {
   var canticle = undefined;
   var key1 = lesson + "_" + season + "_" + day;
   var key2 = lesson + "_" + day;
-  switch (key1) {
-    case "mp1_advent_sun" : canticle = "surge_illuminare"; break;
-    case "mp1_easter_sun" :
-    case "mp1_easter_thu" : canticle = "cantemus domino"; break;
-    case "mp1_easter_fri" : canticle = "cantate domino"; break;
-    case "mp1_easterWeek_fri" : canticle = "te_deum"; break;
-    case "mp1_lent_sun" :
-    case "mp1_lent_wed" :
-    case "mp1_lent_fri" :
-    case "mp1_ashWednesday_sun" :
-    case "mp1_ashWednesday_wed" :
-    case "mp1_ashWednesday_fri" : canticle = "kyrie_pantokrator"; break;
-    case "mp2_advent_sun" : canticle = "benedictus"; break;
-    case "mp2_advent_thu" : canticle = "magna_et_mirabilia"; break;
-    case "mp2_lent_sun" :
-    case "mp2_lent_fri" :
-    case "mp2_ashWednesday_sun" :
-    case "mp2_ashWednesday_fri" : canticle = "benedictus"; break;
-    case "mp2_ashWednesday_tue" :
-    case "mp2_lent_tue" : canticle = "deus_misereatur"; break;
-    case "mp2_lent_thu" :
-    case "mp2_ashWednesday_thu" : canticle = "magna_et_mirabilia"; break;
-    default: switch(key2) {
-      case "mp1_sun" : canticle = "benedictus"; break;
-      case "mp1_mon" : canticle = "ecce_deus"; break;
-      case "mp1_tue" : canticle = "benedictus_es_domine"; break;
-      case "mp1_wed" : canticle = "surge_illuminare"; break;
-      case "mp1_thu" : canticle = "deus_misereatur"; break;
-      case "mp1_fri" : canticle = "quaerite_dominum"; break;
-      case "mp1_sat" : canticle = "benedicite_omnia_opera_domini"; break;
-      case "mp2_sun" : canticle = "te_deum_laudamus"; break;
-      case "mp2_mon" : canticle = "magna_et_mirabilia"; break;
-      case "mp2_tue" : canticle = "dignus_es"; break;
-      case "mp2_wed" : canticle = "benedictus"; break;
-      case "mp2_thu" : canticle = "gloria_in_excelsis"; break;
-      case "mp2_fri" : canticle = "dignus_es";
-      case "mp2_sat" : canticle = "magna_et_mirabilia"; break;
-      case "ep1_sun" :
-      case "ep1_mon" :
-      case "ep1_tue" :
-      case "ep1_wed" :
-      case "ep1_thu" :
-      case "ep1_fri" :
-      case "ep1_sat" : canticle = "magnificat"; break;
-      case "ep2_sun" :
-      case "ep2_mon" :
-      case "ep2_tue" :
-      case "ep2_wed" :
-      case "ep2_thu" :
-      case "ep2_fri" :
-      case "ep2_sat" : canticle = "nunc_dimittis"; break;
+  var canticles =
+    { mp1_advent_sun: "surge_illuminare"
+    , mp1_easter_sun: "domino"
+    , mp1_easter_thu: "domino"
+    , mp1_easter_fri: "domino"
+    , mp1_easterWeek_fri: "te_deum"
+    , mp1_lent_sun: "kyrie_pantokrator"
+    , mp1_lent_wed: "kyrie_pantokrator"
+    , mp1_lent_fri: "kyrie_pantokrator"
+    , mp1_ashWednesday_sun: "kyrie_pantokrator"
+    , mp1_ashWednesday_wed: "kyrie_pantokrator"
+    , mp1_ashWednesday_fri: "kyrie_pantokrator"
+    , mp2_advent_sun: "benedictus"
+    , mp2_advent_thu: "magna_et_mirabilia"
+    , mp2_lent_sun: "benedictus"
+    , mp2_lent_fri: "benedictus"
+    , mp2_ashWednesday_sun: "benedictus"
+    , mp2_ashWednesday_fri: "benedictus"
+    , mp2_ashWednesday_tue: "deus_misereatur"
+    , mp2_lent_tue: "deus_misereatur"
+    , mp2_lent_thu: "magna_et_mirabilia"
+    , mp2_ashWednesday_thu: "magna_et_mirabilia"
+    , mp1_sun: "benedictus"
+    , mp1_mon: "ecce_deus"
+    , mp1_tue: "benedictus_es_domine"
+    , mp1_wed: "surge_illuminare"
+    , mp1_thu: "deus_misereatur"
+    , mp1_fri: "quaerite_dominum"
+    , mp1_sat: "benedicite_omnia_opera_domini"
+    , mp2_sun: "te_deum_laudamus"
+    , mp2_mon: "magna_et_mirabilia"
+    , mp2_tue: "dignus_es"
+    , mp2_wed: "benedictus"
+    , mp2_thu: "gloria_in_excelsis"
+    , mp2_fri: "dignus_es"
+    , mp2_sat: "magna_et_mirabilia"
+    , ep1_sun: "magnificat"
+    , ep1_mon: "magnificat"
+    , ep1_tue: "magnificat"
+    , ep1_wed: "magnificat"
+    , ep1_thu: "magnificat"
+    , ep1_fri: "magnificat"
+    , ep1_sat: "magnificat"
+    , ep2_sun: "nunc_dimittis"
+    , ep2_mon: "nunc_dimittis"
+    , ep2_tue: "nunc_dimittis"
+    , ep2_wed: "nunc_dimittis"
+    , ep2_thu: "nunc_dimittis"
+    , ep2_fri: "nunc_dimittis"
+    , ep2_sat: "nunc_dimittis"
     }
-  }
-  return canticle;
+  return canticles[key1] ? canticles[key1] : canticles[key2];
 }

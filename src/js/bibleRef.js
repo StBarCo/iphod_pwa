@@ -335,6 +335,10 @@ function lessonTitle(book, chap, from, to) {
   return book_title[bookName[book.toLowerCase()]] + " " + chap + ":" + from + "-" + to
 }
 
+function bookTitle(abrv) {
+  return book_title[getKeyByValue(web_names, abrv)]
+}
+
 function lessonTitleFromKeys(keyFrom, keyTo) {
     // assumption - lessons never span books
     var bookKey = parseInt( keyFrom.substr(-8, 2).replace(/[a-zA-Z]/g, "") ) * 1000000
@@ -360,4 +364,5 @@ module.exports =
   { dbKeys: dbKeys
   , lessonTitle: lessonTitle
   , lessonTitleFromKeys: lessonTitleFromKeys
+  , bookTitle: bookTitle
   }

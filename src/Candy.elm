@@ -18,6 +18,22 @@ import Models exposing (..)
 import Time exposing (..)
 
 
+readingIntroduction : Model -> String -> List( Element msg )
+readingIntroduction model lesson =
+    let
+        (skipIntro, ref) = case lesson of
+           "lesson1" -> (False, model.lessons.lesson1.bookName)
+           "lesson2" -> (skipLesson2 model lesson, model.lessons.lesson2.bookName)
+           _ -> (True, "")
+
+    in
+    if skipIntro
+        then
+           [ none ] 
+        else
+            [ paragraph (Palette.lessonTitle model.width) [ text ("A Reading From " ++ ref) ] ]
+
+    
 addWordOfTheLord : List (Element msg) -> List (Element msg)
 addWordOfTheLord vss =
     [ vss
