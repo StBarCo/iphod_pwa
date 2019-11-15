@@ -32,3 +32,7 @@ lectionary/LOCK
 lectionary/LOG
 
 lectionary/MANIFEST-000020
+
+~tmp/tmp\.js
+
+~tmp/
