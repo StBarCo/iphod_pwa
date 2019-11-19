@@ -748,15 +748,17 @@ lesson =
             let
                 thisRequest = request |> String.trim
                 thisLesson = case thisRequest of
-                    "lesson1" -> showLesson model.lessons.lesson1.content model.width
+                    "lesson1" -> 
+                        addWordOfTheLord (showLesson model.lessons.lesson1.content model.width)
                     "lesson2" -> 
                         if skipLesson2 model thisRequest
                             then
                                 [ none ]
                             else
-                                showLesson model.lessons.lesson2.content model.width
+                                addWordOfTheLord (showLesson model.lessons.lesson2.content model.width)
                     "psalms"  -> showPsalms model.lessons.psalms.content model.width
-                    "gospel"  -> showLesson model.lessons.gospel.content model.width
+                    "gospel"  -> 
+                        showLesson model.lessons.gospel.content model.width
                     _         -> [none]
     
             in
@@ -859,24 +861,19 @@ showLesson content width =
 
 versesFromLesson : Int -> List Reading -> List (Element Msg)
 versesFromLesson width readings =
-    let
-        vss =
-            readings
-            |> List.map(\r ->
-                let
-                    rvss = 
-                        r.vss
-                        |> List.foldr (\t acc -> t.text :: acc) []
-                        |> String.join " "
-                        |> fixPTags
-                        |> parseLine
-                in
-                column (Palette.lesson width) rvss
+    readings
+        |> List.map(\r ->
+            let
+                rvss = 
+                    r.vss
+                    |> List.foldr (\t acc -> t.text :: acc) []
+                    |> String.join " "
+                    |> fixPTags
+                    |> parseLine
+            in
+            column (Palette.lesson width) rvss
             
-            )
-
-    in
-    addWordOfTheLord vss
+        )
     
 
 
@@ -956,16 +953,22 @@ renderHeader title description =
             ++ (Palette.menu model.width) 
             ++ Palette.swipe (onSwipeEvents HeaderMenu)
             )
-            [ row [paddingXY 20 0, Palette.maxWidth model.width]
+            [ row [paddingXY 20 0, spacing 20, Palette.maxWidth model.width]
                 [ image 
-                    ( List.append (backgroundGradient model.color)
-                        [ height (px 36)
-                        , width (px 35)
-                        , Event.onClick ToggleMenu
-                        ]
-                    )
-                    { src = "./menu.svg"
+                    [ height (px 36)
+                    , width (px 35)
+                    , Event.onClick ToggleMenu
+                    ]
+                    { src = "./prayerbook.ico"
                     , description = "Toggle Menu"
+                    }
+                , image
+                    [ height (px 36)
+                    , width (px 35)
+                    , Event.onClick (Office "calendar")
+                    ]
+                    { src = "./calendar.ico"
+                    , description = "Toggle Calendar"
                     }
                 , el [scaleFont model.width 18, paddingXY 30 20] (text "Legereme")
                 , el 
