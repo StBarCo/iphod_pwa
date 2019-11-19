@@ -3,7 +3,6 @@
 import Pouchdb from 'pouchdb';
 var iphod = new Pouchdb('iphod')
 var lectionary = new Pouchdb('lectionary')
-// var moment = require('moment');
 var LitYear = require('./lityear.js').LitYear;
 var DailyPsalms = require('./dailyPsalms.js')
 
@@ -41,7 +40,6 @@ export var Calendar = {
       , daz = this.buildDays(startOn.clone())
       , allPromises = this.buildPromises( daz )
       ;
-
     return Promise.all( allPromises).then(  function(resp) {
       var mpep = resp.slice(0, 42) // first 42
         , eu = resp.slice(42) // last 42

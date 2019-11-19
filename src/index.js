@@ -287,7 +287,6 @@ function requestSeasonalCollect(season) {
 }
 
 
-
 function service_db_name(s) {
   var dbName = 
     { deacons_mass: "deacons_mass"
@@ -312,7 +311,6 @@ function service_db_name(s) {
 
 function get_service(named, dbs) {
   var thisServiceDB = dbs.pop();
-
   // have to map offices here
   // we might want to add offices other than acna
   // send_status("getting " + named )
@@ -350,7 +348,7 @@ function iphodGet(key, dbs, callback) {
 }
 
 function service_response(named, resp) {
-  var now = moment();
+  var now = moment().local();
   var season = LitYear.toSeason(now);
   var iphodKey = season.iphodKey;
   iphodGet(iphodKey, [remoteIphod, iphod], (euresp => {

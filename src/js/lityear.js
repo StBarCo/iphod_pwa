@@ -240,6 +240,7 @@ toSeason: function (moment_date) {
   var holyDay = !!rld;
   var mKey = this.mpepKey(moment_date);
   var [wk, ik] = ["", ""];
+
   switch (true) {
 
   case holyDay:
@@ -300,8 +301,8 @@ toSeason: function (moment_date) {
     ik = "trinity1" + yrABC;
     return {season: "trinity",      week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
-  case (this.inRange(weeksTillAdvent, 1, 27)):
-    wk = (properOffset - weeksTillAdvent).toString();
+  case (this.inRange(weeksTillAdvent, 1, 28)):
+    wk = (properOffset - weeksTillAdvent ).toString();
     ik = "proper" + wk + yrABC;
     return {season: "proper",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
