@@ -975,7 +975,7 @@ renderHeader title description =
                     [ scaleFont model.width 14
                     , Font.color Palette.darkRed
                     , Font.alignRight
-                    , Palette.adjustWidth model.width -230
+                    , Palette.adjustWidth model.width -330
                     ]
                     (text model.online)
                 ]
