@@ -211,6 +211,7 @@ var bookName = {
     "daniel" :  "Daniel",
     "deuteronomy" :  "Deuteronomy",
     "ecclesiastes" :  "Ecclesiastes",
+    "ecclesiasticus": "Sirach [Ecclesiasticus]",
     "ephesians" :  "Ephesians",
     "esther (greek)" :  "Esther (Greek)",
     "esther" :  "Esther",
