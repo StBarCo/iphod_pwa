@@ -320,20 +320,31 @@ newPrayerListItem =
     Mark.block "NewListItem"
     (\show model ->
         let
-            prayers = if model.prayerList.edit
+            (prayers, addButton) = if model.prayerList.edit
                 then
-                    model.prayerList.prayers
-                    |> List.head 
-                    |> Maybe.withDefault initPrayer
-                    |> editPrayer model
+                    ( model.prayerList.prayers
+                        |> List.head 
+                        |> Maybe.withDefault initPrayer
+                        |> editPrayer model
+                    , [ none ]
+                    )
                 else
-                    model.prayerList.prayers
-                    |> renderPrayerList True model.width
+                    (model.prayerList.prayers
+                        |> renderPrayerList True model.width
+                    , [ image 
+                        [ Element.height (px 36)
+                        , Element.width (px 35)
+                        , Event.onClick (AddToPrayerList)
+                        ]
+                        { src = "./addToList.ico"
+                        , description = "Add New Item"
+                        }
+                        , el [ paddingXY 20 0 ] (text "Add New Item")
+                        ]
+                    )
 
             elements = 
-                row 
-                    (Event.onClick AddToPrayerList :: Palette.button model.width ) 
-                    [ text "Add new item"]
+                row [ paddingXY 20 0 ] addButton
                 :: prayers 
         in
         column [] elements
@@ -368,43 +379,58 @@ editPrayer model prayer =
             )
             |> List.concat
     in
-    [ row []
-        [ column []
-            [ paragraph
-                [Event.onClick CancelPrayerItem, paddingXY 10 5]
-                [text "Cancel"]
-            , paragraph
-                [Event.onClick SavePrayerItem, paddingXY 10 5]
-                [text "Save"]
+    [ column []
+        [ row [ paddingXY 20 20 ]
+            [ Input.multiline 
+                [ Palette.scaleWidth 300 width
+                , Palette.placeholder "Who/What to pray for\nAnd reason"
+                , height shrink
+                , paddingEach {edges | bottom = 30}
+                ] 
+                { onChange = UpdateNewPrayer
+                , text = prayer.who
+                , placeholder = Nothing -- does not work in this version of elm-ui
+                , label = Input.labelAbove [] (text "New Prayer")
+                , spellcheck = True
+                }
             ]
-        , Input.multiline 
-            [ Palette.scaleWidth 300 width
-            , Palette.placeholder "Who/What to pray for\nAnd reason"
-            , height shrink
-            , paddingEach {edges | bottom = 30}
-            ] 
-            { onChange = UpdateNewPrayer
-            , text = prayer.who
-            , placeholder = Nothing -- does not work in this version of elm-ui
-            , label = Input.labelAbove [] (text "New Prayer")
-            , spellcheck = True
-            }
-        
-        ] -- end of row
-    , paragraph 
-        [ Font.color Palette.darkBlue, moveRight 70.0] 
-        [ text (toTitleCase prayer.ofType)] 
-    , column [ Palette.scaleWidth 200 width ]
-        [   Input.radio
-            [ padding 5
-            , spacing 10
-            , Palette.wordBreak
+        , row 
+            [ paddingXY 20 0 ]
+            [ image 
+                [ Element.height (px 36)
+                , Element.width (px 35)
+                , Event.onClick SavePrayerItem
+                ]
+                { src = "./save.ico"
+                , description = "Save"
+                }
+            , el [ paddingXY 20 0 ] (text "Save")
+            , image 
+                [ Element.height (px 36)
+                , Element.width (px 35)
+                , Event.onClick SavePrayerItem
+                , paddingXY 40 0
+                ]
+                { src = "./delete.ico"
+                , description = "Cancel"
+                }
+            , el [ paddingXY 20 0 ] (text "Cancel")
             ]
-            { onChange = PrayerCategory
-            , selected = Just prayer.ofType
-            , label = Input.labelAbove [] (text "Prayer Type")
-            , options = oPCats
-            }
+        , paragraph 
+            [ Font.color Palette.darkBlue, moveRight 70.0] 
+            [ text (toTitleCase prayer.ofType)] 
+        , column [ Palette.scaleWidth 200 width ]
+            [   Input.radio
+                [ padding 5
+                , spacing 10
+                , Palette.wordBreak
+                ]
+                { onChange = PrayerCategory
+                , selected = Just prayer.ofType
+                , label = Input.labelAbove [] (text "Prayer Type")
+                , options = oPCats
+                }
+            ]
         ]
     ]
 
@@ -421,12 +447,14 @@ renderPrayerList editable width prayers =
                         , Palette.scaleWidth 250 width
                         , padding 5
                         ]
-                    ,   el
-                        ( Event.onClick (RemoveFromPrayerList p.id) 
-                        :: alignRight
-                        :: alignTop 
-                        :: Palette.button width)
-                        ( text "Remove" )
+                    ,   image 
+                        [ Element.height (px 36)
+                        , Element.width (px 35)
+                        , Event.onClick (RemoveFromPrayerList p.id)
+                        ]
+                        { src = "./delete.ico"
+                        , description = "Remove"
+                        }
                     )
                 else
                     (   [ Palette.scaleWidth 250 width, padding 5 ]
@@ -969,6 +997,14 @@ renderHeader title description =
                     ]
                     { src = "./calendar.ico"
                     , description = "Toggle Calendar"
+                    }
+                , image
+                    [ height (px 36)
+                    , width (px 35)
+                    , Event.onClick (Office "prayerList")
+                    ]
+                    { src = "./prayerlist.png"
+                    , description = "Prayer List"
                     }
                 , el [scaleFont model.width 18, paddingXY 30 20] (text "Legereme")
                 , el 
