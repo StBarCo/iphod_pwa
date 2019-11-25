@@ -74,10 +74,12 @@ listContains: function (list, obj) { return list.indexOf(obj) >= 0; },
 // function advDays(d, days) { return new Date( d.valueOf() + oneDay * days ) },
 // function advWeeks(d, weeks) { return advDays(d, weeks * 7) },
 daysTill: function (d1, d2) { return Math.floor( (d2 - d1)/oneDay ); },
-weeksTill: function (d1, d2) { return Math.floor( (d2 - d1)/oneWeek ); },
+weeksTill: function (d1, d2) { 
+  return (d2.week() - d1.week());
+},
 litYear: function (moment_date) {
   var yr = this.thisYear(moment_date);
-  return moment_date.isSameOrAfter(this.advent(moment_date, 1)) ? yr + 1 : yr;
+  return moment_date.isSameOrAfter(this.advent(moment_date)) ? yr + 1 : yr;
 },
 daysFromChristmas: function(moment_date) {
   var xmas = this.christmasDay( moment(moment_date) )
@@ -161,10 +163,10 @@ trinity: function (moment_date) {
   return this.pentecost(moment_date, 2) ;
 },
 proper: function (moment_date, n) { 
-  return this.advent(moment_date, n - 29) ;
+  return this.advent(moment_date).add( n - 29, 'weeks') ;
 },
 christmasDay: function (moment_date) { 
-  return moment(this.thisYear(moment_date) + '-12-25') ;
+  return moment({'year': this.thisYear(moment_date), 'month': 11, 'date': 25})
 },
 christmasSeason: function (moment_date, n) { 
   var y = this.thisYear(moment_date)
@@ -176,9 +178,8 @@ dayOfMarchYear: function(moment_date) {
   var yr = (moment_date.year < 2) ? moment_date.getYear() - 1 : moment_date.getYear();
   return this.daysTill( moment([yr, 2, 1]), moment_date ) + 1;
 },
-advent: function (moment_date, n) { 
-  var sundayBefore = this.dateLastSunday(this.christmasDay(moment_date));
-  return sundayBefore.add(n - 4, 'weeks'); 
+advent: function (moment_date) {
+  return this.dateLastSunday(this.christmasDay(moment_date)).add(-3, 'weeks');
 },
 epiphanyDay: function (moment_date) { return moment(this.thisYear(moment_date) + '-01-06'); },
 epiphanyBeforeSunday: function (moment_date) { 
@@ -228,10 +229,10 @@ makeIphodKey: function(season, week, year) {
 },
 toSeason: function (moment_date) {
   var sunday = moment_date.clone().day('Sunday')
-  var properOffset = this.isSunday(moment_date) ? 30 : 29
+  var properOffset = 30; //this.isSunday(moment_date) ? 30 : 30
   var y = this.litYear(sunday);
   var yrABC = this.litYearName(sunday);
-  var weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday, 1));
+  var weeksTillAdvent = this.weeksTill(sunday, this.advent(sunday));
   var weeksFromEpiphany = this.weeksTill(this.epiphanyDay(sunday), sunday);
   var isChristmas = this.inRange( this.daysFromChristmas(moment_date), 0, 11);
   var weeksFromEaster = this.weeksTill(this.easter(moment_date), sunday);
@@ -302,7 +303,7 @@ toSeason: function (moment_date) {
     return {season: "trinity",      week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksTillAdvent, 1, 28)):
-    wk = (properOffset - weeksTillAdvent ).toString();
+    wk = (properOffset - weeksTillAdvent).toString();
     ik = "proper" + wk + yrABC;
     return {season: "proper",       week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;

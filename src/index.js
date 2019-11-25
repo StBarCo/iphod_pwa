@@ -348,7 +348,7 @@ function iphodGet(key, dbs, callback) {
 }
 
 function service_response(named, resp) {
-  var now = moment().local();
+  var now = moment().local().millisecond(1);
   var season = LitYear.toSeason(now);
   var iphodKey = season.iphodKey;
   iphodGet(iphodKey, [remoteIphod, iphod], (euresp => {
