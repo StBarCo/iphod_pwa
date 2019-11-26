@@ -14,11 +14,9 @@
     --
     selected: False
     tag: prayer_list_instructions
-    label: Hide
+    label: Show
     text:
     
-    Things to remember...
-
     This list is not particularly secure, *do not save sensitive information here!* 
     What makes it not secure is 1) there is no way to know how other applications
     might seek out and read this database and 2) it is not encrypted.
@@ -32,7 +30,7 @@
 
     selected: True
     tag: prayer_list_instructions_hide
-    label: Show
+    label: Hide
     text: EMPTY
     
     --

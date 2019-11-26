@@ -1011,7 +1011,7 @@ renderHeader title description =
                     [ scaleFont model.width 14
                     , Font.color Palette.darkRed
                     , Font.alignRight
-                    , Palette.adjustWidth model.width -330
+                    , Palette.adjustWidth model.width -430
                     ]
                     (text model.online)
                 ]
@@ -1106,12 +1106,15 @@ optionalPrayer =
         (\everything model ->
             let
                 opts = optionButtons model everything
+                thisText = if String.contains "EMPTY" opts.text
+                    then text ""
+                    else text opts.text
             in
 
             column [paddingXY 10 0, Palette.maxWidth model.width] 
             [ renderPlainText model.width opts.label
             , wrappedRow [ spacing 10, padding 10] opts.btns
-            , el [ alignLeft, Palette.maxWidth model.width ] (text opts.text)
+            , el [ alignLeft, Palette.maxWidth model.width ] thisText
             ]
         )
         Mark.string
