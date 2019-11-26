@@ -8,7 +8,7 @@ window.app = Elm.Main.init({
 });
 
 registerServiceWorker();
-console.log("NAVIGATOR: ", navigator)
+
 // axios is an HTTP lib, used for accessing the ESV API
 // thought you'd like to know
 import axios from 'axios';
