@@ -8,7 +8,7 @@ window.app = Elm.Main.init({
 });
 
 registerServiceWorker();
-
+console.log("NAVIGATOR: ", navigator)
 // axios is an HTTP lib, used for accessing the ESV API
 // thought you'd like to know
 import axios from 'axios';
@@ -181,6 +181,7 @@ function sync() {
             service.replicate.from(remoteService)
             .on("complete", function() {
               send_status("Sync complete");
+              ('serviceWorker' in navigator) ? send_status("Service Worker Ready") : send_status("No Service Worker")
           })
         })
       })
