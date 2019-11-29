@@ -35,7 +35,8 @@ var receivedLesson = undefined
     , readingCycle: "OneYear"
     , psalmsCycle: "ThirtyDay"
     , fontSize: 14 
-    };
+    }
+  , ready = false;
 // for global configuration access, set later
   ;
 
@@ -138,10 +139,12 @@ window.onload = ( function() {
   receivedNewCanticle = app.ports.receivedNewCanticle
   receivedConfig = app.ports.receivedConfig
   newWidth = app.ports.newWidth;
-  // onlineStatus.send( "All Ready");
-  // requestOffice('currentOffice')
   iphod.info().then( function(resp) {
+    // if resp.doc_count > 0, there is an existing DB and it should be synced
+    // is this the right place to do it?
     if (resp.doc_count > 0) { sync(); } // this test makes no sense, explain?
+  ready = true;
+  send_status("Ready")
   })
 
 }) // end of window.onload
@@ -161,24 +164,26 @@ lectionary.info()
 
 // sync can hold things up unless you sync one at a time
 function sync() {
+  if (!ready) { return undefined }
+  var options = {live: true, retry: true};
   if (!isOnline) return send_status("Offline")
   send_status("Syncing Iphod")
-  iphod.replicate.from(remoteIphod)
+  iphod.replicate.from(remoteIphod, options)
   .on("complete", function(){
     send_status("Syncing Psalms")
-    psalms.replicate.from(remotePsalms)
+    psalms.replicate.from(remotePsalms, options)
     .on("complete", function() {
       send_status("Syncing Lectionary")
-      lectionary.replicate.from(remoteLectionary)
+      lectionary.replicate.from(remoteLectionary, options)
       .on("complete", function() {
         send_status("Syncing Occasional Prayers")
-        occasional_prayers.replicate.from(remoteOps)
+        occasional_prayers.replicate.from(remoteOps, options)
         .on("complete", function() {
           send_status("Syncing Canticles")
-          canticles.replicate.from(remoteCanticles)
+          canticles.replicate.from(remoteCanticles, options)
           .on("complete", function() {
             send_status("Syncing Services")
-            service.replicate.from(remoteService)
+            service.replicate.from(remoteService, options)
             .on("complete", function() {
               send_status("Sync complete");
               ('serviceWorker' in navigator) ? send_status("Service Worker Ready") : send_status("No Service Worker")
@@ -195,8 +200,11 @@ function sync() {
 }
 
           
-function send_status(s) { onlineStatus.send(s); }
-function update_database() { send_status("update database"); }
+function send_status(s) { 
+  if (onlineStatus) { onlineStatus.send(s) }
+  else { console.log("Error: Online Status still iundefined: ", s) }
+}
+
 function db_fail(s) { send_status( s + " unavailable"); }
 
 function syncError() {};
@@ -323,7 +331,7 @@ function get_service(named, dbs) {
       service_response(named, resp);
       get_config();
       get_prayer_list();
-      sync();
+      // sync();
     })
     .catch( function(err) {
       if (dbs.length > 0) {

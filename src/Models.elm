@@ -536,7 +536,7 @@ initModel =
     , mp            = initLessons
     , ep            = initLessons
     , openingSentences = []
-    , online        = "loading"
+    , online        = ""
     , ops           = initOPs
     }
 

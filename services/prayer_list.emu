@@ -9,8 +9,9 @@
     placeholder
 
 |> OptionalPrayer
+|> Toggle
     tag: prayer_list
-    label: Thing To Rememner
+    label: Things To Remember
     --
     selected: False
     tag: prayer_list_instructions
@@ -25,13 +26,6 @@
     Not sharing the list with other devices helps make the list more secure.
 
     The list is limited to 50 items.
-    
-    --
-
-    selected: True
-    tag: prayer_list_instructions_hide
-    label: Hide
-    text: EMPTY
     
     --
 

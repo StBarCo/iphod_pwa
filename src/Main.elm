@@ -665,30 +665,40 @@ menuOptions model =
     in
     column []
         [ row []
-            [ column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
-                [ clickOption "calendar" "Calendar"
-                , clickOption "morning_prayer" "Morning Prayer"
-                , clickOption "midday" "Midday Prayer"
-                , clickOption "evening_prayer" "Evening Prayer"
-                , clickOption "compline" "Compline"
-                , clickOption "family" "Family Prayer"
-                , clickOption "reconciliation" "Reconciliation"
-                , clickOption "toTheSick" "To the Sick"
-                , clickOption "communionToSick" "Communion to Sick"
-                , clickOption "timeOfDeath" "Time of Death"
-                , clickOption "vigil" "Prayer for a Vigil"
-                ]
-            , column [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
-                [ clickOption "prayerList" "Prayer List"
-                , clickOption "occasionalPrayers" "Occasional Prayers"
-                , clickOption "canticles" "Canticles"
-                , clickOption "about" "About"
-                , clickOption "sync" "How to Install"
-                , clickOption "sync" "Update Database"
-                , clickOption "about" "Contact"
-                , clickOption "angChurchChat" "Church Chat"
-                , clickOption "config" "Config"
-                ]
+            [ Input.radio [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
+                { onChange = Office
+                , selected = Just model.pageName
+                , label = Input.labelAbove [] (text "")
+                , options =
+                    [ Input.option "calendar" (text "Calendar")
+                    , Input.option "morning_prayer" (text "Morning Prayer")
+                    , Input.option "midday" (text "Midday Prayer")
+                    , Input.option "evening_prayer" (text "Evening Prayer")
+                    , Input.option "compline" (text "Compline")
+                    , Input.option "family" (text "Family Prayer")
+                    , Input.option "reconciliation" (text "Reconciliation")
+                    , Input.option "toTheSick" (text "To the Sick")
+                    , Input.option "communionToSick" (text "Communion to Sick")
+                    , Input.option "timeOfDeath" (text "Time of Death")
+                    , Input.option "vigil" (text "Prayer for a Vigil")
+                    ]
+                }
+            , Input.radio [ showMenu model.showMenu, scaleFont model.width 16, paddingXY 20 0, alignTop ]
+                { onChange = Office
+                , selected = Just model.pageName
+                , label = Input.labelAbove [] (text"")
+                , options =
+                    [ Input.option "prayerList" (text "Prayer List")
+                    , Input.option "occasionalPrayers" (text "Occasional Prayers")
+                    , Input.option "canticles" (text "Canticles")
+                    , Input.option "about" (text "About")
+                    , Input.option "sync" (text "How to Install")
+                    , Input.option "sync" (text "Update Database")
+                    , Input.option "about" (text "Contact")
+                    , Input.option "angChurchChat" (text "Church Chat")
+                    , Input.option "config" (text "Config")
+                    ]
+                }
             ]
         , showConfig
         ]
@@ -946,12 +956,6 @@ finish =
         none
     )
     Mark.string
-
-clickOption : String -> String -> Element Msg
-clickOption request label =
-    el
-    [ Event.onClick (Office request) ]
-    ( text label )
 
 
 service : Mark.Block { description : String, maintainer : String, contact: String, title : String }
