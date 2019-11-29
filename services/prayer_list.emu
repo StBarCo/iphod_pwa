@@ -8,7 +8,6 @@
 |> PrayerList
     placeholder
 
-|> OptionalPrayer
 |> Toggle
     tag: prayer_list
     label: Things To Remember
