@@ -144,6 +144,8 @@ window.onload = ( function() {
     // is this the right place to do it?
     if (resp.doc_count > 0) { sync(); } // this test makes no sense, explain?
   ready = true;
+  get_config();
+  get_prayer_list();
   send_status("Ready")
   })
 
@@ -167,37 +169,63 @@ function sync() {
   if (!ready) { return undefined }
   var options = {live: true, retry: true};
   if (!isOnline) return send_status("Offline")
+  console.log("CANTCILES", canticles)
+  console.log("SERVICE", service)
   send_status("Syncing Iphod")
-  iphod.replicate.from(remoteIphod, options)
-  .on("complete", function(){
-    send_status("Syncing Psalms")
+  try {
+    iphod.replicate.from(remoteIphod, options)
+      .on("complete", function(){
+        send_status("Iphod Synced")
+      })
+  }
+  catch(err) { console.log(err)}
+  try {
     psalms.replicate.from(remotePsalms, options)
     .on("complete", function() {
-      send_status("Syncing Lectionary")
-      lectionary.replicate.from(remoteLectionary, options)
-      .on("complete", function() {
-        send_status("Syncing Occasional Prayers")
-        occasional_prayers.replicate.from(remoteOps, options)
-        .on("complete", function() {
-          send_status("Syncing Canticles")
-          canticles.replicate.from(remoteCanticles, options)
-          .on("complete", function() {
-            send_status("Syncing Services")
-            service.replicate.from(remoteService, options)
-            .on("complete", function() {
-              send_status("Sync complete");
-              ('serviceWorker' in navigator) ? send_status("Service Worker Ready") : send_status("No Service Worker")
-          })
-        })
-      })
-      })
+      send_status("Psalms Synced")
     })
-  })
-  .on("error", function(err) {
-    console.log("SYNC ERROR: ", err);
-    send_status("Sync failed");
-  })
+  }
+  catch(err) { console.log(err)}
+
+  try {
+    lectionary.replicate.from(remoteLectionary, options)
+    .on("complete", function() {
+      send_status("Lectionary Synced")
+    })
+  }
+  catch(err) { console.log(err)}
+  
+  try {
+    occasional_prayers.replicate.from(remoteOps, options)
+    .on("complete", function() {
+      send_status("Occasional Prayers Synced")
+    })
+  }
+  catch(err) { console.log(err)}
+
+  try {
+    canticles.replicate.from(remoteCanticles, options)
+    .on("complete", function() {
+      send_status("Canticles Synced")
+    })
+  }
+  catch(err) { console.log(err)}
+
+  try {
+    service.replicate.from(remoteService, options)
+    .on("complete", function() {
+    send_status("Services Synced");
+    })
+  }
+  catch(err) { console.log(err)}
+
+  ('serviceWorker' in navigator) ? send_status("Service Worker Ready") : send_status("No Service Worker")
+  //.on("error", function(err) {
+  //  console.log("SYNC ERROR: ", err);
+  //  send_status("Sync failed");
+  //})
 }
+
 
           
 function send_status(s) { 
@@ -329,8 +357,8 @@ function get_service(named, dbs) {
     .then ( function(resp) {
       pageTops = []; // global, reset with new service
       service_response(named, resp);
-      get_config();
-      get_prayer_list();
+      // get_config();
+      // get_prayer_list();
       // sync();
     })
     .catch( function(err) {
