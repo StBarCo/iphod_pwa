@@ -8,6 +8,7 @@ window.app = Elm.Main.init({
 });
 
 registerServiceWorker();
+var UseLocalDB = true;
 
 // axios is an HTTP lib, used for accessing the ESV API
 // thought you'd like to know
@@ -150,6 +151,30 @@ window.onload = ( function() {
   })
 
 }) // end of window.onload
+
+function getDBsFor(dbName) {
+  if (UseLocalDB) { return getAllDBsFor(dbName) }
+  switch (dbName) {
+    case "iphod": return [remoteIphod]; break;
+    case "canticles": return [remoteCanticles]; break;
+    case "service": return [remoteService]; break;
+    case "psalms": return [remotePsalms]; break;
+    case "lectionary": return [remoteLectionary]; break;
+    case "occasional_prayers": return [remoteOps]; break;
+    default: return [];
+  }
+}
+function getAllDBsFor(dbName) {
+  switch (dbName) {
+    case "iphod": return [remoteIphod, iphod]; break;
+    case "canticles": return [remoteCanticles, canticles]; break;
+    case "service": return [remoteService, service]; break;
+    case "psalms": return [remotePsalms, psalms]; break;
+    case "lectionary": return [remoteLectionary, lectionary]; break;
+    case "occasional_prayers": return [remoteOps, occasional_prayers]; break;
+    default: return []
+  }
+}
 
 
 // these tests for necessary DBs are pretty fragile
@@ -302,7 +327,7 @@ function getCollect(id, ofType) {
   // send t/f as string so I don't have to convert an object
   // to json and srite another decoder
   // 'cause I'm beig lazy
-  iphodGet( id, [remoteIphod, iphod], ( resp => {
+  iphodGet( id, getDBsFor("iphod"), ( resp => {
     var id = resp._id;
     if (ofType === "seasonal" || ofType === "daily") { id = ofType; }
     receivedCollect.send( [ofType, id, resp.title, resp.text[0] ] )
@@ -388,7 +413,7 @@ function service_response(named, resp) {
   var now = moment().local().millisecond(1);
   var season = LitYear.toSeason(now);
   var iphodKey = season.iphodKey;
-  iphodGet(iphodKey, [remoteIphod, iphod], (euresp => {
+  iphodGet(iphodKey, getDBsFor("iphod"), (euresp => {
     service_header_response(now, season, named, resp, euresp)
   }))
 }
@@ -557,27 +582,27 @@ function requestOffice(request, dbs) {
       else if ( now.isBefore(cmp) ) { co = "evening_prayer" }
       else { co = "compline" }
       CurrentPage = co
-      get_service(co, [remoteService, service]);
-      get_office_canticles(co, [remoteCanticles, canticles]);
+      get_service(co, getDBsFor("service"));
+      get_office_canticles(co, getDBsFor("canticles"));
       break;
     case "calendar":
-      get_service("calendar", [remoteService, service]);
+      get_service("calendar", getDBsFor("service"));
       Calendar.get_calendar( now, receivedCalendar );
       break;
     case "prayerList":
-      get_service(request, [remoteService, service])
+      get_service(request, getDBsFor("service"))
       get_prayer_list();
       get_ops_categories()
       break;
 
     case "occasionalPrayers":
-      get_service(request, [remoteService, service])
+      get_service(request, getDBsFor("service"))
       get_ops_categories();
       break;
 
     case "canticles":
-      get_service(request, [remoteService, service])
-      request_all_canticles([remoteCanticles, canticles]);
+      get_service(request, getDBsFor("service"))
+      request_all_canticles(getDBsFor("canticles"));
       break;
 
     case "angChurchChat":
@@ -586,8 +611,8 @@ function requestOffice(request, dbs) {
       break;
 
     default: 
-      get_service(request, [remoteService, service]);
-      get_office_canticles(request, [remoteCanticles, canticles]);
+      get_service(request, getDBsFor("service"));
+      get_office_canticles(request, getDBsFor("canticles"));
   };
 };
 
@@ -626,7 +651,7 @@ function getOccasionalPrayers(key, dbs, callback) {
 }
 
 function get_ops_categories() {
-  getOccasionalPrayers( "categories", [remoteOps, occasional_prayers], ( resp => {
+  getOccasionalPrayers( "categories", getDBsFor("occasional_prayers"), ( resp => {
     receivedOPCats.send(resp.list)
   }) )
 }
@@ -647,7 +672,7 @@ function findOccassionalPrayer( selector, dbs, callback) {
 app.ports.requestOPsByCat.subscribe( request => {
   findOccassionalPrayer( 
       {selector: {category: request}}
-    , [remoteOps, occasional_prayers]
+    , getDBsFor("occasional_prayers")
     , (resp => {
       var docs = resp.docs;
       docs = docs.map( d => { d.id = d._id; return d } )
@@ -687,7 +712,7 @@ function get_prayer_list() {
         { include_docs: true
         , keys: keys
         }
-      , [remoteOps, occasional_prayers]
+      , getDBsFor("occasional_prayers")
       , ( resp => {
           var docs = resp.rows.map( r => { return r.doc });
           docs = docs.map( d => { d.id = d._id; return d } )
@@ -704,13 +729,13 @@ app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
   var month = (toWhichMonth === "prev") ? fromMonth -1 : fromMonth + 1;
   switch (true) {
     case (month < 0): // december previous year
-      return Calendar.get_calendar( moment([year - 1, 11, 31]), receivedCalendar );
+      return Calendar.get_calendar( moment({"year": year - 1, "month": 11, "date": 31}), receivedCalendar );
       break;
     case (month > 11): // january next year
-      return Calendar.get_calendar( moment([year + 1, 0, 1]), receivedCalendar );
+      return Calendar.get_calendar( moment({"year": year + 1, "month": 0, "date": 1}), receivedCalendar );
       break;
     default: 
-      return Calendar.get_calendar( moment([year, month, 1]), receivedCalendar );
+      return Calendar.get_calendar( moment({"year": year, "month": month, "date": 1}), receivedCalendar );
   }
 })
 
@@ -852,7 +877,7 @@ function insertLesson(lesson, office, key, spa_location) {
 }
 
 function get_from_eucharist( lesson, key, spa_location ) {
-  iphodGet(key, [remoteIphod, iphod], ( resp => {
+  iphodGet(key, getDBsFor("iphod"), ( resp => {
     var eu_key = 
     { lesson1: "ot"
     , lesson2: "nt"
@@ -875,7 +900,7 @@ function getLectionary(key, dbs, callback) {
 }
 function get_from_lectionary_db(office, lesson, mpepKey, spa_location) {
   if ( skipSecondLesson(lesson) ) return undefined;
-  getLectionary(mpepKey, [remoteLectionary, lectionary], (resp => {
+  getLectionary(mpepKey, getDBsFor("lectionary"), (resp => {
     // first db to check is at end of list
     var lessonKeys = twoYearCycle() 
       ? resp[ twoYearKey(office) ]
@@ -978,7 +1003,7 @@ function insertCollect(office) {
   if ( ! ["ashWednesday", "annunciation", "allSaints"].includes(season.season) ) {
     key = key + season.week
   } 
-  iphodGet(key, [remoteIphod, iphod], ( resp => {
+  iphodGet(key, getDBsFor("iphod"), ( resp => {
     $(collectDiv + " .collectTitle").append("Collect of The Day <em>" + resp.title + "</em>")
     $(collectDiv + " .collectContent").append(resp.text[0])
   }))
@@ -992,7 +1017,7 @@ function try_esv(mpep, lesson, resp) {
 function insertProper(office) {}
 
 function insertEucharistPsalms(spa_location, key) {
-  iphodGet(key, [remoteIphod, iphod], ( resp => {
+  iphodGet(key, getDBsFor("iphod"), ( resp => {
     var psalms = resp.ps
     var psalmRefs = BibleRef.dbKeys(psalms)
     allPsalms(psalmRefs);
@@ -1163,7 +1188,7 @@ var invitatories = ["venite", "venite_long", "jubilate", "pascha_nostrum"];
 
 app.ports.requestNextInvitatory.subscribe( inv => {
   var nextInv = invitatories[ (invitatories.indexOf(inv) + 1) % 4 ];
-  request_canticle( [remoteCanticles, canticles], nextInv)
+  request_canticle( getDBsFor("canticles"), nextInv)
 })
 
 

@@ -241,14 +241,13 @@ toSeason: function (moment_date) {
   var holyDay = !!rld;
   var mKey = this.mpepKey(moment_date);
   var [wk, ik] = ["", ""];
-
   switch (true) {
 
   case holyDay:
     return { season: rld.id, week: 1, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: rld.id   };
     break;
   case (isChristmas):
-    return this.whereInChristmas(moment_date, yrABC);
+    return this.whereInChristmas(moment_date, yrABC, mKey);
     break;
   case (this.rightAfterAshWednesday(moment_date)): 
     ik = "ashWednesday1";
@@ -327,19 +326,21 @@ toSeason: function (moment_date) {
   
 },
 
-whereInChristmas: function (moment_date, yrABC) {
+whereInChristmas: function (moment_date, yrABC, mpepKey) {
+  //    return { season: rld.id, week: 1, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: rld.id   };
+
   var now = moment_date.clone()
     , dfx = this.daysFromChristmas(now)
     , yr = (dfx > 6) ? now.year() - 1 : now.year() // dfx > 7 is the next year
     , key = (this.christmasDay([yr]).day() * 12) + dfx
-    , xmasDay = { season: "christmasDay", week: '1', year: yrABC, date: now}
+    , xmasDay = { season: "christmasDay", week: '1', year: yrABC, date: now, mpepKey: mpepKey, iphodKey: "christmasDay1" + yrABC}
     , xmas = "christmas"
-    , xmas1 = {season: xmas,    week: '1', year: yrABC, date: now}
-    , xmas2 = {season: xmas,    week: '2', year: yrABC, date: now}
-    , stStephen = {season: "stStephen", week: '', year: '', date: now}
-    , stJohn    = {season: "stJohn", week: '', year: '', date: now}
-    , holyInn   = {season: "holyInnocents", week: '', year: '', date: now}
-    , holyName  = {season: "holyName", week: '1', year: yrABC, date: now}
+    , xmas1 = {season: xmas,    week: '1', year: yrABC, date: now, mpepKey: mpepKey, iphodKey: xmas + '1' + yrABC }
+    , xmas2 = {season: xmas,    week: '2', year: yrABC, date: now, mpepKey: mpepKey, iphodKey: xmas + '2' + yrABC }
+    , stStephen = {season: "stStephen", week: '', year: '', date: now, mpepKey: mpepKey, iphodKey: "stStephen" + yrABC}
+    , stJohn    = {season: "stJohn", week: '', year: '', date: now, mpepKey: mpepKey, iphodKey: "stJohn" + yrABC}
+    , holyInn   = {season: "holyInnocents", week: '', year: '', date: now, mpepKey: mpepKey, iphodKey: "holyInnocents" + yrABC}
+    , holyName  = {season: "holyName", week: '1', year: yrABC, date: now, mpepKey: mpepKey, iphodKey: "holyName" + '1' + yrABC}
     , obj = null;
     ;
   switch( key ) {
