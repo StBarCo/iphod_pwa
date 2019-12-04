@@ -713,6 +713,7 @@ renderConfig model =
         , padding 20
         , centerX
         , Background.color Palette.foggy
+        , Font.color Palette.black
         ]
         [ paragraph [] 
             [ Input.radioRow
