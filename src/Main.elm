@@ -2018,10 +2018,6 @@ view model =
                 layout ( Palette.layout model.width )
                 ( column []
                     [ renderHeader "Getting Service" "Patience is a virtue" model
-                    , image [ Palette.scaleWidth 200 model.width, centerX, centerY, paddingXY 0 20 ] 
-                        { src = "https://media.giphy.com/media/ByuDOrJgpKCeA/source.gif"
-                        , description = "Getting Service"
-                        }
                     ]
                 )
             Just source ->
