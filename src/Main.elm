@@ -992,7 +992,7 @@ renderHeader title description =
                     , width (px 35)
                     , Event.onClick ToggleMenu
                     ]
-                    { src = "./prayerbook.ico"
+                    { src = "./prayerbook.svg"
                     , description = "Toggle Menu"
                     }
                 , image
@@ -1000,7 +1000,7 @@ renderHeader title description =
                     , width (px 35)
                     , Event.onClick (Office "calendar")
                     ]
-                    { src = "./calendar.ico"
+                    { src = "./calendar.svg"
                     , description = "Toggle Calendar"
                     }
                 , image
@@ -1008,7 +1008,7 @@ renderHeader title description =
                     , width (px 35)
                     , Event.onClick (Office "prayerList")
                     ]
-                    { src = "./prayerlist.png"
+                    { src = "./prayerlist.svg"
                     , description = "Prayer List"
                     }
                 , el [scaleFont model.width 18, paddingXY 30 20] (text "Legereme")
