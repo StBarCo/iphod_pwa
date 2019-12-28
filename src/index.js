@@ -9,10 +9,7 @@ window.app = Elm.Main.init({
 
 registerServiceWorker();
 
-// ignore local BCP DBs if using the silk browser
-// 'cause it always reloads it
-// very annoying
-var UseLocalDB = ! /silk/i.exec(navigator.userAgent);
+var UseLocalDB = true; // ! /silk/i.exec(navigator.userAgent);
 
 // axios is an HTTP lib, used for accessing the ESV API
 // thought you'd like to know
