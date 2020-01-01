@@ -81,19 +81,21 @@ var Calendar = require('./js/calendar.js').Calendar;
 var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
-import Pouchdb from 'pouchdb';
-import PouchFind from 'pouchdb-find'
-Pouchdb.plugin(PouchFind);
-window.pdb = Pouchdb; // remove this for production
-var preferences = new Pouchdb('preferences');
-var iphod = new Pouchdb('iphod')
-var service = new Pouchdb('service') // for production
-var psalms = new Pouchdb('psalms')
-var lectionary = new Pouchdb('lectionary')
-var prayerList = new Pouchdb('prayerList'); // never replicate!
-var config = new Pouchdb('config'); // never replicate!
-var canticles = new Pouchdb('canticles');
-var occasional_prayers = new Pouchdb('occasional_prayers');
+window.PouchDB = require('./js/pouchdb-7.1.1.min.js');
+import PouchFind from 'pouchdb-find';
+window.PouchDB.plugin(PouchFind);
+
+var PouchDB = window.PouchDB;
+
+var preferences = new PouchDB('preferences', {adapter: 'idb'});
+var iphod = new PouchDB('iphod', {adapter: 'idb'})
+var service = new PouchDB('service', {adapter: 'idb'}) // for production
+var psalms = new PouchDB('psalms', {adapter: 'idb'})
+var lectionary = new PouchDB('lectionary', {adapter: 'idb'})
+var prayerList = new PouchDB('prayerList', {adapter: 'idb'}); // never replicate!
+var config = new PouchDB('config', {adapter: 'idb'}); // never replicate!
+var canticles = new PouchDB('canticles', {adapter: 'idb'});
+var occasional_prayers = new PouchDB('occasional_prayers', {adapter: 'idb'});
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://bcp2019.com/couchdb/iphod"
   // , remoteServiceURL =    "https://bcp2019.com/couchdb/service_dev" // for development
@@ -102,12 +104,12 @@ var dbOpts = { live: true, retry: true }
   , remoteLectionaryURL = "https://bcp2019.com/couchdb/lectionary"
   , remoteCanticles = "https://bcp2019.com/couchdb/canticles"
   , remoteOpsURL = "https://bcp2019.com/couchdb/occasional_prayers"
-  , remoteIphod = new Pouchdb(remoteIphodURL)
-  , remoteService = new Pouchdb(remoteServiceURL)
-  , remotePsalms = new Pouchdb(remotePsalmsURL)
-  , remoteLectionary = new Pouchdb(remoteLectionaryURL)
-  , remoteCanticles = new Pouchdb(remoteCanticles)
-  , remoteOps = new Pouchdb(remoteOpsURL)
+  , remoteIphod = new PouchDB(remoteIphodURL)
+  , remoteService = new PouchDB(remoteServiceURL)
+  , remotePsalms = new PouchDB(remotePsalmsURL)
+  , remoteLectionary = new PouchDB(remoteLectionaryURL)
+  , remoteCanticles = new PouchDB(remoteCanticles)
+  , remoteOps = new PouchDB(remoteOpsURL)
   , default_prefs = {
       _id: 'preferences'
     , ot: 'ESV'
@@ -195,8 +197,6 @@ function sync() {
   if (!ready) { return undefined }
   var options = {live: true, retry: true};
   if (!isOnline) return send_status("Offline")
-  console.log("CANTCILES", canticles)
-  console.log("SERVICE", service)
   send_status("Syncing Iphod")
   try {
     iphod.replicate.from(remoteIphod, options)
