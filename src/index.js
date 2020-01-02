@@ -81,11 +81,11 @@ var Calendar = require('./js/calendar.js').Calendar;
 var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
-window.PouchDB = require('./js/pouchdb-7.1.1.min.js');
+import PouchDB from 'pouchdb';
 import PouchFind from 'pouchdb-find';
-window.PouchDB.plugin(PouchFind);
+PouchDB.plugin(PouchFind);
 
-var PouchDB = window.PouchDB;
+//var window.PouchDB = PouchDB;
 
 var preferences = new PouchDB('preferences', {adapter: 'idb'});
 var iphod = new PouchDB('iphod', {adapter: 'idb'})
