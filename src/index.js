@@ -82,10 +82,9 @@ var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
 import PouchDB from 'pouchdb';
-import PouchFind from 'pouchdb-find';
-PouchDB.plugin(PouchFind);
+import * as PouchDBFind from 'pouchdb-find';
+PouchDB.plugin(PouchDBFind);
 
-//var window.PouchDB = PouchDB;
 
 var preferences = new PouchDB('preferences', {adapter: 'idb'});
 var iphod = new PouchDB('iphod', {adapter: 'idb'})
