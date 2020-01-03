@@ -82,19 +82,22 @@ var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
 import PouchDB from 'pouchdb';
-import * as PouchDBFind from 'pouchdb-find';
-PouchDB.plugin(PouchDBFind);
 
+import PouchdbFind from 'pouchdb-find';
+PouchDB.plugin(PouchdbFind);
 
-var preferences = new PouchDB('preferences', {adapter: 'idb'});
-var iphod = new PouchDB('iphod', {adapter: 'idb'})
-var service = new PouchDB('service', {adapter: 'idb'}) // for production
-var psalms = new PouchDB('psalms', {adapter: 'idb'})
-var lectionary = new PouchDB('lectionary', {adapter: 'idb'})
-var prayerList = new PouchDB('prayerList', {adapter: 'idb'}); // never replicate!
-var config = new PouchDB('config', {adapter: 'idb'}); // never replicate!
-var canticles = new PouchDB('canticles', {adapter: 'idb'});
-var occasional_prayers = new PouchDB('occasional_prayers', {adapter: 'idb'});
+import PouchdbAdapter from 'pouchdb-adapter-websql';
+PouchDB.plugin(PouchdbAdapter);
+
+var preferences = new PouchDB('preferences', {adapter: 'websql'});
+var iphod = new PouchDB('iphod', {adapter: 'websql'})
+var service = new PouchDB('service', {adapter: 'websql'}) // for production
+var psalms = new PouchDB('psalms', {adapter: 'websql'})
+var lectionary = new PouchDB('lectionary', {adapter: 'websql'})
+var prayerList = new PouchDB('prayerList', {adapter: 'websql'}); // never replicate!
+var config = new PouchDB('config', {adapter: 'websql'}); // never replicate!
+var canticles = new PouchDB('canticles', {adapter: 'websql'});
+var occasional_prayers = new PouchDB('occasional_prayers', {adapter: 'websql'});
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://bcp2019.com/couchdb/iphod"
   // , remoteServiceURL =    "https://bcp2019.com/couchdb/service_dev" // for development
