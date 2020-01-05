@@ -82,6 +82,7 @@ var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
 // 
 import PouchDB from 'pouchdb';
+window.PDB = PouchDB;
 
 import PouchdbFind from 'pouchdb-find';
 PouchDB.plugin(PouchdbFind);
@@ -89,15 +90,15 @@ PouchDB.plugin(PouchdbFind);
 import PouchdbAdapter from 'pouchdb-adapter-websql';
 PouchDB.plugin(PouchdbAdapter);
 
-var preferences = new PouchDB('preferences', {adapter: 'websql'});
-var iphod = new PouchDB('iphod', {adapter: 'websql'})
-var service = new PouchDB('service', {adapter: 'websql'}) // for production
-var psalms = new PouchDB('psalms', {adapter: 'websql'})
-var lectionary = new PouchDB('lectionary', {adapter: 'websql'})
-var prayerList = new PouchDB('prayerList', {adapter: 'websql'}); // never replicate!
-var config = new PouchDB('config', {adapter: 'websql'}); // never replicate!
-var canticles = new PouchDB('canticles', {adapter: 'websql'});
-var occasional_prayers = new PouchDB('occasional_prayers', {adapter: 'websql'});
+var preferences = new PouchDB('preferences');
+var iphod = new PouchDB('iphod')
+var service = new PouchDB('service') // for production
+var psalms = new PouchDB('psalms')
+var lectionary = new PouchDB('lectionary')
+var prayerList = new PouchDB('prayerList'); // never replicate!
+var config = new PouchDB('config'); // never replicate!
+var canticles = new PouchDB('canticles');
+var occasional_prayers = new PouchDB('occasional_prayers');
 var dbOpts = { live: true, retry: true }
   , remoteIphodURL =      "https://bcp2019.com/couchdb/iphod"
   // , remoteServiceURL =    "https://bcp2019.com/couchdb/service_dev" // for development
@@ -590,7 +591,7 @@ function requestOffice(request, dbs) {
       break;
     case "calendar":
       get_service("calendar", getDBsFor("service"));
-      Calendar.get_calendar( now, receivedCalendar );
+      Calendar.get_calendar( now, [remoteIphod, iphod], [remoteLectionary, lectionary], receivedCalendar );
       break;
     case "prayerList":
       get_service(request, getDBsFor("service"))
@@ -732,13 +733,28 @@ app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
   var month = (toWhichMonth === "prev") ? fromMonth -1 : fromMonth + 1;
   switch (true) {
     case (month < 0): // december previous year
-      return Calendar.get_calendar( moment({"year": year - 1, "month": 11, "date": 31}), receivedCalendar );
+      return Calendar.get_calendar( 
+        moment({"year": year - 1, "month": 11, "date": 31})
+        , [remoteIphod, iphod]
+        , [remoteLectionary, lectionary]
+        , receivedCalendar 
+        );
       break;
     case (month > 11): // january next year
-      return Calendar.get_calendar( moment({"year": year + 1, "month": 0, "date": 1}), receivedCalendar );
+      return Calendar.get_calendar( 
+        moment({"year": year + 1, "month": 0, "date": 1})
+        , [remoteIphod, iphod]
+        , [remoteLectionary, lectionary]
+        , receivedCalendar 
+        );
       break;
     default: 
-      return Calendar.get_calendar( moment({"year": year, "month": month, "date": 1}), receivedCalendar );
+      return Calendar.get_calendar( 
+        moment({"year": year, "month": month, "date": 1})
+        , [remoteIphod, iphod]
+        , [remoteLectionary, lectionary]
+        , receivedCalendar 
+        );
   }
 })
 
@@ -1152,7 +1168,6 @@ function request_canticles(canticles, dbs) {
     , names = Object.values(canticles)
     , keys = Object.keys(canticles)
     ;
-
   db.allDocs( {include_docs: true, keys: names} )
   .then( resp => {
     if (resp.total_rows === 0) { request_canticles( names, dbs ) }
@@ -1163,6 +1178,7 @@ function request_canticles(canticles, dbs) {
     receivedOfficeCanticles.send( JSON.stringify( {canticles: cants } ))
   })
   .catch( err => {
+    console.log("Error on DB: ", db)
     if ( dbs.length > 0 ) { request_canticles( canticles, dbs ) }
     else (console.log("Error getting office canticles: ", err))
   })
