@@ -94,7 +94,7 @@ var preferences = new PouchDB('preferences');
 var iphod = new PouchDB('iphod')
 var service = new PouchDB('service') // for production
 var psalms = new PouchDB('psalms')
-var lectionary = new PouchDB('lectionary')
+var DOdb = new PouchDB('DOdb')
 var prayerList = new PouchDB('prayerList'); // never replicate!
 var config = new PouchDB('config'); // never replicate!
 var canticles = new PouchDB('canticles');
@@ -176,7 +176,7 @@ function getAllDBsFor(dbName) {
     case "canticles": return [remoteCanticles, canticles]; break;
     case "service": return [remoteService, service]; break;
     case "psalms": return [remotePsalms, psalms]; break;
-    case "lectionary": return [remoteLectionary, lectionary]; break;
+    case "lectionary": return [remoteLectionary, DOdb]; break;
     case "occasional_prayers": return [remoteOps, occasional_prayers]; break;
     default: return []
   }
@@ -192,7 +192,7 @@ service.info()
 .then( function(resp) { if (resp.doc_count >= 11) { serviceOK = true} })
 psalms.info()
 .then( function(resp) { if (resp.doc_count >= 150) { psalmsOK = true} })
-lectionary.info()
+DOdb.info()
 .then( function(resp) { if (resp.doc_count >= 366) { lectionaryOK = true} })
 
 // sync can hold things up unless you sync one at a time
@@ -217,7 +217,7 @@ function sync() {
   catch(err) { console.log(err)}
 
   try {
-    lectionary.replicate.from(remoteLectionary, options)
+    DOdb.replicate.from(remoteLectionary, options)
     .on("complete", function() {
       send_status("Lectionary Synced")
     })
@@ -530,7 +530,7 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
         , date: req.dayOfMonth 
         });
   var sn = LitYear.toSeason(now)
-  var [key, db] = req.service === "eu" ? [sn.iphodKey, iphod] : [sn.mpepKey, lectionary]
+  var [key, db] = req.service === "eu" ? [sn.iphodKey, iphod] : [sn.mpepKey, DOdb]
 
   switch (req.reading) {
     case "lesson1":
@@ -591,7 +591,7 @@ function requestOffice(request, dbs) {
       break;
     case "calendar":
       get_service("calendar", getDBsFor("service"));
-      Calendar.get_calendar( now, [remoteIphod, iphod], [remoteLectionary, lectionary], receivedCalendar );
+      Calendar.get_calendar( now, [remoteIphod, iphod], [remoteLectionary, DOdb], receivedCalendar );
       break;
     case "prayerList":
       get_service(request, getDBsFor("service"))
@@ -736,7 +736,7 @@ app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
       return Calendar.get_calendar( 
         moment({"year": year - 1, "month": 11, "date": 31})
         , [remoteIphod, iphod]
-        , [remoteLectionary, lectionary]
+        , [remoteLectionary, DOdb]
         , receivedCalendar 
         );
       break;
@@ -744,7 +744,7 @@ app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
       return Calendar.get_calendar( 
         moment({"year": year + 1, "month": 0, "date": 1})
         , [remoteIphod, iphod]
-        , [remoteLectionary, lectionary]
+        , [remoteLectionary, DOdb]
         , receivedCalendar 
         );
       break;
@@ -752,7 +752,7 @@ app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
       return Calendar.get_calendar( 
         moment({"year": year, "month": month, "date": 1})
         , [remoteIphod, iphod]
-        , [remoteLectionary, lectionary]
+        , [remoteLectionary, DOdb]
         , receivedCalendar 
         );
   }
