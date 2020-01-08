@@ -316,7 +316,7 @@ toSeason: function (moment_date) {
     return {season: "epiphany",     week: "0", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(weeksFromEpiphany, 0, 8)):
-    wk = (weeksFromEpiphany + 1).toString();
+    wk = (weeksFromEpiphany).toString();
     ik = "epiphany" + wk + yrABC;
     return {season: "epiphany",     week: wk, year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
