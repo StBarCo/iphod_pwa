@@ -19,6 +19,7 @@ axios.defaults.headers.common['Authorization'] = "Token 77f1ef822a19e06867cf335a
 
 // define ports (so they can be passed in callbacks)
 var receivedLesson = undefined
+  , swStatus = false
   , onlineStatus = undefined
   , receivedOffice = undefined
   , receivedCalendar = undefined
@@ -155,6 +156,8 @@ window.onload = ( function() {
   get_prayer_list();
   send_status("Ready")
   })
+  // swStatus = false;
+  // isOnline = false;
 
 }) // end of window.onload
 
@@ -171,15 +174,20 @@ function getDBsFor(dbName) {
   }
 }
 function getAllDBsFor(dbName) {
+  var dbs = []
   switch (dbName) {
-    case "iphod": return [remoteIphod, iphod]; break;
-    case "canticles": return [remoteCanticles, canticles]; break;
-    case "service": return [remoteService, service]; break;
-    case "psalms": return [remotePsalms, psalms]; break;
-    case "lectionary": return [remoteLectionary, DOdb]; break;
-    case "occasional_prayers": return [remoteOps, occasional_prayers]; break;
+    case "iphod": dbs = [remoteIphod, iphod]; break;
+    case "canticles": dbs = [remoteCanticles, canticles]; break;
+    case "service": dbs = [remoteService, service]; break;
+    case "psalms": dbs = [remotePsalms, psalms]; break;
+    case "lectionary": dbs = [remoteLectionary, DOdb]; break;
+    case "occasional_prayers": dbs = [remoteOps, occasional_prayers]; break;
     default: return []
   }
+  if (!isOnline) { dbs.shift(); }
+  if (!swStatus) { dbs.pop(); }
+  if (dbs.length === 0 ) { send_status("offline/no db"); }
+  return dbs;
 }
 
 
@@ -201,6 +209,16 @@ function sync() {
   var options = {live: true, retry: true};
   if (!isOnline) return send_status("Offline")
   send_status("Syncing Iphod")
+  // remove websql dbs
+  new PouchDB('iphod', {adapter: 'websql'}).destroy();
+  new PouchDB('service', {adapter: 'websql'}).destroy();
+  new PouchDB('lectionary', {adapter: 'websql'}).destroy();
+  new PouchDB('canticles', {adapter: 'websql'}).destroy();
+  new PouchDB('psalms', {adapter: 'websql'}).destroy();
+  new PouchDB('config', {adapter: 'websql'}).destroy();
+  new PouchDB('occasional_prayers', {adapter: 'websql'}).destroy();
+  new PouchDB('preferences', {adapter: 'websql'}).destroy();
+  new PouchDB('config', {adapter: 'websql'}).destroy();
   try {
     iphod.replicate.from(remoteIphod, options)
       .on("complete", function(){
@@ -248,7 +266,15 @@ function sync() {
   }
   catch(err) { console.log(err)}
 
-  ('serviceWorker' in navigator) ? send_status("Service Worker Ready") : send_status("No Service Worker")
+  // need to allow for no service worker
+  if ('serviceWorker' in navigator) {
+    send_status("Service Worker Ready");
+    swStatus = true;
+   }
+   else {
+     send_status("No Service Worker");
+     swStatus = false;
+   }
   //.on("error", function(err) {
   //  console.log("SYNC ERROR: ", err);
   //  send_status("Sync failed");
@@ -259,7 +285,7 @@ function sync() {
           
 function send_status(s) { 
   if (onlineStatus) { onlineStatus.send(s) }
-  else { console.log("Error: Online Status still iundefined: ", s) }
+  else { console.log("Error: Online Status still undefined: ", s) }
 }
 
 function db_fail(s) { send_status( s + " unavailable"); }
@@ -376,6 +402,7 @@ function service_db_name(s) {
 }
 
 function get_service(named, dbs) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var thisServiceDB = dbs.pop();
   // have to map offices here
   // we might want to add offices other than acna
@@ -401,6 +428,7 @@ function get_service(named, dbs) {
 }
 
 function iphodGet(key, dbs, callback) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var db = dbs.pop();
   db.get(key)
   .then ( resp => { callback(resp) })
@@ -643,6 +671,7 @@ function init_config() {
 }
 
 function getOccasionalPrayers(key, dbs, callback) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var thisOPsDB = dbs.pop();
   thisOPsDB.get(key)
   .then ( resp => {
@@ -661,6 +690,7 @@ function get_ops_categories() {
 }
 
 function findOccassionalPrayer( selector, dbs, callback) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var thisOPsDB = dbs.pop();
   thisOPsDB.find(selector)
   .then ( resp => { 
@@ -685,6 +715,7 @@ app.ports.requestOPsByCat.subscribe( request => {
 })
 
 function allOPsDocs( selector, dbs, callback ) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var thisOPsDB = dbs.pop();
   thisOPsDB.allDocs( selector )
   .then ( resp => {
@@ -909,6 +940,7 @@ function get_from_eucharist( lesson, key, spa_location ) {
 }
 
 function getLectionary(key, dbs, callback) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var thisLectionaryDB = dbs.pop();
   thisLectionaryDB.get(key)
   .then ( resp => { callback(resp); })
@@ -929,6 +961,7 @@ function get_from_lectionary_db(office, lesson, mpepKey, spa_location) {
 }
 
 function get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var thisDB = dbs.pop();
   if (thisDB === 'esv') { get_from_esv(dbs, office, lesson, lessonKeys, spa_location) }
   else {
@@ -1136,6 +1169,7 @@ function showPsalms(pss) {
 }
 
 function request_canticle(dbs, key) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var db = dbs.pop();
   db.get(key)
   .then( resp => {
@@ -1150,6 +1184,7 @@ function request_canticle(dbs, key) {
 }
 
 function request_all_canticles(dbs) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var db = dbs.pop();
   db.allDocs( {include_docs: true})
   .then( resp => {
@@ -1164,6 +1199,7 @@ function request_all_canticles(dbs) {
 }
 
 function request_canticles(canticles, dbs) {
+  if (dbs.length === 0) { throw( "No DB available"); }
   var db = dbs.pop()
     , names = Object.values(canticles)
     , keys = Object.keys(canticles)
