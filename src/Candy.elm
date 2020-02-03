@@ -29,16 +29,16 @@ readingIntroduction model lesson =
     in
     if skipIntro
         then
-           [ none ] 
+           [ none ]
         else
             [ paragraph (Palette.lessonTitle model.width) [ text ("A Reading From " ++ ref) ] ]
 
-    
+
 addWordOfTheLord : List (Element msg) -> List (Element msg)
 addWordOfTheLord vss =
     [ vss
     ,   [ paragraph [ indent "6rem", paddingXY 10 0 ] [ text "The Word of the Lord" ]
-        , paragraph [ paddingXY 10 0 ] 
+        , paragraph [ paddingXY 10 0 ]
             [ el [ ] ( text "People")
             , el [ indent "3.2rem" ] ( text "Thanks be to God" )
             ]
@@ -55,7 +55,7 @@ skipLesson2 model lesson =
     model.config.readingCycle == "TwoYear" && (lesson == "lesson2" || lesson == "canticle2")
 
 isEven : Int -> Bool
-isEven n = 
+isEven n =
     modBy 2 n == 0
 
 stringNotEmpty : String -> Bool
@@ -79,12 +79,12 @@ indentableParagraph normal indent s =
 
 elsWithItalics : String -> List (Element msg)
 elsWithItalics str =
-    str 
+    str
     |> String.split "/"
     |> List.filter stringNotEmpty
-    |> List.indexedMap (\i txt ->  
+    |> List.indexedMap (\i txt ->
         if isEven i
-        then 
+        then
             el [] (text txt)
         else
             el [ Font.italic ] (text txt)
@@ -116,19 +116,19 @@ renderPlainText width str =
 
 renderSectionTitle : Int -> String -> (Element msg)
 renderSectionTitle width str =
-    let 
+    let
         link = str |> String.replace " " "_"
     in
     paragraph
     (Palette.section width)
     [ pageBreak link
-    , text (str |> toTitleCase) 
+    , text (str |> toTitleCase)
     ]
 
 renderCollectTitle : Int -> String -> (Element msg)
 renderCollectTitle width str =
-    paragraph 
-    ( Palette.collectTitle width ) 
+    paragraph
+    ( Palette.collectTitle width )
     ( elsWithItalics (str |> toTitleCase) )
 
 renderDailyCollect : Int -> String -> String -> (Element msg)
@@ -143,25 +143,25 @@ renderDailyCollect width title text =
 renderPrayer : Int -> String -> (Element msg)
 renderPrayer width str =
     let
-        lns = str 
-            |> String.split "\n" 
-            |> List.map (\l -> 
+        lns = str
+            |> String.split "\n"
+            |> List.map (\l ->
                 let
                     x = if leadingSpaces l then 30 else 10
                 in
-                
-                paragraph [indent "3rem", Element.width (px (width - 70)), paddingXY x 0 ] 
+
+                paragraph [indent "3rem", Element.width (px (width - 70)), paddingXY x 0 ]
                 [ el [outdent "3rem"] none
                 , text (String.trimRight l)
-                ] 
+                ]
             )
     in
     column (Palette.prayer width) lns
 
 renderPrayerListItem : Int -> OccasionalPrayer -> List (Element msg)
 renderPrayerListItem width op =
-    [ paragraph 
-        [ Font.bold ] 
+    [ paragraph
+        [ Font.bold ]
         [ text (op.category ++ ": " ++ (toTitleCase op.title)) ]
     , renderPlainText width op.prayer
     ]
@@ -207,7 +207,7 @@ backgroundGradient s =
     [ Font.color foreground, Background.gradient grad ]
 
 borderShadow : String -> List (Attribute msg)
-borderShadow color = 
+borderShadow color =
     case color of
         "white" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litWhite} ]
         "green" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litGreen} ]
@@ -217,5 +217,3 @@ borderShadow color =
         "rose" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.litRose} ]
         "gold" -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.darkGrey} ]
         _ -> [Border.shadow { offset = (5.0, -2.0), size = 5.0, blur = 20.0, color = Palette.foggy} ]
-
-
