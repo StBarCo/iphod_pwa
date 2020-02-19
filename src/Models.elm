@@ -36,7 +36,7 @@ type alias Options =
     , options: List Option
     }
 
-type alias OptionsHeader = 
+type alias OptionsHeader =
     { tag: String
     , label: String
     }
@@ -54,6 +54,7 @@ type Service
     = Eucharist
     | MorningPrayer
     | EveningPrayer
+    | Daily
 
 type ReadingType
     = Lesson1
@@ -89,7 +90,7 @@ initOption =
     }
 
 initOptions : Options
-initOptions = 
+initOptions =
     { tag = ""
     , label = "NoOptions Available"
     , options = []
@@ -111,7 +112,7 @@ type alias Verse =
     }
 
 initVerse : Verse
-initVerse = 
+initVerse =
     { book = ""
     , chap = 0
     , vs = 0
@@ -131,14 +132,16 @@ type alias Reading =
     , read: String
     , style: String
     , vss: List Verse
+    , query: String
     }
 
 initReading : Reading
-initReading = 
+initReading =
     { id = 0
     , read = ""
     , style = "req"
     , vss = []
+    , query = ""
     }
 
 readingDecoder : Decoder Reading
@@ -148,19 +151,20 @@ readingDecoder =
     |> required "ref" string
     |> required "style" string
     |> optional "vss" (Decode.list vsDecoder) []
+    |> optional "query" string ""
 
 
 type alias Lesson =
     { lesson: String
-    , content: List Reading 
+    , content: List Reading
     , spa_location: String
     , bookName: String
     }
 
 initLesson : Lesson
-initLesson = 
+initLesson =
     { lesson = ""
-    , content = [] 
+    , content = []
     , spa_location = ""
     , bookName = ""
     }
@@ -192,12 +196,12 @@ initLessons =
 serviceLessonsDecoder : Decoder Lessons
 serviceLessonsDecoder =
     Decode.succeed Lessons
-    |> required "lesson1" lessonDecoder 
-    |> required "lesson2" lessonDecoder 
-    |> required "psalms" lessonDecoder 
+    |> required "lesson1" lessonDecoder
+    |> required "lesson2" lessonDecoder
+    |> required "psalms" lessonDecoder
     |> optional "gospel" lessonDecoder initLesson
 
-type alias CalendarDay = 
+type alias CalendarDay =
     { show      : Bool
     , id        : Int
     , pTitle    : String
@@ -239,7 +243,7 @@ initCalendarDay =
     , eu         = initLessons
     }
 
-type alias Calendar = 
+type alias Calendar =
     { calendar: List CalendarDay }
 
 calendarDecoder : Decoder Calendar
@@ -305,7 +309,7 @@ type alias PrayerList =
     }
 
 initPrayerList : PrayerList
-initPrayerList = 
+initPrayerList =
     { show = False
     , edit = False
     , prayers = []
@@ -329,7 +333,7 @@ type alias OccasionalPrayer =
     }
 
 initOccassionalPrayer : OccasionalPrayer
-initOccassionalPrayer = 
+initOccassionalPrayer =
     { id = "id000"
     , category = "Other"
     , title = ""
@@ -337,10 +341,10 @@ initOccassionalPrayer =
     , prayer = ""
     , show = False
     }
-  
+
 type alias OPList =
     { cat: String
-    , prayers : List OccasionalPrayer 
+    , prayers : List OccasionalPrayer
     }
 
 opDecoder : Decoder OccasionalPrayer
@@ -411,17 +415,17 @@ canticleDecoder =
     |> required "notes" string
     |> required "text" string
 
-type alias CanticleList = 
+type alias CanticleList =
     { canticles: List Canticle }
 
 canticleListDecoder : Decoder CanticleList
-canticleListDecoder = 
+canticleListDecoder =
     Decode.succeed CanticleList
     |> required "canticles" (Decode.list canticleDecoder)
 
 
 initCanticle : Canticle
-initCanticle = 
+initCanticle =
     { id = ""
     , officeId = ""
     , name = ""
@@ -468,8 +472,6 @@ type alias Model =
     { config : Device
     , windowWidth : Int
     , width : Int
-    , time : Time.Posix
-    , timers : List Timer
     , swipingState : Swiper.SwipingState
     , pageTitle : String
     , pageName : String
@@ -484,6 +486,8 @@ type alias Model =
     , color : String
     , showConfig : Bool
     , showCalendar : Bool
+    , showOtherPsalms : Bool
+    , showOtherCanticles : Bool
     , showThisCalendarDay : Int
     , options : List Options
     , calendar : List CalendarDay
@@ -500,15 +504,13 @@ type alias Model =
     , online : String
     , ops : OccasionalPrayers
     }
-    
+
 
 initModel : Model
 initModel =
     { config = initDevice
     , windowWidth = 375
     , width = 355 -- iphone minus 20
-    , time = millisToPosix 0
-    , timers = []
     , swipingState  = Swiper.initialSwipingState
     , pageTitle     = "Legereme"
     , pageName      = "currentOffice"
@@ -523,6 +525,8 @@ initModel =
     , color         = ""
     , showConfig    = False
     , showCalendar  = False
+    , showOtherPsalms = False
+    , showOtherCanticles = False
     , showThisCalendarDay = -1
     , options       = []
     , calendar      = []
@@ -539,4 +543,3 @@ initModel =
     , online        = ""
     , ops           = initOPs
     }
-

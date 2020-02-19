@@ -25,7 +25,7 @@ import Models exposing(..)
 
 darkRed = rgb255 100 0 0
 darkBlue = rgb255 13 44 117
-darkGrey = rgb255 80 80 80 
+darkGrey = rgb255 80 80 80
 darkPurple = rgb255 77 15 70
 foggy = rgb255 250 250 250
 litGreen = rgb255 16 104 16
@@ -69,7 +69,7 @@ zIndex z =
 
 scale: Int -> Int -> Int
 scale viewWidth n =
-    if viewWidth > 700 
+    if viewWidth > 700
     then
         ((toFloat viewWidth  / 700) * (toFloat n)) |> round
     else
@@ -92,11 +92,11 @@ maxWidth viewWidth =
     width (px (viewWidth - 25))
 
 scaleFont : Int -> Int -> Attribute msg
-scaleFont viewWidth n = 
+scaleFont viewWidth n =
     (scale viewWidth n) |> Font.size
 
 pageWidth : Int -> Attribute msg
-pageWidth viewWidth = 
+pageWidth viewWidth =
     Element.width (px viewWidth)
 
 indent : String -> Attribute msg
@@ -104,21 +104,21 @@ indent s =
     Element.htmlAttribute <| Html.Attributes.style "margin-left" s
 
 outdent : String -> Attribute msg
-outdent s = 
+outdent s =
     Element.htmlAttribute <| Html.Attributes.style "margin-left" ("-" ++s)
 
 hide : Element.Attribute msg
-hide = 
+hide =
     Html.Attributes.style "display" "none"
     |> Element.htmlAttribute
 
 show : Element.Attribute msg
-show = 
+show =
     Html.Attributes.style "display" "block"
     |> Element.htmlAttribute
 
 swipe : List (Html.Attribute msg) -> List (Attribute msg)
-swipe msgs = 
+swipe msgs =
     msgs |> List.map (\m -> Element.htmlAttribute m)
 
 -- these classes come from an API and need to be mapped from text
@@ -143,10 +143,10 @@ class name =
 
 antiphon : Int -> List (Attribute msg)
 antiphon viewWidth =
-    [ maxWidth viewWidth 
+    [ maxWidth viewWidth
     , paddingEach { edges | top = 10, left = 10 }
     ]
-            
+
 antiphonTitle : Int -> List (Attribute msg)
 antiphonTitle viewWidth =
     [ paddingEach { edges | top = 10 }
@@ -154,7 +154,7 @@ antiphonTitle viewWidth =
     , Font.color darkBlue
     , Font.variant Font.smallCaps
     , outdent "3rem"
-    ] 
+    ]
 
 button : Int -> List (Attribute msg)
 button viewWidth =
@@ -178,7 +178,10 @@ buttonAltInvitatory viewWidth =
     , spacing 10
     , Background.color darkRed
     , Font.color foggy
+    , centerX
     , centerY
+    , spacing 3
+    , scaleFont viewWidth 12
     ]
 
 
@@ -211,7 +214,7 @@ layout viewWidth =
 
 lesson : Int -> List (Attribute msg)
 lesson viewWidth =
-    [ paddingXY 3 0 
+    [ paddingXY 3 0
     , maxWidth viewWidth
     , whiteSpace "normal"
     ]
@@ -233,7 +236,7 @@ menu viewWidth =
     ]
 
 officeTitle : Int -> List (Attribute msg)
-officeTitle viewWidth = 
+officeTitle viewWidth =
     [ paddingEach { edges | top = 80 }
     , Element.centerX
     , Html.Attributes.id "officeTitle" |> Element.htmlAttribute
@@ -246,13 +249,13 @@ openingSentenceTitle viewWidth =
     , Font.color darkBlue
     , Font.variant Font.smallCaps
     , maxWidth viewWidth
-    ] 
+    ]
 
 openingSentence : Int -> List (Attribute msg)
 openingSentence viewWidth =
     [ maxWidth viewWidth
     , paddingXY 10 0
-    ]  
+    ]
 
 pageNumber : Int -> List (Attribute msg)
 pageNumber viewWidth =
@@ -320,7 +323,7 @@ reference viewWidth =
     ]
 
 rubric : Int -> List (Attribute msg)
-rubric viewWidth =        
+rubric viewWidth =
     [ scaleFont viewWidth 12
     , Font.italic
     , Font.color darkRed
@@ -348,7 +351,7 @@ versicalSpeaker viewWidth =
     , Element.alignTop
     , Element.width( Element.px (scale viewWidth 90))
     , Element.padding 0
-    ] 
+    ]
 
 versicalSays : Int -> List (Attribute msg)
 versicalSays viewWidth =
@@ -356,7 +359,7 @@ versicalSays viewWidth =
     , Element.alignTop
     , Element.padding 0
     , Element.width( Element.px (scale viewWidth (viewWidth - 110)) )
-    ] 
+    ]
 
 wordOfTheLord : Int -> List (Attribute msg)
 wordOfTheLord viewWidth =

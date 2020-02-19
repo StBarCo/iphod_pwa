@@ -19,6 +19,7 @@ axios.defaults.headers.common['Authorization'] = "Token 77f1ef822a19e06867cf335a
 
 // define ports (so they can be passed in callbacks)
 var receivedLesson = undefined
+  , receivedPsalm = undefined
   , swStatus = false
   , onlineStatus = undefined
   , receivedOffice = undefined
@@ -33,11 +34,11 @@ var receivedLesson = undefined
   , receivedConfig = undefined
   , newWidth = undefined
   , CurrentPage = undefined
-  , Config = 
+  , Config =
     { _id: "config"
     , readingCycle: "OneYear"
     , psalmsCycle: "ThirtyDay"
-    , fontSize: 14 
+    , fontSize: 14
     }
   , ready = false;
 // for global configuration access, set later
@@ -55,7 +56,7 @@ function sixtyDayCycle() { return (Config.psalmsCycle === "SixtyDay")}
 
 function twoYearKey(office) {
   var officeYear = office + (moment().year() % 2);
-    return { 
+    return {
       morning_prayer0: "mp1"
     , mp0: "mp1"
     , morning_prayer1: "ep1"
@@ -64,7 +65,7 @@ function twoYearKey(office) {
     , ep0: "mp2"
     , evening_prayer1: "ep2"
     , ep1: "ep2"
-    }[officeYear]; 
+    }[officeYear];
 }
 
 // end of Config helpers
@@ -81,7 +82,7 @@ var LitYear = require( "./js/lityear.js" ).LitYear;
 var Calendar = require('./js/calendar.js').Calendar;
 var BibleRef = require( "./js/bibleRef.js" );
 var DailyPsalms = require( "./js/dailyPsalms.js");
-// 
+//
 import PouchDB from 'pouchdb';
 window.PDB = PouchDB;
 
@@ -135,6 +136,7 @@ var dbOpts = { live: true, retry: true }
   import $ from 'jquery';
 window.onload = ( function() {
   receivedLesson = app.ports.receivedLesson;
+  receivedPsalm = app.ports.receivedPsalm;
   onlineStatus = app.ports.onlineStatus;
   receivedOffice = app.ports.receivedOffice;
   receivedCalendar = app.ports.receivedCalendar;
@@ -161,18 +163,38 @@ window.onload = ( function() {
 
 }) // end of window.onload
 
+app.ports.request.subscribe( req => {
+  var [cmd, args] = req;
+  console.log("REQUEST", cmd, args)
+  switch (cmd) {
+    case "Reference": requestReference( args); break;
+    case "Office": requestOffice(getDBsFor('iphod'), args); break;
+    case "Lessons": requestLessons( args); break;
+    case "OpsByCat": requestOPsByCat( args); break;
+    case "NextInvitatory": requestNextInvitatory( args); break;
+    case "PrayerListDB": requestPrayerListDB( args); break;
+    case "ToggleButtons": requestToggleButtons( args); break;
+    case "Collect": requestCollect( args); break;
+    case "AllCanticles": request_all_canticles( getDBsFor("canticles")); break;
+  }
+})
+
+
+
 function getDBsFor(dbName) {
   if (UseLocalDB) { return getAllDBsFor(dbName) }
   switch (dbName) {
-    case "iphod": return [remoteIphod]; break;
-    case "canticles": return [remoteCanticles]; break;
-    case "service": return [remoteService]; break;
-    case "psalms": return [remotePsalms]; break;
-    case "lectionary": return [remoteLectionary]; break;
-    case "occasional_prayers": return [remoteOps]; break;
+    case "iphod": return [remoteIphod, iphod]; break;
+    case "canticles": return [remoteCanticles, canticles]; break;
+    case "service": return [remoteService, service]; break;
+    case "psalms": return [remotePsalms, psalms]; break;
+    case "lectionary": return [remoteLectionary, lectionary]; break;
+    case "occasional_prayers": return [remoteOps, occasional_prayers]; break;
     default: return [];
   }
 }
+
+
 function getAllDBsFor(dbName) {
   var dbs = []
   switch (dbName) {
@@ -241,7 +263,7 @@ function sync() {
     })
   }
   catch(err) { console.log(err)}
-  
+
   try {
     occasional_prayers.replicate.from(remoteOps, options)
     .on("complete", function() {
@@ -276,15 +298,18 @@ function sync() {
      swStatus = false;
    }
   //.on("error", function(err) {
-  //  console.log("SYNC ERROR: ", err);
+  //  ("SYNC ERROR: ", err);
   //  send_status("Sync failed");
   //})
 }
 
 
-          
-function send_status(s) { 
-  if (onlineStatus) { onlineStatus.send(s) }
+
+function send_status(s) {
+  if (onlineStatus) {
+    onlineStatus.send(s)
+    setTimeout(() => {onlineStatus.send("")}, 5000)
+  }
   else { console.log("Error: Online Status still undefined: ", s) }
 }
 
@@ -293,7 +318,7 @@ function db_fail(s) { send_status( s + " unavailable"); }
 function syncError() {};
 
 // NEED TO ADD AN EVENT LISTENER TO CHECK FOR CONNECTIVITY
-var isOnline = navigator.onLine; 
+var isOnline = navigator.onLine;
 var esvOK = navigator.onLine; // false because don't have key yet
 
 
@@ -313,7 +338,7 @@ function service_header_response(now, season, named, resp, euResp) {
           , "Wednesday", "Thursday", "Friday"
           , "Saturday"
           ][now.weekday()]
-  , serviceHeader = [ 
+  , serviceHeader = [
       today
     , day
     , season.week.toString()
@@ -331,7 +356,7 @@ function service_header_response(now, season, named, resp, euResp) {
 }
 
 
-app.ports.requestCollect.subscribe( id => {
+function requestCollect( id ) {
   var ofType = "traditional";
   // I think this request for a collect should always have
   // a read id - not a 'fake' one e.g. "daily" or "seasonal"
@@ -340,12 +365,12 @@ app.ports.requestCollect.subscribe( id => {
   //   id = dailyId();
   // }
   getCollect(id, ofType)
-})
+}
 
 function dailyId(service) {
   // service should either be "morning_prayer" or "evening_prayer"
   var mpep = service === "morning_prayer" ? "_mp" : "_ep";
-  return "collect_" + 
+  return "collect_" +
     ["sunday", "monday", "tuesday"
     , "wednesday", "thursday", "friday"
     , "saturday"
@@ -380,7 +405,7 @@ function requestSeasonalCollect(season) {
 
 
 function service_db_name(s) {
-  var dbName = 
+  var dbName =
     { deacons_mass: "deacons_mass"
     , morning_prayer: "morning_prayer"
     , midday: "midday"
@@ -402,6 +427,7 @@ function service_db_name(s) {
 }
 
 function get_service(named, dbs) {
+  console.log("GET SERVICE: ", named, dbs)
   if (dbs.length === 0) { throw( "No DB available"); }
   var thisServiceDB = dbs.pop();
   // have to map offices here
@@ -422,7 +448,7 @@ function get_service(named, dbs) {
         get_service(named, dbs);
       }
       else { db_fail("Service " + named) }
-    }) 
+    })
   }
   else { send_status("Service Database Unavailable"); }
 }
@@ -496,8 +522,8 @@ function initElmHeader() {
 
 // PRAYER LIST
 
-app.ports.prayerListDB.subscribe( function(request) {
-  var [cmd, id, who, why, ofType, opId, date] = request;
+function requestPrayerListDB( args ) {
+  var [cmd, id, who, why, ofType, opId, date] = args;
   var prayer =
     { who: who
     , why: why
@@ -543,7 +569,7 @@ app.ports.prayerListDB.subscribe( function(request) {
     default:
       break;
     }
-})
+}
 
 // END OF PRAYER LIST
 
@@ -555,7 +581,7 @@ $(window).on("resize", function() {
 app.ports.calendarReadingRequest.subscribe( function(req) {
   var now = moment( { year: req.year
         , month: req.month
-        , date: req.dayOfMonth 
+        , date: req.dayOfMonth
         });
   var sn = LitYear.toSeason(now)
   var [key, db] = req.service === "eu" ? [sn.iphodKey, iphod] : [sn.mpepKey, DOdb]
@@ -583,7 +609,7 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
     case "all":
         insertLesson( "lesson1", req.service, key, req.service )
         insertLesson( "lesson2", req.service, key, req.service )
-        req.service === "eu" 
+        req.service === "eu"
           ? insertEucharistPsalms(req.service, key)
           : insertPsalms( req.service, req.service )
         insertLesson( "gospel", req.service, key, req.service)
@@ -596,13 +622,11 @@ app.ports.calendarReadingRequest.subscribe( function(req) {
 })
 
 
-app.ports.requestOffice.subscribe( r => { requestOffice(r) });
-
-function requestOffice(request, dbs) {
+function requestOffice(dbs, request) {
   var now = new moment().local();
   CurrentPage = request;
   switch (request) {
-    case "currentOffice": 
+    case "currentOffice":
      // redirect to correct office based on local time
       var mid = new moment().local().hour(11).minute(30).second(0)
         , ep = new moment().local().hour(15).minute(0).second(0)
@@ -642,7 +666,7 @@ function requestOffice(request, dbs) {
       win.focus();
       break;
 
-    default: 
+    default:
       get_service(request, getDBsFor("service"));
       get_office_canticles(request, getDBsFor("canticles"));
   };
@@ -693,8 +717,8 @@ function findOccassionalPrayer( selector, dbs, callback) {
   if (dbs.length === 0) { throw( "No DB available"); }
   var thisOPsDB = dbs.pop();
   thisOPsDB.find(selector)
-  .then ( resp => { 
-    if ( resp.warning ) { findOccassionalPrayer(selector, dbs, callback); } 
+  .then ( resp => {
+    if ( resp.warning ) { findOccassionalPrayer(selector, dbs, callback); }
     else { callback( resp ) }
   })
   .catch ( err => {
@@ -703,8 +727,8 @@ function findOccassionalPrayer( selector, dbs, callback) {
   })
 }
 
-app.ports.requestOPsByCat.subscribe( request => {
-  findOccassionalPrayer( 
+function requestOPsByCat( request ) {
+  findOccassionalPrayer(
       {selector: {category: request}}
     , getDBsFor("occasional_prayers")
     , (resp => {
@@ -712,7 +736,7 @@ app.ports.requestOPsByCat.subscribe( request => {
       docs = docs.map( d => { d.id = d._id; return d } )
       receivedOPs.send( JSON.stringify({cat: request, prayers: docs}) )
     }) )
-})
+}
 
 function allOPsDocs( selector, dbs, callback ) {
   if (dbs.length === 0) { throw( "No DB available"); }
@@ -736,8 +760,8 @@ function get_prayer_list() {
       if (r.doc.opId === undefined) { r.doc.opId = "op000"}
       return r.doc;
     })
-    prayers.sort( (a, b) => { 
-      if (a.opId > b.opId) { return 1; } 
+    prayers.sort( (a, b) => {
+      if (a.opId > b.opId) { return 1; }
       return -1;
     })
     receivedPrayerList.send( JSON.stringify( {prayers: prayers} ))
@@ -764,37 +788,37 @@ app.ports.changeMonth.subscribe( function( [toWhichMonth, fromMonth, year] ) {
   var month = (toWhichMonth === "prev") ? fromMonth -1 : fromMonth + 1;
   switch (true) {
     case (month < 0): // december previous year
-      return Calendar.get_calendar( 
+      return Calendar.get_calendar(
         moment({"year": year - 1, "month": 11, "date": 31})
         , [remoteIphod, iphod]
         , [remoteLectionary, DOdb]
-        , receivedCalendar 
+        , receivedCalendar
         );
       break;
     case (month > 11): // january next year
-      return Calendar.get_calendar( 
+      return Calendar.get_calendar(
         moment({"year": year + 1, "month": 0, "date": 1})
         , [remoteIphod, iphod]
         , [remoteLectionary, DOdb]
-        , receivedCalendar 
+        , receivedCalendar
         );
       break;
-    default: 
-      return Calendar.get_calendar( 
+    default:
+      return Calendar.get_calendar(
         moment({"year": year, "month": month, "date": 1})
         , [remoteIphod, iphod]
         , [remoteLectionary, DOdb]
-        , receivedCalendar 
+        , receivedCalendar
         );
   }
 })
 
-app.ports.toggleButtons.subscribe(  function(request) {
-  var [div, section_button] = request.map(  function(r) { return r.toLowerCase(); } );
+function requestToggleButtons(  args ) {
+  var [div, section_button] = args.map(  function(r) { return r.toLowerCase(); } );
   var section_id = section_button.replace("button", "id")
   $("#alternatives_" + div + " .alternative").hide(); // hide all the alternatives
   $("#" + section_id).show(); // show the selected alternative
-})
+}
 
 app.ports.saveConfig.subscribe( thisConfig => {
   config.get('config')
@@ -822,8 +846,19 @@ app.ports.saveConfig.subscribe( thisConfig => {
 
 })
 
-app.ports.requestReference.subscribe(  function(request) {
-  var [id, ref] = request
+function requestPsalm( ps ) {
+  psalms.get("acna" + ps)
+  .then( resp => {
+    var vss = formatPsalm(ps, 1, 999, resp)
+    receivedPsalm.send( JSON.stringify(
+      { id: 0
+      , query:""
+      , ref: resp.name + "\n" + (resp.title ? resp.title : ""), read: "PSA " + ps, style: "req", vss: vss} ) )
+  })
+}
+
+function requestReference(  args ) {
+  var [id, ref] = args
     , keys = BibleRef.dbKeys(ref)
     , allPromises = []
     ;
@@ -839,7 +874,7 @@ app.ports.requestReference.subscribe(  function(request) {
   .then(  function(resp) {
     var readingDiv = "<div id='ReferenceReading'></div>";
     $("#ReferenceReading").remove();
-    $("#" + id).parent().append(readingDiv); 
+    $("#" + id).parent().append(readingDiv);
     resp[0].rows.forEach(  function(r) {
       $("#ReferenceReading").append(r.doc.vss);
     });
@@ -847,7 +882,7 @@ app.ports.requestReference.subscribe(  function(request) {
   .catch(  function(err) {
     console.log( "REQUEST READING ERROR: ", err);
   })
-})
+}
 
 app.ports.swipeLeftRight.subscribe( swipe => {
   var topNow = window.scrollY;
@@ -864,7 +899,7 @@ app.ports.swipeLeftRight.subscribe( swipe => {
     pageTops = []
       .slice
       .call( document.getElementsByClassName('page'))
-      .map( p => { 
+      .map( p => {
         return parseInt( p.getBoundingClientRect().top - offset );
       } )
 
@@ -878,9 +913,9 @@ app.ports.swipeLeftRight.subscribe( swipe => {
       if (p > topNow) { break; }
     }
     else {
-      if (p > topNow) { 
+      if (p > topNow) {
         goto = pageTops[i-2] ? pageTops[i-2] : 0
-        break; 
+        break;
       };
     }
   }
@@ -888,14 +923,14 @@ app.ports.swipeLeftRight.subscribe( swipe => {
   window.scroll({top:goto, behavior: "smooth"})
 })
 
-app.ports.requestLessons.subscribe(  function(request) {
+function requestLessons(  request ) {
   var today = new moment().local();
   var pages = document.getElementsByClassName['page']
   request_lessons(request, today );
-})
+}
 
 function request_lessons(request, today) {
-  var offices = 
+  var offices =
     { morning_prayer: "mp"
     , evening_prayer: "ep"
     , eucharist: "eu"
@@ -917,7 +952,7 @@ function insertLesson(lesson, office, key, spa_location) {
     get_from_eucharist(lesson, key, spa_location)
   }
   else {
-    get_from_lectionary_db( 
+    get_from_lectionary_db(
         office
       , lesson
       , key
@@ -928,7 +963,7 @@ function insertLesson(lesson, office, key, spa_location) {
 
 function get_from_eucharist( lesson, key, spa_location ) {
   iphodGet(key, getDBsFor("iphod"), ( resp => {
-    var eu_key = 
+    var eu_key =
     { lesson1: "ot"
     , lesson2: "nt"
     , psalms: "ps"
@@ -949,14 +984,15 @@ function getLectionary(key, dbs, callback) {
     else { send_status("Error: Lectionary DB not available")}
   })
 }
+
 function get_from_lectionary_db(office, lesson, mpepKey, spa_location) {
   if ( skipSecondLesson(lesson) ) return undefined;
   getLectionary(mpepKey, getDBsFor("lectionary"), (resp => {
     // first db to check is at end of list
-    var lessonKeys = twoYearCycle() 
+    var lessonKeys = twoYearCycle()
       ? resp[ twoYearKey(office) ]
       : resp[office + lesson.substr(-1)];
-    get_from_scripture_db([ iphod, 'esv'], office, lesson, lessonKeys, spa_location); 
+    get_from_scripture_db([ iphod, 'esv'], office, lesson, lessonKeys, spa_location);
   }) )
 }
 
@@ -965,7 +1001,7 @@ function get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location) {
   var thisDB = dbs.pop();
   if (thisDB === 'esv') { get_from_esv(dbs, office, lesson, lessonKeys, spa_location) }
   else {
-    var keys = BibleRef.dbKeys( lessonKeys ) 
+    var keys = BibleRef.dbKeys( lessonKeys )
       , allPromises = []
       ;
     keys.forEach( function(k) {
@@ -986,16 +1022,16 @@ function get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location) {
             , style: keys[i].style
             , vss: r.rows.map( function(el) { return el.doc } )
             }
-            
+
         })
-        receivedLesson.send( 
+        receivedLesson.send(
           JSON.stringify(
             { lesson: lesson
             , content: thisLesson
             , spa_location: spa_location
             , bookName: bookName
             }
-          ) 
+          )
         );
       })
       .catch( function(err) {
@@ -1009,12 +1045,15 @@ function get_from_esv(dbs, office, lesson, lessonKeys, spa_location) {
   var allPromises = [];
   var qx = lessonKeys.map( function(k) { return k.read } );
   qx.forEach( function(q, i) {
-    allPromises.push( axios.get('https://api.esv.org/v3/passage/html/?q=' + q) )
+    // allPromises.push( axios.get('https://api.esv.org/v3/passage/audio/?q=' + q ) )
+    // should redirect to...
+    // https://audio.esv.org/hw/q
+    allPromises.push( axios.get('https://api.esv.org/v3/passage/html/?q=' + q + ";include-audio-link=false") )
   });
   return Promise.all( allPromises )
   .then( function(resp) {
       var thisLesson = [];
-      // here's the problem - a request might have multiple parts, 
+      // here's the problem - a request might have multiple parts,
       // so we get multiple responses - it's possible, although HIGHLY
       // unlikely for one response to succeed and another fail
       // What to do in that case? Beats me.
@@ -1028,16 +1067,29 @@ function get_from_esv(dbs, office, lesson, lessonKeys, spa_location) {
       if (resp[0].data.canonical.length > 0) {
         resp.forEach( function(r, i){
             // if r.data.passages.length == 0 ESV API returned no text
-            // probably apacrophyal 
+            // probably apacrophyal
+            var audio = "<audio controls src='https://audio.esv.org/hw/" + qx[i] + "'>Audio not available</audio>";
+            var vss = r.data.passages.join("<br />");
+            var insertIndex = vss.indexOf("</h2>") + 5
+            // I want the index of after the tag
+            if (insertIndex > 4) {
+              vss = vss.substring(0, insertIndex + 1) + audio + vss.substring(insertIndex)
+            }
             thisLesson[i] =
               { ref: r.data.canonical
               , style: lessonKeys[i].style
-              , vss: [{ vss: r.data.passages.join("<br />") }]
+              , vss: [{ vss: vss }]
+              , query: qx[i]
               }
         })
-        receivedLesson.send( JSON.stringify({lesson: lesson, content: thisLesson, spa_location: spa_location}) );
+        receivedLesson.send( JSON.stringify(
+          { lesson: lesson
+          , content: thisLesson
+          , spa_location: spa_location
+          }
+        ) );
       }
-      else { 
+      else {
         get_from_scripture_db(dbs, office, lesson, lessonKeys, spa_location); }
   })
   .catch( function(err) {
@@ -1054,7 +1106,7 @@ function insertCollect(office) {
     ;
   if ( ! ["ashWednesday", "annunciation", "allSaints"].includes(season.season) ) {
     key = key + season.week
-  } 
+  }
   iphodGet(key, getDBsFor("iphod"), ( resp => {
     $(collectDiv + " .collectTitle").append("Collect of The Day <em>" + resp.title + "</em>")
     $(collectDiv + " .collectContent").append(resp.text[0])
@@ -1122,18 +1174,19 @@ function psalm_response(psalmRefs, resp, spa_location) {
   // a reading has 1 or more verses
   var thisLesson = [] // all the lessons from this response
   resp.forEach( function(r,i) {
-    var vss = []; // all the verses for this reading
     var [chap, from, to] = psalmRefs[i]
-    for(var j = from; j <= to; j++) { // add these verses to the reading
-      if (r[j] === undefined) { break; }
-      vss.push(
-        { book: "PSA"
-        , chap: chap
-        , vs: j
-        , vss: [r[j].hebrew, r[j].title, r[j].first, r[j].second].join("\n")
-        }
-      )
-    }
+    var vss = formatPsalm(chap, from, to, r)
+//    var vss = []; // all the verses for this reading
+//    for(var j = from; j <= to; j++) { // add these verses to the reading
+//      if (r[j] === undefined) { break; }
+//      vss.push(
+//        { book: "PSA"
+//        , chap: chap
+//        , vs: j
+//        , vss: [r[j].hebrew, r[j].title, r[j].first, r[j].second].join("\n")
+//        }
+//      )
+//    }
     thisLesson.push ( // add this reading to the lesson
       { ref: r.name + "\n" + (r.title ? r.title : "") //some titles are undefined
       , style: "req"
@@ -1143,6 +1196,22 @@ function psalm_response(psalmRefs, resp, spa_location) {
   }) // end of resp.forEach
   receivedLesson.send( JSON.stringify({lesson: "psalms", content: thisLesson, spa_location: spa_location}) )
 
+}
+
+function formatPsalm (chap, firstVs, lastVs, resp) {
+  var vss = []; // all the verses for this reading
+
+  for(var j = firstVs; j <= lastVs; j++) { // add these verses to the reading
+    if ( !resp[j] ) { break; }
+    vss.push(
+      { book: "PSA"
+      , chap: chap
+      , vs: j
+      , vss: [resp[j].hebrew, resp[j].title, resp[j].first, resp[j].second].join("\n")
+      }
+    )
+  }
+  return vss;
 }
 
 
@@ -1189,7 +1258,14 @@ function request_all_canticles(dbs) {
   db.allDocs( {include_docs: true})
   .then( resp => {
     if (resp.total_rows === 0) { request_all_canticles(dbs) }
-    var cants = resp.rows.map( c => { return c.doc } )
+    var cants =
+      resp.rows
+      .map( c => { return c.doc } )
+      .sort( (a, b) => {
+        if (parseInt(a.number) < parseInt(b.number) ) return -1;
+        if (parseInt(b.number) < parseInt(a.number) ) return 1;
+        return 0;
+      })
     receivedAllCanticles.send(JSON.stringify({canticles: cants}));
   })
   .catch( err => {
@@ -1207,7 +1283,7 @@ function request_canticles(canticles, dbs) {
   db.allDocs( {include_docs: true, keys: names} )
   .then( resp => {
     if (resp.total_rows === 0) { request_canticles( names, dbs ) }
-    var cants = resp.rows.map( (c, i) => { 
+    var cants = resp.rows.map( (c, i) => {
       c.doc.officeId = keys[i]
       return c.doc;
     })
@@ -1223,7 +1299,7 @@ function request_canticles(canticles, dbs) {
 function get_office_canticles( office, dbs ) {
   // carry on if mp or ep
   if ( !(office === "morning_prayer" || office === "evening_prayer") ) { return; }
-  var names = 
+  var names =
       [ get_invitatory(office)
       , get_canticle(office, "lesson1")
       , get_canticle(office, "lesson2")
@@ -1231,7 +1307,7 @@ function get_office_canticles( office, dbs ) {
     , cants = []
     , officeIds = [ "invitatory", "lesson1", "lesson2"]
   names.forEach( (el, i) => {
-    if (el) { 
+    if (el) {
       cants[officeIds[i]] = el
     }
   })
@@ -1241,10 +1317,9 @@ function get_office_canticles( office, dbs ) {
 
 var invitatories = ["venite", "venite_long", "jubilate", "pascha_nostrum"];
 
-app.ports.requestNextInvitatory.subscribe( inv => {
-  var nextInv = invitatories[ (invitatories.indexOf(inv) + 1) % 4 ];
-  request_canticle( getDBsFor("canticles"), nextInv)
-})
+function requestNextInvitatory( inv ) {
+  request_canticle( getDBsFor("canticles"), inv);
+}
 
 
 function get_invitatory(office) {
@@ -1260,13 +1335,13 @@ function get_invitatory(office) {
   // during Eastertide, Pascha Nostrum only
   if (season.includes("easter")) { return "pascha_nostrum"}
 
-  //  on the 19th of th month (paslm 95 day), do not use venite 
+  //  on the 19th of th month (paslm 95 day), do not use venite
   if (now.date() === 19) { return "jubilate" }
 
   //  during Lent, Venite (long version) only
-  if (season === "ashWednesday" || season === "lent") { 
+  if (season === "ashWednesday" || season === "lent") {
     //  Sundays in lent: jubilate
-    invitatory = day === "sun" ? "jubilate" : "venite_long" 
+    invitatory = day === "sun" ? "jubilate" : "venite_long"
   }
 
   return invitatory;
@@ -1277,10 +1352,10 @@ function get_canticle(office, lesson) {
 
   office = office === "morning_prayer" ? "mp" : "ep";
   lesson = lesson === "lesson1" ? office + "1" : office + "2";
-  
+
   var now = new moment();
   var season = LitYear.toSeason(now).season;
-  var day = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][now.day()]; 
+  var day = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][now.day()];
   var canticle = undefined;
   var key1 = lesson + "_" + season + "_" + day;
   var key2 = lesson + "_" + day;
