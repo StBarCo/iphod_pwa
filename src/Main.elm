@@ -183,9 +183,6 @@ canticle : Mark.Block (Model -> Element Msg)
 canticle =
     Mark.record "Canticle"
     (\id model ->
-        let
-            _ = Debug.log "MODEL OPTIONS" Models.Options
-        in
         getAndRenderCanticle model id
 
     )
@@ -311,7 +308,6 @@ randomCanticle =
     Mark.record "RandomCanticle"
     (\officeId model ->
         let
-            _ = Debug.log "RANDOM CANT" officeId
             cant = case (model.officeCanticles |> find (\c -> c.officeId == officeId) ) of
                Just c -> c
                Nothing -> initCanticle
@@ -2198,9 +2194,6 @@ addNewPsalm str model =
                   in
                   { model | lessons = newLessons }
             _ ->
-                let
-                  _ = Debug.log "ADD NEW PSALM FAIL" str
-                in
                 model
     in
     newModel

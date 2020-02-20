@@ -165,7 +165,6 @@ window.onload = ( function() {
 
 app.ports.request.subscribe( req => {
   var [cmd, args] = req;
-  console.log("REQUEST", cmd, args)
   switch (cmd) {
     case "Reference": requestReference( args); break;
     case "Office": requestOffice(getDBsFor('iphod'), args); break;
@@ -427,7 +426,6 @@ function service_db_name(s) {
 }
 
 function get_service(named, dbs) {
-  console.log("GET SERVICE: ", named, dbs)
   if (dbs.length === 0) { throw( "No DB available"); }
   var thisServiceDB = dbs.pop();
   // have to map offices here
@@ -1290,7 +1288,6 @@ function request_canticles(canticles, dbs) {
     receivedOfficeCanticles.send( JSON.stringify( {canticles: cants } ))
   })
   .catch( err => {
-    console.log("Error on DB: ", db)
     if ( dbs.length > 0 ) { request_canticles( canticles, dbs ) }
     else (console.log("Error getting office canticles: ", err))
   })

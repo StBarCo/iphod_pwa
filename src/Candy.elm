@@ -17,6 +17,12 @@ import Palette exposing(scaleFont, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 import Time exposing (..)
 
+altCanticleLabel : String -> String -> Element msg
+altCanticleLabel number name =
+    paragraph []
+      [ el [ width (px 50) ] ( text (number ++ ". ") )
+      , el [] ( text (toTitleCase name) )
+      ]
 
 readingIntroduction : Model -> String -> List( Element msg )
 readingIntroduction model lesson =
@@ -31,7 +37,8 @@ readingIntroduction model lesson =
         then
            [ none ]
         else
-            [ paragraph (Palette.lessonTitle model.width) [ text ("A Reading From " ++ ref) ] ]
+            [ paragraph (Palette.lessonTitle model.width)  [ text ("A Reading From " ++ ref) ]
+            ]
 
 
 addWordOfTheLord : List (Element msg) -> List (Element msg)
@@ -101,6 +108,13 @@ collapseWhiteSpace str =
         str |> replace tabsEtc (\_ -> " ")
             |> replace multipleWhiteSpace (\_ -> " ")
 
+insertAudio : String -> Element.Element msg
+insertAudio query =
+  let
+    src = "https://audio.esv.org/hw/" ++ query
+  in
+  ( Html.audio [ Html.Attributes.controls True, Html.Attributes.src src] [] )
+  |> Element.html
 
 pageBreak : String -> Element.Element msg
 pageBreak str =
