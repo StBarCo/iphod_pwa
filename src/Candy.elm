@@ -1,7 +1,7 @@
 module Candy exposing (..)
 
-import Html
-import Html.Attributes
+import Html exposing (audio)
+import Html.Attributes exposing( controls, src)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -16,6 +16,16 @@ import String.Extra exposing (toTitleCase, toSentence)
 import Palette exposing(scaleFont, scale, indent, outdent, scaleWidth)
 import Models exposing (..)
 import Time exposing (..)
+
+audioParagraph : String -> Element msg
+audioParagraph name =
+  let
+    audioFile = "./" ++ name ++ ".mp3"
+  in
+  paragraph []
+      [ html (audio [ src audioFile, controls True ]
+          [Html.text (audioFile ++ " not available")] )
+      ]
 
 altCanticleLabel : String -> String -> Element msg
 altCanticleLabel number name =

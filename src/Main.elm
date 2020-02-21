@@ -10,8 +10,8 @@ import Element.Events as Event
 import Element.Font as Font
 import Element.Region as Region
 import Element.Border as Border
-import Html exposing (audio)
-import Html.Attributes exposing( controls, src )
+import Html
+import Html.Attributes exposing( src )
 import Html.Parser
 import Html.Parser.Util
 import Http
@@ -214,7 +214,8 @@ renderCanticle model c officeId =
         , paragraph [ Font.center ] [ text (String.toUpper c.name) ]
         , paragraph [ Font.center, Font.italic ] [ text c.title ]
         , paragraph (Palette.rubric width) [ text c.notes ]
-        ]
+        , audioParagraph c.name
+       ]
     ++ lines
     ++ [ paragraph
         [ Font.alignRight, Palette.scaleFont width 10, paddingXY 10 5 ]
