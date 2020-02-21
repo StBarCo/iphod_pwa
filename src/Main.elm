@@ -214,7 +214,7 @@ renderCanticle model c officeId =
         , paragraph [ Font.center ] [ text (String.toUpper c.name) ]
         , paragraph [ Font.center, Font.italic ] [ text c.title ]
         , paragraph (Palette.rubric width) [ text c.notes ]
-        , audioParagraph c.name
+        , audioParagraph c.id
        ]
     ++ lines
     ++ [ paragraph
