@@ -20,7 +20,7 @@ import Time exposing (..)
 audioParagraph : String -> Element msg
 audioParagraph name =
   let
-    audioFile = "./" ++ name ++ ".mp3"
+    audioFile = "./audio/" ++ name ++ ".mp3"
   in
   paragraph []
       [ html (audio [ src audioFile, controls True ]

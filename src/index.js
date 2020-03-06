@@ -844,16 +844,19 @@ app.ports.saveConfig.subscribe( thisConfig => {
 
 })
 
-function requestPsalm( ps ) {
+app.ports.requestPsalm.subscribe( ps => {
   psalms.get("acna" + ps)
   .then( resp => {
     var vss = formatPsalm(ps, 1, 999, resp)
     receivedPsalm.send( JSON.stringify(
       { id: 0
-      , query:""
+      , query: resp._id
       , ref: resp.name + "\n" + (resp.title ? resp.title : ""), read: "PSA " + ps, style: "req", vss: vss} ) )
   })
-}
+  .catch( err => {
+    console.log("Failed to get Psalm " + ps + "because " + err)
+  })
+})
 
 function requestReference(  args ) {
   var [id, ref] = args
@@ -1189,11 +1192,17 @@ function psalm_response(psalmRefs, resp, spa_location) {
       { ref: r.name + "\n" + (r.title ? r.title : "") //some titles are undefined
       , style: "req"
       , vss: vss
+      , query: audioName(chap, from, to)
       }
     )
   }) // end of resp.forEach
   receivedLesson.send( JSON.stringify({lesson: "psalms", content: thisLesson, spa_location: spa_location}) )
 
+}
+
+function audioName(chap, from, to) {
+  if (to === 999) return "acna" + chap;
+  return "acna-" + from + "-" + to;
 }
 
 function formatPsalm (chap, firstVs, lastVs, resp) {

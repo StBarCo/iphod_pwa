@@ -946,6 +946,7 @@ renderOnePsalm reading width =
               ]
               (text thisTitle)
               ]
+            :: audioParagraph reading.query
             :: pss
       )
 
@@ -2037,9 +2038,9 @@ update msg model =
         PsalmAdd ps srvc checked -> -- also removes psalms
           let
             resp = if checked
-              then -- remove PSALM
+              then -- add PSALM
                 (model, requestPsalm ps)
-              else -- add psalm
+              else -- remove psalm
                 (removePsalm model ps srvc, Cmd.none)
           in
           resp
