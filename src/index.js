@@ -1335,7 +1335,6 @@ function get_invitatory(office) {
     , day = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][now.day()]
     //  daily alternate between Venite (short version) and Jubilate
     , invitatory = (now.dayOfYear() % 2) === 1 ? "venite" : "jubilate"
-    , dayOfMonth = now.date() === 19
     ;
 
   // during Eastertide, Pascha Nostrum only

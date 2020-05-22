@@ -249,12 +249,12 @@ toSeason: function (moment_date) {
   case (isChristmas):
     return this.whereInChristmas(moment_date, yrABC, mKey);
     break;
-  case (this.rightAfterAshWednesday(moment_date, yrABC)):
+  case (this.rightAfterAshWednesday(moment_date)):
     ik = "ashWednesday1" + yrABC;
     return {season: "ashWednesday", week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.rightAfterAscension(moment_date)):
-    ik = "ascension1";
+    ik = "ascension1" + yrABC;
     return {season: "ascension",    week: "1", year: yrABC, date: moment_date, mpepKey: mKey, iphodKey: ik};
     break;
   case (this.inRange(daysTillEaster, 1, 6)):
