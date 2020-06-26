@@ -69,7 +69,9 @@ function twoYearKey(office) {
 }
 
 // end of Config helpers
-
+function remoteDB(s) {
+  return "http://104.131.112.206:5984/" + s
+} 
 
 // // var popper = require('popper.js');
 // // var bootstrap = require('bootstrap');
@@ -89,8 +91,8 @@ window.PDB = PouchDB;
 import PouchdbFind from 'pouchdb-find';
 PouchDB.plugin(PouchdbFind);
 
-import PouchdbAdapter from 'pouchdb-adapter-websql';
-PouchDB.plugin(PouchdbAdapter);
+// import PouchdbAdapter from 'pouchdb-adapter-websql';
+// PouchDB.plugin(PouchdbAdapter);
 
 var preferences = new PouchDB('preferences');
 var iphod = new PouchDB('iphod')
@@ -102,19 +104,12 @@ var config = new PouchDB('config'); // never replicate!
 var canticles = new PouchDB('canticles');
 var occasional_prayers = new PouchDB('occasional_prayers');
 var dbOpts = { live: true, retry: true }
-  , remoteIphodURL =      "https://bcp2019.com/couchdb/iphod"
-  // , remoteServiceURL =    "https://bcp2019.com/couchdb/service_dev" // for development
-  , remoteServiceURL =    "https://bcp2019.com/couchdb/service" // for production
-  , remotePsalmsURL =     "https://bcp2019.com/couchdb/psalms"
-  , remoteLectionaryURL = "https://bcp2019.com/couchdb/lectionary"
-  , remoteCanticles = "https://bcp2019.com/couchdb/canticles"
-  , remoteOpsURL = "https://bcp2019.com/couchdb/occasional_prayers"
-  , remoteIphod = new PouchDB(remoteIphodURL)
-  , remoteService = new PouchDB(remoteServiceURL)
-  , remotePsalms = new PouchDB(remotePsalmsURL)
-  , remoteLectionary = new PouchDB(remoteLectionaryURL)
-  , remoteCanticles = new PouchDB(remoteCanticles)
-  , remoteOps = new PouchDB(remoteOpsURL)
+  , remoteIphod = new PouchDB(remoteDB("iphod"))
+  , remoteService = new PouchDB(remoteDB("service"))
+  , remotePsalms = new PouchDB(remoteDB("psalms"))
+  , remoteLectionary = new PouchDB(remoteDB("lectionary"))
+  , remoteCanticles = new PouchDB(remoteDB("canticles"))
+  , remoteOps = new PouchDB(remoteDB("occasional_prayers"))
   , default_prefs = {
       _id: 'preferences'
     , ot: 'ESV'
