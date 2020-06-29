@@ -70,7 +70,7 @@ function twoYearKey(office) {
 
 // end of Config helpers
 function remoteDB(s) {
-  return "http://104.131.112.206:5984/" + s
+  return "https://bcp2019.com/couchdb/" + s
 } 
 
 // // var popper = require('popper.js');
